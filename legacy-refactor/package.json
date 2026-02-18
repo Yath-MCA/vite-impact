@@ -1,0 +1,36 @@
+{
+  "name": "impact-app-legacy",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "build:legacy": "vite build --mode legacy"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-class-properties": "^7.23.3",
+    "@babel/plugin-transform-nullish-coalescing-operator": "^7.23.4",
+    "@babel/plugin-transform-optional-chaining": "^7.23.4",
+    "@babel/preset-env": "^7.23.6",
+    "@babel/preset-react": "^7.23.3",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-legacy": "^5.2.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "core-js": "^3.34.0",
+    "regenerator-runtime": "^0.14.1",
+    "vite": "^5.0.8"
+  },
+  "browserslist": [
+    "ie >= 11",
+    "> 1%",
+    "last 2 versions"
+  ]
+}

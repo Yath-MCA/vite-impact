@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Impact App - Legacy Refactor</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  
+  <!-- Legacy styles compatibility -->
+  <style>
+    /* Ensure body is visible */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+    
+    /* Loading state */
+    #impact-root:empty::before {
+      content: 'Loading...';
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-size: 18px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <!-- React mount point -->
+  <div id="impact-root"></div>
+  
+  <!-- Legacy fallback message -->
+  <noscript>
+    <div style="padding: 20px; text-align: center;">
+      <h2>JavaScript Required</h2>
+      <p>This application requires JavaScript to run. Please enable JavaScript in your browser.</p>
+    </div>
+  </noscript>
+  
+  <!-- Main application script (built as IIFE) -->
+  <script src="/impact-app.js"></script>
+</body>
+</html>

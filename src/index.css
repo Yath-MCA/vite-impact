@@ -1,0 +1,251 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary-50: 239 246 255;
+    --primary-100: 219 234 254;
+    --primary-500: 59 130 246;
+    --primary-600: 37 99 235;
+    --primary-700: 29 78 216;
+  }
+
+  * {
+    @apply border-gray-200 dark:border-gray-700;
+  }
+
+  body {
+    @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white;
+    @apply antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700;
+  }
+}
+
+@layer utilities {
+  .segment-highlight {
+    @apply bg-yellow-100 dark:bg-yellow-900/30 border-l-4 border-yellow-500;
+  }
+}
+
+/* CKEditor 4 Custom Styles */
+.cke {
+  border-radius: 0.75rem !important;
+  overflow: hidden;
+}
+
+.cke_inner {
+  border-radius: 0.75rem !important;
+}
+
+.cke_top {
+  background: linear-gradient(to bottom, #f9fafb, #f3f4f6) !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  padding: 8px !important;
+}
+
+.dark .cke_top {
+  background: linear-gradient(to bottom, #1f2937, #111827) !important;
+  border-bottom: 1px solid #374151 !important;
+}
+
+.cke_bottom {
+  background: #f9fafb !important;
+  border-top: 1px solid #e5e7eb !important;
+}
+
+.dark .cke_bottom {
+  background: #1f2937 !important;
+  border-top: 1px solid #374151 !important;
+}
+
+.cke_contents {
+  min-height: 600px !important;
+}
+
+.cke_editable {
+  padding: 2rem !important;
+  background: white !important;
+}
+
+.dark .cke_editable {
+  background: #1f2937 !important;
+  color: #f9fafb !important;
+}
+
+/* CKEditor 4 Toolbar Button Styling */
+.cke_button {
+  border-radius: 0.375rem !important;
+  padding: 4px 6px !important;
+}
+
+.cke_button:hover {
+  background: #e5e7eb !important;
+}
+
+.dark .cke_button:hover {
+  background: #374151 !important;
+}
+
+.cke_button_on {
+  background: #dbeafe !important;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.dark .cke_button_on {
+  background: #1e40af !important;
+}
+
+/* AgGrid Dark Theme Overrides */
+.ag-theme-alpine-dark {
+  --ag-background-color: #1f2937;
+  --ag-foreground-color: #f9fafb;
+  --ag-border-color: #374151;
+  --ag-header-background-color: #111827;
+  --ag-header-foreground-color: #f9fafb;
+  --ag-odd-row-background-color: #1f2937;
+  --ag-row-hover-color: #374151;
+  --ag-selected-row-background-color: rgba(59, 130, 246, 0.2);
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-500;
+}
+
+/* PDF Preview Styles */
+.pdf-page {
+  @apply bg-white shadow-lg mx-auto mb-8;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 25mm;
+}
+
+@media print {
+  .pdf-page {
+    box-shadow: none;
+    margin: 0;
+    width: 100%;
+  }
+}
+
+/* Summernote Custom Styles */
+.note-editor {
+  border-radius: 0.75rem !important;
+  overflow: hidden;
+}
+
+.note-editor .note-toolbar {
+  background: linear-gradient(to bottom, #f9fafb, #f3f4f6) !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  padding: 0.5rem !important;
+}
+
+.dark .note-editor .note-toolbar {
+  background: linear-gradient(to bottom, #1f2937, #111827) !important;
+  border-bottom: 1px solid #374151 !important;
+}
+
+.note-editor .note-editing-area {
+  background: white !important;
+}
+
+.dark .note-editor .note-editing-area {
+  background: #1f2937 !important;
+  color: #f9fafb !important;
+}
+
+.note-editor .note-editable {
+  background: white !important;
+  color: #111827 !important;
+}
+
+.dark .note-editor .note-editable {
+  background: #1f2937 !important;
+  color: #f9fafb !important;
+}
+
+/* Tempus Dominus Custom Styles */
+.bootstrap-datetimepicker-widget {
+  border-radius: 0.75rem !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.dark .bootstrap-datetimepicker-widget {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.dark .bootstrap-datetimepicker-widget table td,
+.dark .bootstrap-datetimepicker-widget table th {
+  color: #f9fafb !important;
+}
+
+.dark .bootstrap-datetimepicker-widget table td.day:hover,
+.dark .bootstrap-datetimepicker-widget table td.hour:hover,
+.dark .bootstrap-datetimepicker-widget table td.minute:hover,
+.dark .bootstrap-datetimepicker-widget table td.second:hover {
+  background: #374151 !important;
+}
+
+.bootstrap-datetimepicker-widget table td.active,
+.bootstrap-datetimepicker-widget table td.active:hover {
+  background: #3b82f6 !important;
+  color: white !important;
+}
+
+.datetimepicker-wrapper .input-group-text {
+  background: #f3f4f6 !important;
+  border: 1px solid #d1d5db !important;
+  border-left: none !important;
+}
+
+.dark .datetimepicker-wrapper .input-group-text {
+  background: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+/* SweetAlert2 Custom Styles */
+.swal2-popup {
+  font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.swal2-title {
+  font-weight: 600 !important;
+}
+
+/* AG Grid Custom Styles */
+.ag-theme-alpine {
+  font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.ag-theme-alpine .ag-header {
+  font-weight: 600 !important;
+}
