@@ -1,0 +1,15 @@
+{
+  "name": "graphql-wrapper",
+  "version": "0.1.0",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "apollo-server": "^3.12.0",
+    "graphql": "^16.6.0",
+    "node-fetch": "^2.6.7",
+    "dotenv": "^16.0.3"
+  }
+}

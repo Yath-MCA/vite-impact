@@ -249,3 +249,8 @@
 .ag-theme-alpine .ag-header {
   font-weight: 600 !important;
 }
+
+/* Adjust show-password toggle spacing */
+[aria-label="Show password"] {
+  margin-top: 13px;
+}

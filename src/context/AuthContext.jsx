@@ -29,8 +29,10 @@ export const AuthProvider = ({ children }) => {
     const isAdminUser = ADMIN_CONFIG.checkIsAdmin();
     const isSuperAdminUser = userData?.userId ?
       ADMIN_CONFIG.checkIsSuperAdmin(userData.userId) : false;
+    // Treat users with pos === 10 as admin as requested
+    const isPosAdmin = userData?.pos === 10;
 
-    setIsAdmin(isAdminUser || isSuperAdminUser);
+    setIsAdmin(isAdminUser || isSuperAdminUser || isPosAdmin);
     setIsSuperAdmin(isSuperAdminUser);
   }, []);
 
@@ -41,8 +43,8 @@ export const AuthProvider = ({ children }) => {
     const initAuth = () => {
       try {
         const storedUser = localStorage.getItem('xmleditor:user');
-        const storedToken = localStorage.getItem('xmleditor:token');
-        if (storedUser && storedToken) {
+        // const storedToken = localStorage.getItem('xmleditor:token');
+        if (storedUser /* && storedToken */) {
           const userData = JSON.parse(storedUser);
           setUser(userData);
           setIsAuthenticated(true);
@@ -73,9 +75,9 @@ export const AuthProvider = ({ children }) => {
         credentials.password
       );
 
-      if (response.data) {
+      if (response) {
 
-        const userData = response.data;
+        const userData = response || {};
 
         if (!response.username) {
           setError('Invalid email');
@@ -86,13 +88,21 @@ export const AuthProvider = ({ children }) => {
           return false;
         }
 
+
+
         // Store in localStorage
-        localStorage.setItem('xmleditor:user', JSON.stringify(userData));
-        localStorage.setItem('xmleditor:token', userData.token || '');
+        localStorage.setItem('xmleditor:appkey', 'xmleditor');
+        localStorage.setItem('xmleditor:apikey', response.apikey ? response.apikey : User_API_KEY);
+
+        // localStorage.setItem('xmleditor:user', JSON.stringify(userData));
+        // localStorage.setItem('xmleditor:token', userData.token || '');
+        
         localStorage.setItem('xmleditor:username', userData.username || '');
         localStorage.setItem('xmleditor:userid', userData.userId || '');
+
         // Check admin status
-        if (userData.isAdmin || ADMIN_CONFIG.checkIsSuperAdmin(userData.userId)) {
+        // Check admin status (include pos === 10 as admin)
+        if (userData.isAdmin || ADMIN_CONFIG.checkIsSuperAdmin(userData.userId) || userData.pos === 10) {
           localStorage.setItem('xmleditor:admin', 'superadmin');
         }
 
