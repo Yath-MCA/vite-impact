@@ -1,6 +1,9 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
+import { AuthProvider } from '../context/AuthContext';
+import ProtectedRoute from './ProtectedRoute';
 import Landing from '../pages/Landing';
+import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
 import AdminDashboard from '../pages/AdminDashboard';
 import ValidateUrl from '../pages/ValidateUrl';
@@ -13,18 +16,37 @@ const PageLoader = () => (
   </div>
 );
 
+// Wrap component with ProtectedRoute
+const Protected = ({ children, requireAdmin = false }) => (
+  <ProtectedRoute requireAdmin={requireAdmin}>
+    {children}
+  </ProtectedRoute>
+);
+
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Landing />
   },
   {
+    path: '/login',
+    element: <Login />
+  },
+  {
     path: '/dashboard',
-    element: <Dashboard />
+    element: (
+      <Protected>
+        <Dashboard />
+      </Protected>
+    )
   },
   {
     path: '/admindashboard',
-    element: <AdminDashboard />
+    element: (
+      <Protected requireAdmin>
+        <AdminDashboard />
+      </Protected>
+    )
   },
   {
     path: '/validateurl/:client',
@@ -33,9 +55,11 @@ const router = createBrowserRouter([
   {
     path: '/editor',
     element: (
-      <Suspense fallback={<PageLoader />}>
-        <EditorPage />
-      </Suspense>
+      <Protected>
+        <Suspense fallback={<PageLoader />}>
+          <EditorPage />
+        </Suspense>
+      </Protected>
     )
   },
   {
@@ -45,5 +69,9 @@ const router = createBrowserRouter([
 ]);
 
 export default function AppRouter() {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }

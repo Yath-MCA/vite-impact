@@ -10,13 +10,13 @@ export default {
   // API Configuration
   API_KEY: 'local-api-key-placeholder',
   User_API_KEY: 'local-user-api-key',
-  API_PATH: '/api/v1',
+  API_PATH: 'http://localhost:8080/impactapinew/',
   
   // Domain Configuration
   DOMAIN: 'localhost',
   DOMAIN_ROOT: 'localhost:3000',
   BACKEND_DOMAIN: 'http://localhost:8080',
-  BUCKET_URL: 'http://localhost:9000/bucket',
+  BUCKET_URL: 'http://localhost/xmleditor/',
   
   // Feature Flags
   FEATURE_FLAGS: {

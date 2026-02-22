@@ -10,7 +10,7 @@ export default {
   // API Configuration
   API_KEY: process.env.UAT_API_KEY || 'uat-api-key-placeholder',
   User_API_KEY: process.env.UAT_USER_API_KEY || 'uat-user-api-key',
-  API_PATH: '/api/v1',
+  API_PATH: '/api/uat',
   
   // Domain Configuration
   DOMAIN: process.env.UAT_DOMAIN || 'uat.impact.com',

@@ -10,7 +10,7 @@ export default {
   // API Configuration
   API_KEY: process.env.STAGE_API_KEY || 'stage-api-key-placeholder',
   User_API_KEY: process.env.STAGE_USER_API_KEY || 'stage-user-api-key',
-  API_PATH: '/api/v1',
+  API_PATH: '/api/stage',
   
   // Domain Configuration
   DOMAIN: process.env.STAGE_DOMAIN || 'stage.impact.com',

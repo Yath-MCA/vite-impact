@@ -16,7 +16,7 @@ export default {
   // These MUST be provided via environment variables in production
   API_KEY: process.env.PROD_API_KEY || '',
   User_API_KEY: process.env.PROD_USER_API_KEY || '',
-  API_PATH: '/api/v1',
+  API_PATH: '/api/prod',
   
   // Domain Configuration
   DOMAIN: process.env.PROD_DOMAIN || 'impact.com',

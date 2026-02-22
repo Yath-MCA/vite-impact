@@ -10,7 +10,7 @@ export default {
   // API Configuration
   API_KEY: process.env.DEV_API_KEY || 'dev-api-key-placeholder',
   User_API_KEY: process.env.DEV_USER_API_KEY || 'dev-user-api-key',
-  API_PATH: '/api/v1',
+  API_PATH: '/api/dev',
   
   // Domain Configuration
   DOMAIN: process.env.DEV_DOMAIN || 'dev.impact.com',
