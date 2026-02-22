@@ -28,6 +28,10 @@ dist-ssr
 .env.local
 .env.*.local
 
+# Secret overlays — NEVER commit these, AI agents cannot read them
+env/*.secrets.js
+env/*.secrets.json
+
 # Cache
 .cache
 .temp

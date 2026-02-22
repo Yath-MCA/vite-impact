@@ -9,19 +9,31 @@ const DOMAIN_URL = window.location.href + "";
 const IS_LOCAL_HOST = Boolean(DOMAIN_URL.includes("localhost"));
 const IS_LOCAL_LIVE = Boolean(DOMAIN_URL.includes("web_live"));
 
-// Environment variables from build
-const IS_LIVE_DOMAIN = import.meta.env.VITE_IS_LIVE_DOMAIN || false;
-const IS_DEV_DOMAIN = import.meta.env.VITE_IS_DEV_DOMAIN || false;
-const IS_UAT_DOMAIN = import.meta.env.VITE_IS_UAT_DOMAIN || false;
+/**
+ * Runtime ENV helper — prefers window.ENV (populated by public/env.js at runtime)
+ * then falls back to import.meta.env.VITE_* (build-time .env files),
+ * then uses the supplied default value.
+ * This lets env/env.local.js → public/env.js drive all config without needing .env files.
+ */
+const _runtimeEnv = (windowKey, viteKey, defaultVal) =>
+(window.ENV && window.ENV[windowKey] !== undefined
+  ? window.ENV[windowKey]
+  : import.meta.env[viteKey] ?? defaultVal);
 
-const BACKEND_DOMAIN = import.meta.env.VITE_BACKEND_DOMAIN || 'localhost:8080';
-const API_KEY = import.meta.env.VITE_API_KEY || '';
-const User_API_KEY = import.meta.env.VITE_User_API_KEY || '';
-const APP_KEY = import.meta.env.VITE_APP_KEY || '';
-const API_PATH = import.meta.env.VITE_API_PATH || '/api/';
-const DOMAIN_ROOT = import.meta.env.VITE_DOMAIN_ROOT || '/';
-const BUCKET_URL = import.meta.env.VITE_BUCKET_URL || '';
-const VERSION = import.meta.env.VITE_VERSION || '1.0.0';
+// Environment variables — read from window.ENV first (runtime), then VITE_ (build-time)
+const IS_LIVE_DOMAIN = _runtimeEnv('IS_LIVE_DOMAIN', 'VITE_IS_LIVE_DOMAIN', false);
+const IS_DEV_DOMAIN = _runtimeEnv('IS_DEV_DOMAIN', 'VITE_IS_DEV_DOMAIN', false);
+const IS_UAT_DOMAIN = _runtimeEnv('IS_UAT_DOMAIN', 'VITE_IS_UAT_DOMAIN', false);
+const IS_LOCAL_DOMAIN = _runtimeEnv('IS_LOCAL_DOMAIN', 'VITE_IS_LOCAL_DOMAIN', false);
+
+const BACKEND_DOMAIN = _runtimeEnv('BACKEND_DOMAIN', 'VITE_BACKEND_DOMAIN', 'localhost:8080');
+const API_KEY = _runtimeEnv('API_KEY', 'VITE_API_KEY', '');
+const User_API_KEY = _runtimeEnv('User_API_KEY', 'VITE_User_API_KEY', '');
+const APP_KEY = _runtimeEnv('APP_KEY', 'VITE_APP_KEY', '');
+const API_PATH = _runtimeEnv('API_PATH', 'VITE_API_PATH', '/api/');
+const DOMAIN_ROOT = _runtimeEnv('DOMAIN_ROOT', 'VITE_DOMAIN_ROOT', '/');
+const BUCKET_URL = _runtimeEnv('BUCKET_URL', 'VITE_BUCKET_URL', '');
+const VERSION = _runtimeEnv('VERSION', 'VITE_VERSION', '1.0.0');
 
 // Oracle domain
 const ORACLE_DOMAIN = "https://productbackend-uat.company.co";
@@ -29,6 +41,7 @@ const NG_WEB_URL = `https://www.company.co/`;
 
 // API Endpoints
 export const API_ENDPOINTS = {
+  USER_LOGIN: API_PATH + "userlogin",
   LINK_SHARE: API_PATH + "linksharing",
   URL_VALIDITY: API_PATH + "urlvalidity",
   UPDATE_INSERT: API_PATH + "updateorinsert",
@@ -251,7 +264,7 @@ class FetchService {
    * Prepares the request body
    */
   prepareRequestBody(data, options) {
-    const finalData = options.isPayloadLogic ? 
+    const finalData = options.isPayloadLogic ?
       this.createDefaultPayload("default", data) : data;
     const stringData = JSON.stringify(finalData);
     return `jsondata=${encodeURIComponent(stringData)}`;
@@ -259,27 +272,31 @@ class FetchService {
 
   /**
    * Makes an HTTP request
+   * @param {string} endpoint - URL or path (relative paths are prefixed with API_PATH)
+   * @param {object} data     - Payload; serialised as jsondata=<encoded-JSON>
+   * @param {object} options  - { method, headers, apiPath, isPayloadLogic, rawBody }
    */
   async makeRequest(endpoint, data, options = {}) {
-    const defaultOptions = {
-      method: 'POST',
-      headers: this.createHeaders(options.headers),
-      body: this.prepareRequestBody(data, options)
-    };
+    // Destructure known options so they don't bleed into fetch options
+    const {
+      method = 'POST',
+      headers: extraHeaders,
+      apiPath,
+      isPayloadLogic = false,
+      rawBody,       // pass a pre-built body string to skip jsondata serialisation
+      ...fetchExtras // any genuine fetch options (e.g. signal, mode)
+    } = options;
 
     const fetchOptions = {
-      ...defaultOptions,
-      ...options,
-      headers: options.headers ? 
-        this.createHeaders(options.headers) : 
-        defaultOptions.headers
+      method,
+      headers: this.createHeaders(extraHeaders),
+      body: rawBody ?? this.prepareRequestBody(data, { isPayloadLogic }),
+      ...fetchExtras
     };
-
+    console.log("fetchOptions", fetchOptions);
     try {
-      const response = await fetch(
-        this.buildUrl(endpoint, options.apiPath), 
-        fetchOptions
-      );
+      const url = this.buildUrl(endpoint, apiPath);
+      const response = await fetch(url, fetchOptions);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -290,6 +307,14 @@ class FetchService {
       console.error('Request failed:', error);
       throw error;
     }
+  }
+
+  /**
+   * Login — sends username/password via the standard jsondata payload
+   * with all required auth headers (appkey, apikey, userapikey)
+   */
+  async userLogin(email, password) {
+    return this.makeRequest(API_ENDPOINTS.USER_LOGIN, { email, password });
   }
 
   // Helper methods for common operations

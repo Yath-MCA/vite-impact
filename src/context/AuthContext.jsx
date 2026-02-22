@@ -27,9 +27,9 @@ export const AuthProvider = ({ children }) => {
    */
   const checkAdminStatus = useCallback((userData) => {
     const isAdminUser = ADMIN_CONFIG.checkIsAdmin();
-    const isSuperAdminUser = userData?.userId ? 
+    const isSuperAdminUser = userData?.userId ?
       ADMIN_CONFIG.checkIsSuperAdmin(userData.userId) : false;
-    
+
     setIsAdmin(isAdminUser || isSuperAdminUser);
     setIsSuperAdmin(isSuperAdminUser);
   }, []);
@@ -42,7 +42,6 @@ export const AuthProvider = ({ children }) => {
       try {
         const storedUser = localStorage.getItem('xmleditor:user');
         const storedToken = localStorage.getItem('xmleditor:token');
-        
         if (storedUser && storedToken) {
           const userData = JSON.parse(storedUser);
           setUser(userData);
@@ -68,21 +67,30 @@ export const AuthProvider = ({ children }) => {
     setError(null);
 
     try {
-      // Call login API
-      const response = await apiService.makeRequest('login', {
-        username: credentials.username,
-        password: credentials.password
-      });
+      // Call login API using dedicated method (correct endpoint + headers)
+      const response = await apiService.userLogin(
+        credentials.email,
+        credentials.password
+      );
 
-      if (response.success && response.data) {
+      if (response.data) {
+
         const userData = response.data;
-        
+
+        if (!response.username) {
+          setError('Invalid email');
+          return false;
+        }
+        if (response.cred == 0) {
+          setError('Invalid password');
+          return false;
+        }
+
         // Store in localStorage
         localStorage.setItem('xmleditor:user', JSON.stringify(userData));
         localStorage.setItem('xmleditor:token', userData.token || '');
         localStorage.setItem('xmleditor:username', userData.username || '');
         localStorage.setItem('xmleditor:userid', userData.userId || '');
-        
         // Check admin status
         if (userData.isAdmin || ADMIN_CONFIG.checkIsSuperAdmin(userData.userId)) {
           localStorage.setItem('xmleditor:admin', 'superadmin');

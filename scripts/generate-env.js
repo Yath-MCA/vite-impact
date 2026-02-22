@@ -55,6 +55,28 @@ try {
   process.exit(1);
 }
 
+// Load secrets overlay (git-ignored — safe from AI agents and version control)
+// File: env/env.{name}.secrets.js  →  merges/overrides keys in the base config
+const secretsFilePath = path.join(ROOT_DIR, 'env', `env.${envName}.secrets.js`);
+try {
+  const secretsModule = await import(`file://${secretsFilePath}`);
+  const secrets = secretsModule.default || {};
+  // Deep merge: secrets overlay wins over base config
+  envConfig = {
+    ...envConfig,
+    ...secrets,
+    // Keep FEATURE_FLAGS merged, not replaced
+    FEATURE_FLAGS: {
+      ...(envConfig.FEATURE_FLAGS || {}),
+      ...(secrets.FEATURE_FLAGS || {})
+    }
+  };
+  console.log(`🔐 Secrets overlay loaded: env.${envName}.secrets.js`);
+} catch {
+  // Secrets file is optional — silently skip if missing
+  // (CI/CD environments inject secrets via OS env vars instead)
+}
+
 // Get git info
 function getGitInfo() {
   try {
@@ -91,33 +113,33 @@ const finalEnv = {
   BUILD_HASH: gitInfo.commit,
   GIT_BRANCH: gitInfo.branch,
   ENVIRONMENT: envName,
-  
+
   // App configuration
   APP_KEY: envConfig.APP_KEY,
-  
+
   // Feature flags
   FEATURE_FLAGS: featureFlags,
-  
+
   // API configuration
   API_KEY: envConfig.API_KEY,
   User_API_KEY: envConfig.User_API_KEY,
   API_PATH: envConfig.API_PATH,
-  
+
   // Domain detection
   IS_LIVE_DOMAIN: envConfig.IS_LIVE_DOMAIN,
   IS_UAT_DOMAIN: envConfig.IS_UAT_DOMAIN,
   IS_DEV_DOMAIN: envConfig.IS_DEV_DOMAIN,
-  
+
   // Domain configuration
   DOMAIN: envConfig.DOMAIN,
   DOMAIN_ROOT: envConfig.DOMAIN_ROOT,
   BACKEND_DOMAIN: envConfig.BACKEND_DOMAIN,
   BUCKET_URL: envConfig.BUCKET_URL,
-  
+
   // Debugging
   DEBUG: envConfig.DEBUG,
   LOG_LEVEL: envConfig.LOG_LEVEL,
-  
+
   // Third-party services
   SPELLCHECK_HOST: envConfig.SPELLCHECK_HOST,
   KIT_CLOSE_TASK_URL: envConfig.KIT_CLOSE_TASK_URL,
@@ -129,7 +151,7 @@ const validation = validateEnvConfig(finalEnv, envName);
 if (!validation.valid) {
   console.error('❌ Environment validation failed:');
   validation.errors.forEach(err => console.error(`   • ${err}`));
-  
+
   // In production, fail the build
   if (envName === ENVIRONMENTS.PROD) {
     process.exit(1);
@@ -140,7 +162,7 @@ if (!validation.valid) {
 if (envName === ENVIRONMENTS.PROD) {
   const sensitiveFields = ['API_KEY', 'User_API_KEY', 'KIT_CLOSE_TASK_TOKEN'];
   const missingSecrets = sensitiveFields.filter(field => !finalEnv[field] || finalEnv[field].includes('placeholder'));
-  
+
   if (missingSecrets.length > 0) {
     console.error('❌ Production build missing required secrets:');
     missingSecrets.forEach(field => console.error(`   • ${field}`));

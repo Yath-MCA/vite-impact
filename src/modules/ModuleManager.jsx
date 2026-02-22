@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
-import { useModule, MODULE_TYPES } from '../../context/ModuleContext';
+import { useModule, MODULE_TYPES } from '../context/ModuleContext';
 import { X, Maximize2, Minimize2 } from 'lucide-react';
 
 export default function ModuleManager() {
-  const { 
-    activeModals, 
-    activeSidebars, 
-    closeModule, 
+  const {
+    activeModals,
+    activeSidebars,
+    closeModule,
     closeAllModules,
-    modalStack 
+    modalStack
   } = useModule();
 
   // Close modal on ESC key
@@ -32,11 +32,11 @@ export default function ModuleManager() {
           style={{ zIndex: 1000 + index }}
         >
           {/* Backdrop */}
-          <div 
+          <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => closeModule(name)}
           />
-          
+
           {/* Modal Content */}
           <div className="relative bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden">
             {/* Modal Header */}
@@ -48,7 +48,7 @@ export default function ModuleManager() {
                 <button className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                   <Maximize2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                 </button>
-                <button 
+                <button
                   onClick={() => closeModule(name)}
                   className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
@@ -56,7 +56,7 @@ export default function ModuleManager() {
                 </button>
               </div>
             </div>
-            
+
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               <Component {...props} onClose={() => closeModule(name)} />
@@ -72,7 +72,7 @@ export default function ModuleManager() {
             <div
               key={name}
               className="w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 shadow-xl flex flex-col"
-              style={{ 
+              style={{
                 marginRight: index * 320,
                 height: '100vh',
                 marginTop: '64px'
@@ -83,14 +83,14 @@ export default function ModuleManager() {
                 <h3 className="font-semibold text-gray-900 dark:text-white">
                   {props.title || name}
                 </h3>
-                <button 
+                <button
                   onClick={() => closeModule(name)}
                   className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                   <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                 </button>
               </div>
-              
+
               {/* Sidebar Content */}
               <div className="flex-1 overflow-y-auto p-4">
                 <Component {...props} onClose={() => closeModule(name)} />

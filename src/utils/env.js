@@ -23,7 +23,11 @@ const DEFAULT_ENV = {
   LOG_LEVEL: 'error',
   IS_LIVE_DOMAIN: false,
   IS_UAT_DOMAIN: false,
-  IS_DEV_DOMAIN: true,
+  IS_DEV_DOMAIN: false,
+  IS_LOCAL_DOMAIN: false,
+  IS_TEST_DOMAIN: false,
+  DEV_EMAIL: '',
+  DEV_PASSWORD: '',
   DOMAIN: 'localhost',
   DOMAIN_ROOT: 'localhost:3000',
   BACKEND_DOMAIN: 'http://localhost:8080',
@@ -127,7 +131,7 @@ export function getApiConfig() {
 export function initEnvLogging() {
   if (typeof window !== 'undefined' && window.ENV) {
     const env = getEnvironment();
-    
+
     console.log(`
 ╔════════════════════════════════════╗
 ║    Environment Configuration       ║
@@ -138,7 +142,7 @@ export function initEnvLogging() {
 ║  Debug:      ${String(isDebug()).padEnd(22)}║
 ╚════════════════════════════════════╝
     `);
-    
+
     if (isDebug()) {
       console.log('[ENV] Full configuration:', getAllEnv());
     }

@@ -8,12 +8,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
+  const DOMAIN_URL = window.location.href + "";
+  const IS_LOCAL_HOST = Boolean(DOMAIN_URL.includes("localhost"));
+
   const navigate = useNavigate();
   const { login, loading, error } = useAuth();
-  
+
   const [formData, setFormData] = useState({
-    username: '',
-    password: ''
+    email: IS_LOCAL_HOST ? "yasar.mohideen@newgen.co" : "",
+    password: IS_LOCAL_HOST ? "Impact@123" : ""
   });
   const [localError, setLocalError] = useState('');
 
@@ -30,13 +33,12 @@ const Login = () => {
     e.preventDefault();
     setLocalError('');
 
-    if (!formData.username || !formData.password) {
-      setLocalError('Please enter both username and password');
+    if (!formData.email || !formData.password) {
+      setLocalError('Please enter both email and password');
       return;
     }
 
     const result = await login(formData);
-    
     if (result.success) {
       navigate('/dashboard');
     } else {
@@ -64,27 +66,27 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label 
-              htmlFor="username" 
+            <label
+              htmlFor="email"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
-              Username
+              email
             </label>
             <input
               type="text"
-              id="username"
-              name="username"
-              value={formData.username}
+              id="email"
+              name="email"
+              value={formData.email}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              placeholder="Enter your username"
+              placeholder="Enter your email"
               disabled={loading}
             />
-          </div>
+          </div >
 
           <div>
-            <label 
-              htmlFor="password" 
+            <label
+              htmlFor="password"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Password
@@ -99,7 +101,7 @@ const Login = () => {
               placeholder="Enter your password"
               disabled={loading}
             />
-          </div>
+          </div >
 
           <button
             type="submit"
@@ -118,15 +120,15 @@ const Login = () => {
               'Sign In'
             )}
           </button>
-        </form>
+        </form >
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Contact your administrator for access
           </p>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

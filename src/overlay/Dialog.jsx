@@ -33,9 +33,8 @@ export default function Dialog({ overlay, onFocus }) {
   return (
     <div
       data-testid="overlay-backdrop"
-      className={`fixed inset-0 flex items-center justify-center transition-opacity duration-200 ${
-        overlay.dropOver ? 'bg-black/50 backdrop-blur-sm' : 'pointer-events-none'
-      }`}
+      className={`fixed inset-0 flex items-center justify-center transition-opacity duration-200 ${overlay.dropOver ? 'bg-black/50 backdrop-blur-sm' : 'pointer-events-none'
+        }`}
       style={{ zIndex: overlay.zIndex }}
       onClick={handleBackdropClick}
     >
@@ -50,9 +49,8 @@ export default function Dialog({ overlay, onFocus }) {
         role="dialog"
         aria-modal={overlay.dropOver ? 'true' : 'false'}
         aria-labelledby={`overlay-title-${overlay.id}`}
-        className={`bg-white dark:bg-gray-800 shadow-2xl flex flex-col pointer-events-auto transition-all duration-200 ${
-          overlay.isFullscreen ? '' : 'rounded-xl'
-        }`}
+        className={`bg-white dark:bg-gray-800 shadow-2xl flex flex-col pointer-events-auto transition-all duration-200 ${overlay.isFullscreen ? '' : 'rounded-xl'
+          }`}
         style={contentStyle}
         onClick={onFocus}
       >
@@ -65,7 +63,7 @@ export default function Dialog({ overlay, onFocus }) {
           onToggleFullscreen={() => toggleFullscreen(overlay.id)}
           isFullscreen={overlay.isFullscreen}
         />
-        
+
         <div data-testid="overlay-content" className="flex-1 overflow-auto p-6">
           <overlay.component {...overlay.props} />
         </div>

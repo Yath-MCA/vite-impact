@@ -33,7 +33,9 @@ export default defineConfig(({ mode }) => ({
   ],
   server: {
     port: 3000,
-    open: true
+    open: true,
+    host: true,
+    allowedHosts: ['.ngrok-free.dev', '.trycloudflare.com', 'localhost']
   },
   build: {
     outDir: 'dist',
