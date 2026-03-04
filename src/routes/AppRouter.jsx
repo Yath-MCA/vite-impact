@@ -7,6 +7,7 @@ import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
 import AdminDashboard from '../pages/AdminDashboard';
 import ValidateUrl from '../pages/ValidateUrl';
+import DocDashboard from '../pages/DocDashboard';
 
 const EditorPage = lazy(() => import('../pages/EditorPage'));
 
@@ -41,12 +42,40 @@ const router = createBrowserRouter([
     )
   },
   {
+    path: '/doc-dashboard',
+    element: (
+      <Protected>
+        <DocDashboard />
+      </Protected>
+    )
+  },
+  {
+    path: '/docdashboard',
+    element: <Navigate to="/doc-dashboard" replace />
+  },
+  {
+    path: '/doc-dsshbaord',
+    element: <Navigate to="/doc-dashboard" replace />
+  },
+  {
     path: '/admindashboard',
     element: (
       <Protected requireAdmin>
         <AdminDashboard />
       </Protected>
     )
+  },
+  {
+    path: '/admin-dashboard',
+    element: <Navigate to="/admindashboard" replace />
+  },
+  {
+    path: '/admin',
+    element: <Navigate to="/admindashboard" replace />
+  },
+  {
+    path: '/validateurl',
+    element: <ValidateUrl />
   },
   {
     path: '/validateurl/:client',
@@ -58,6 +87,16 @@ const router = createBrowserRouter([
       <Protected>
         <Suspense fallback={<PageLoader />}>
           <EditorPage />
+        </Suspense>
+      </Protected>
+    )
+  },
+  {
+    path: '/editor-readyonly',
+    element: (
+      <Protected>
+        <Suspense fallback={<PageLoader />}>
+          <EditorPage readOnly />
         </Suspense>
       </Protected>
     )

@@ -1,12 +1,11 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useClient } from '../../context/ClientContext';
 import { useLayout } from '../../context/LayoutContext';
-import { Menu, X, Sun, Moon, Monitor, LayoutDashboard, FileText, Settings, User } from 'lucide-react';
+import { Menu, X, Sun, Moon, Monitor, LayoutDashboard, FileText, Settings, User, Database } from 'lucide-react';
 
 export default function Header() {
   const { clientConfig, clientId } = useClient();
   const { toggles, toggle, theme, setTheme } = useLayout();
-  const navigate = useNavigate();
 
   const themeOptions = [
     { value: 'light', icon: Sun, label: 'Light' },
@@ -25,12 +24,20 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold"
-                style={{ backgroundColor: clientConfig.primaryColor }}
-              >
-                {clientConfig.name.charAt(0)}
-              </div>
+              {clientConfig.logo ? (
+                <img
+                  src={clientConfig.logo}
+                  alt={clientConfig.name}
+                  className="w-8 h-8 object-contain"
+                />
+              ) : (
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold"
+                  style={{ backgroundColor: clientConfig.primaryColor }}
+                >
+                  {clientConfig.name.charAt(0)}
+                </div>
+              )}
               <span className="text-xl font-semibold text-gray-900 dark:text-white">
                 {clientConfig.name}
               </span>
@@ -40,7 +47,7 @@ export default function Header() {
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {clientConfig.features.dashboard && (
-              <Link 
+              <Link
                 to="/dashboard"
                 className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
@@ -48,9 +55,9 @@ export default function Header() {
                 <span>Dashboard</span>
               </Link>
             )}
-            
+
             {clientConfig.features.adminDashboard && (
-              <Link 
+              <Link
                 to="/admindashboard"
                 className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
@@ -58,9 +65,17 @@ export default function Header() {
                 <span>Admin</span>
               </Link>
             )}
-            
+
+            <Link
+              to="/doc-dashboard"
+              className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              <Database className="w-4 h-4" />
+              <span>Doc Dashboard</span>
+            </Link>
+
             {clientConfig.features.editor && (
-              <Link 
+              <Link
                 to="/editor"
                 className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
@@ -79,15 +94,14 @@ export default function Header() {
                 {theme === 'dark' && <Moon className="w-5 h-5" />}
                 {theme === 'system' && <Monitor className="w-5 h-5" />}
               </button>
-              
+
               <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
                 {themeOptions.map(({ value, icon: Icon, label }) => (
                   <button
                     key={value}
                     onClick={() => setTheme(value)}
-                    className={`w-full flex items-center space-x-2 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg ${
-                      theme === value ? 'text-primary-600 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300'
-                    }`}
+                    className={`w-full flex items-center space-x-2 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg ${theme === value ? 'text-primary-600 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300'
+                      }`}
                   >
                     <Icon className="w-4 h-4" />
                     <span>{label}</span>
@@ -98,7 +112,7 @@ export default function Header() {
 
             {/* Client Badge */}
             <div className="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800">
-              <div 
+              <div
                 className="w-2 h-2 rounded-full"
                 style={{ backgroundColor: clientConfig.primaryColor }}
               />
@@ -113,7 +127,7 @@ export default function Header() {
             </button>
 
             {/* Mobile Menu Toggle */}
-            <button 
+            <button
               className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               onClick={() => toggle('sidebarCollapsed')}
             >
@@ -128,7 +142,7 @@ export default function Header() {
         <div className="md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
           <div className="px-4 py-3 space-y-2">
             {clientConfig.features.dashboard && (
-              <Link 
+              <Link
                 to="/dashboard"
                 className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                 onClick={() => toggle('sidebarCollapsed')}
@@ -138,7 +152,7 @@ export default function Header() {
               </Link>
             )}
             {clientConfig.features.adminDashboard && (
-              <Link 
+              <Link
                 to="/admindashboard"
                 className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                 onClick={() => toggle('sidebarCollapsed')}
@@ -147,8 +161,16 @@ export default function Header() {
                 <span>Admin</span>
               </Link>
             )}
+            <Link
+              to="/doc-dashboard"
+              className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              onClick={() => toggle('sidebarCollapsed')}
+            >
+              <Database className="w-4 h-4" />
+              <span>Doc Dashboard</span>
+            </Link>
             {clientConfig.features.editor && (
-              <Link 
+              <Link
                 to="/editor"
                 className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                 onClick={() => toggle('sidebarCollapsed')}

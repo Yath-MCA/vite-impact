@@ -31,6 +31,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     injectEnvPlugin()
   ],
+  publicDir: 'public',
   server: {
     port: 3000,
     open: true,
@@ -51,3 +52,4 @@ export default defineConfig(({ mode }) => ({
   // Define env prefix for Vite env variables
   envPrefix: 'VITE_'
 }))
+

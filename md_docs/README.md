@@ -57,11 +57,35 @@ This project requires CKEditor 4 to be placed locally:
 
 ```bash
 npm run dev              # Local development
+npm run dev:frontend     # Frontend only (same as dev)
+npm run dev:backend      # Lightweight backend wrapper only (port 4000)
+npm run dev:fullstack    # Run frontend + backend together
 npm run build:local      # Build for local
 npm run build:dev        # Build for dev environment
 npm run build:uat        # Build for UAT environment
 npm run build:stage      # Build for staging
 npm run build:prod       # Build for production
+```
+
+### Fullstack (Frontend + Backend)
+
+Use one command from the main project root:
+
+```bash
+npm run dev:fullstack
+```
+
+Defaults:
+
+- Frontend: Vite dev server (`npm run dev`)
+- Backend wrapper: `graphql-wrapper/server.js`
+- `BACKEND_URL=http://localhost:3333`
+- `WRAPPER_PORT=4000`
+
+Optional overrides:
+
+```bash
+BACKEND_URL=http://localhost:8080 WRAPPER_PORT=4100 npm run dev:fullstack
 ```
 
 See [ENVIRONMENT_README.md](ENVIRONMENT_README.md) for detailed environment configuration.

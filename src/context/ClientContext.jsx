@@ -68,7 +68,7 @@ export function ClientProvider({ children }) {
     const config = CLIENT_CONFIGS[client] || CLIENT_CONFIGS['default-client'];
     setClientConfig(config);
     setClientId(client);
-    
+
     if (config.theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
@@ -84,6 +84,26 @@ export function ClientProvider({ children }) {
     const savedClient = localStorage.getItem('lastClient');
     if (savedClient && CLIENT_CONFIGS[savedClient]) {
       loadClientConfig(savedClient);
+    }
+
+    // Check for dynamic branding from validateurl response in sessionStorage
+    try {
+      const validateRes = sessionStorage.getItem('xmleditor:validateuserpost');
+      if (validateRes) {
+        const response = JSON.parse(validateRes);
+        const resData = response.data ?? response;
+        const branding = resData.branding || resData.client_metadata || resData.client_config;
+
+        if (branding) {
+          updateClientConfig({
+            name: branding.LOGO_ALT || resData.client || 'Impact Client',
+            logo: branding.LOGO_SRC || branding.logo_src || branding.logoSrc,
+            primaryColor: branding.PRIMARY_COLOR || '#3b82f6' // fallback to default blue
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load branding from session:', err);
     }
   }, []);
 

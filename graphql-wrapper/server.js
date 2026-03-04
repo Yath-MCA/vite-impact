@@ -1,83 +1,163 @@
-require('dotenv').config();
-const { ApolloServer, gql } = require('apollo-server');
-const fetch = require('node-fetch');
+const fs = require('fs');
+const http = require('http');
+const path = require('path');
+const { execFile } = require('child_process');
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080';
-const API_PATH = process.env.API_PATH || '/api/';
-const APP_KEY = process.env.APP_KEY || '';
-const API_KEY = process.env.API_KEY || '';
-const PORT = process.env.PORT || 4000;
+function loadEnvFile() {
+  const envPath = path.join(__dirname, '.env');
+  if (!fs.existsSync(envPath)) return;
 
-function buildShareInviteUrl() {
-  const base = BACKEND_URL.replace(/\/+$/, '');
-  const apiPath = API_PATH.startsWith('/') ? API_PATH : '/' + API_PATH;
-  const normalizedApi = apiPath.replace(/\/+$/, '');
-  return `${base}${normalizedApi}/shareandinvite`;
-}
+  const lines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eqIndex = trimmed.indexOf('=');
+    if (eqIndex <= 0) continue;
 
-async function callShareInvite(payload = {}) {
-  const url = buildShareInviteUrl();
-  const body = 'jsondata=' + encodeURIComponent(JSON.stringify(payload));
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-      'appkey': APP_KEY,
-      'apikey': API_KEY
-    },
-    body
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`ShareInvite call failed: ${res.status} ${text}`);
-  }
-
-  const data = await res.json();
-  return data;
-}
-
-const typeDefs = gql`
-  type ShareInvite {
-    id: ID
-    identifier: String
-    inviter: String
-    invitee: String
-    createdAt: String
-    status: String
-  }
-
-  type Query {
-    shareinvite(identifier: String, regex: String): [ShareInvite]
-  }
-`;
-
-const resolvers = {
-  Query: {
-    shareinvite: async (_, args) => {
-      const { identifier, regex } = args;
-      const payload = {};
-      if (identifier) payload.identifier = identifier;
-      if (regex) payload.regex = regex;
-
-      const result = await callShareInvite(payload);
-
-      // Try to normalize the response into an array of objects
-      if (Array.isArray(result)) return result;
-      if (result && Array.isArray(result.items)) return result.items;
-      // some backends return object with data or rows
-      if (result && (result.data || result.rows)) return result.data || result.rows;
-
-      // Fallback: wrap object
-      return result ? [result] : [];
+    const key = trimmed.slice(0, eqIndex).trim();
+    const rawValue = trimmed.slice(eqIndex + 1).trim();
+    const value = rawValue.replace(/^['"]|['"]$/g, '');
+    if (!(key in process.env)) {
+      process.env[key] = value;
     }
   }
-};
+}
 
-const server = new ApolloServer({ typeDefs, resolvers });
+loadEnvFile();
 
-server.listen({ port: PORT }).then(({ url }) => {
-  console.log(`GraphQL wrapper running at ${url}`);
-  console.log(`Proxying shareandinvite -> ${buildShareInviteUrl()}`);
+const PORT = process.env.PORT || 4444;
+const PROJECT_ROOT = path.resolve(__dirname, '..');
+const SYNC_SCRIPT_PATH = path.join(PROJECT_ROOT, 'scripts', 'sync-doc.js');
+
+function jsonResponse(res, statusCode, payload) {
+  res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
+  res.end(JSON.stringify(payload));
+}
+
+function parseRequestBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', (chunk) => {
+      body += chunk;
+      if (body.length > 1024 * 1024) {
+        reject(new Error('Request body too large'));
+      }
+    });
+    req.on('end', () => resolve(body));
+    req.on('error', reject);
+  });
+}
+
+function resolveDocIdFromLookup(queryKey, queryValue) {
+  if (!queryValue) return null;
+  if (queryKey === 'docid' || queryKey === 'doc_id') return queryValue;
+
+  const primaryLookupPath = path.join(PROJECT_ROOT, 'public', 'snapshots', '_lookup.json');
+  const legacyLookupPath = path.join(PROJECT_ROOT, 'public', 'data_cache', '_lookup.json');
+  const lookupPath = fs.existsSync(primaryLookupPath) ? primaryLookupPath : legacyLookupPath;
+
+  if (!fs.existsSync(lookupPath)) return null;
+
+  try {
+    const lookup = JSON.parse(fs.readFileSync(lookupPath, 'utf8'));
+    const normalizedKey = queryKey === 'doc_id' ? 'docid' : queryKey;
+    const map = lookup?.[normalizedKey] || lookup?.[queryKey] || {};
+    return map[String(queryValue).toLowerCase()] || null;
+  } catch {
+    return null;
+  }
+}
+
+function runSyncDoc(docId) {
+  return new Promise((resolve, reject) => {
+    execFile(
+      process.execPath,
+      [SYNC_SCRIPT_PATH, docId],
+      {
+        cwd: PROJECT_ROOT,
+        timeout: 10 * 60 * 1000,
+        env: process.env,
+        maxBuffer: 1024 * 1024 * 20
+      },
+      (error, stdout, stderr) => {
+        if (error) {
+          const message = String(stderr || stdout || error.message || '').trim();
+          if (/not recognized as an internal or external command/i.test(message)) {
+            reject(new Error('sync-doc failed: mongoexport is not installed or not in PATH.'));
+            return;
+          }
+
+          const condensed = message.split(/\r?\n/).slice(0, 6).join(' ');
+          reject(new Error(condensed || 'sync-doc failed'));
+          return;
+        }
+
+        resolve({
+          stdout: String(stdout || ''),
+          stderr: String(stderr || '')
+        });
+      }
+    );
+  });
+}
+
+const server = http.createServer(async (req, res) => {
+  try {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204);
+      res.end();
+      return;
+    }
+
+    const requestUrl = new URL(req.url, `http://localhost:${PORT}`);
+
+    if (requestUrl.pathname === '/health') {
+      return jsonResponse(res, 200, {
+        status: 'ok',
+        port: Number(PORT)
+      });
+    }
+
+    if (requestUrl.pathname === '/sync-doc') {
+      if (req.method !== 'POST') {
+        return jsonResponse(res, 405, { error: 'Method Not Allowed' });
+      }
+
+      const body = await parseRequestBody(req);
+      const parsed = body ? JSON.parse(body) : {};
+      const queryKey = String(parsed.key || 'docid').toLowerCase();
+      const queryValue = String(parsed.value || '').trim();
+
+      if (!queryValue) {
+        return jsonResponse(res, 400, { error: 'Missing key/value for sync request' });
+      }
+
+      const docId = resolveDocIdFromLookup(queryKey, queryValue);
+      if (!docId) {
+        return jsonResponse(res, 404, {
+          error: `Unable to resolve docid from ${queryKey}`
+        });
+      }
+
+      const result = await runSyncDoc(docId);
+      return jsonResponse(res, 200, {
+        ok: true,
+        docid: docId,
+        output: result.stdout
+      });
+    }
+
+    return jsonResponse(res, 404, { error: 'Not Found' });
+  } catch (error) {
+    return jsonResponse(res, 500, { error: error.message || 'Internal Server Error' });
+  }
+});
+
+server.listen(PORT, () => {
+  console.log(`Lightweight wrapper running at http://localhost:${PORT}`);
+  console.log('Endpoints: GET /health, POST /sync-doc');
 });

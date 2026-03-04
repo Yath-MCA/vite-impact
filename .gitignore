@@ -36,3 +36,9 @@ env/*.secrets.json
 .cache
 .temp
 *.tsbuildinfo
+
+public/data_cache/*
+public/snapshots/*
+src/snippets/*
+_vanilaProject/*
+

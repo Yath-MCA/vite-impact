@@ -18,5 +18,15 @@ export default {
     User_API_KEY: 'J38YUp-iVcmkvOPu9584ReU3_jmYbupt51neV-q7yv844bwgwYeAwY5_2LJRyh89V9C92dtpe4Ct5M585EzdEpXKK6kNtQ68nfPuwV_G2-f8iou9J_eB8bBWdQ2h2ndCjZsAg23jgOBoKCPmxhgo1vKdYlG-mao2efIN7Lmguplkt1H7_920KnIdEe5x-OKnN93kbvbUzLiBRogXUOchJW1b7E22eIfeu7SzeJ8dOqvRJ6DBwIlVCd2d2XAs1asG6Jjtx06XNq-oGaLouApHWCmmCnETD-VrxBN3O2QitT_nVaQUsl91s7HDPH4LjYXyPox6k4-sh4V75Zj1LVC3IK3hvFqRj4iAR1oDczJLpo-StQfFe2VsjzlsfZFthMVBjXXRMYs_6JmgCnIi8p2Q-GyPb6y88vfuI1wVHT-MI8tU-1ZZKYPNVg',
 
     // Third-party tokens
-    KIT_CLOSE_TASK_TOKEN: 'YOUR_KIT_TOKEN_HERE'
+    KIT_CLOSE_TASK_TOKEN: 'YOUR_KIT_TOKEN_HERE',
+
+    // ── Client Branding ────────────────────────────────────────────────────
+    // Paste the CLIENT block for your target client from STEP-06-client-config.md
+    // Example (NIHR):
+    // CLIENT: {
+    //   INSTRUCTIONS_TPL: 'nihr',
+    //   PAGE_TITLE: 'IMPACT - NIHR Proofing Portal',
+    //   FAVICON: 'UI/client_logo/NIHR_FAVICON.svg',
+    //   ...
+    // }
 };

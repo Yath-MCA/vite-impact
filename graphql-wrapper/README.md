@@ -1,34 +1,52 @@
-# GraphQL wrapper (testing)
+# GraphQL wrapper (DocDashboard sync server)
 
-This small wrapper exposes a GraphQL endpoint for quick testing by proxying your existing REST `shareandinvite` endpoint.
+This lightweight Node server is dedicated to `DocDashboard` snapshot sync.
+It executes `scripts/sync-doc.js` and exposes only health + sync endpoints.
 
-Environment variables (create a `.env` file in this folder):
+Environment variables (optional `.env` in this folder):
 
-- `BACKEND_URL` (default: `http://localhost:8080`)
-- `API_PATH` (default: `/api/`)
-- `APP_KEY` (appkey header)
-- `API_KEY` (apikey header)
-- `PORT` (default: `4000`)
+- `PORT` (default: `4444`)
+- `MONGO_URI` (used by `sync-doc.js`, default: `mongodb://localhost:27017`)
+- `MONGO_DB` (used by `sync-doc.js`, default: `impact`)
+- `MONGOEXPORT_BIN` (optional explicit path to `mongoexport`)
 
-Install and run:
+Run from main project root:
 
 ```bash
-cd graphql-wrapper
-npm install
-npm start
+npm run dev:backend
 ```
 
-Sample GraphQL query:
+Generate backend `.env` from existing `env/` configs:
 
-```graphql
-query {
-  shareinvite(identifier: "10.1093/stcltm/szad014") {
-    id
-    identifier
-    inviter
-    invitee
-    createdAt
-    status
-  }
-}
+```bash
+npm run env:backend:local
+npm run env:backend:dev
+npm run env:backend:uat
+npm run env:backend:stage
+npm run env:backend:prod
 ```
+
+Or run frontend + backend together:
+
+```bash
+npm run dev:fullstack
+```
+
+Available endpoints:
+
+- `GET /health`
+- `POST /sync-doc`
+
+Sample sync request:
+
+```bash
+curl -X POST http://localhost:4444/sync-doc \
+  -H "Content-Type: application/json" \
+  -d '{"key":"docid","value":"N181a1ffd-6769-4b36-ac3b-1b23a2806bc2"}'
+```
+
+Successful response includes:
+
+- `ok: true`
+- `docid`
+- `output` (sync summary log)

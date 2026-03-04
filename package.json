@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "npm run env:local && vite",
+    "dev:frontend": "npm run dev",
+    "dev:backend": "npm run env:backend:local && node graphql-wrapper/server.js",
+    "dev:fullstack": "node scripts/run-main.js",
     "build": "npm run build:local",
     "preview": "vite preview",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
@@ -13,6 +16,11 @@
     "env:uat": "cross-env ENV_NAME=uat node scripts/generate-env.js",
     "env:stage": "cross-env ENV_NAME=stage node scripts/generate-env.js",
     "env:prod": "cross-env ENV_NAME=prod node scripts/generate-env.js",
+    "env:backend:local": "cross-env ENV_NAME=local node scripts/generate-backend-env.js",
+    "env:backend:dev": "cross-env ENV_NAME=dev node scripts/generate-backend-env.js",
+    "env:backend:uat": "cross-env ENV_NAME=uat node scripts/generate-backend-env.js",
+    "env:backend:stage": "cross-env ENV_NAME=stage node scripts/generate-backend-env.js",
+    "env:backend:prod": "cross-env ENV_NAME=prod node scripts/generate-backend-env.js",
     "build:local": "npm run env:local && vite build",
     "build:dev": "npm run env:dev && vite build",
     "build:uat": "npm run env:uat && vite build",
@@ -31,9 +39,11 @@
     "test:e2e:error": "playwright test tests/error/",
     "test:e2e:accessibility": "playwright test tests/accessibility/",
     "test:report": "playwright show-report",
-    "test:codegen": "playwright codegen"
+    "test:codegen": "playwright codegen",
+    "sync:doc": "node scripts/sync-doc.js"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.2",
     "@fontsource/source-sans-pro": "^5.0.8",
     "ag-grid-community": "^31.0.0",
     "ag-grid-react": "^31.0.0",
