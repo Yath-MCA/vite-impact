@@ -8,6 +8,7 @@ import Dashboard from '../pages/Dashboard';
 import AdminDashboard from '../pages/AdminDashboard';
 import ValidateUrl from '../pages/ValidateUrl';
 import DocDashboard from '../pages/DocDashboard';
+import SupabasePage from '../pages/SupabasePage';
 
 const EditorPage = lazy(() => import('../pages/EditorPage'));
 
@@ -72,6 +73,10 @@ const router = createBrowserRouter([
   {
     path: '/admin',
     element: <Navigate to="/admindashboard" replace />
+  },
+  {
+    path: '/supabase',
+    element: <SupabasePage />
   },
   {
     path: '/validateurl',
