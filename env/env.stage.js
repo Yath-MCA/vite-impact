@@ -35,6 +35,10 @@ export default {
   SPELLCHECK_HOST: process.env.STAGE_SPELLCHECK_HOST || 'https://stage-spell.impact.com',
   KIT_CLOSE_TASK_URL: process.env.STAGE_KIT_URL || 'https://stage-kit.impact.com/close',
   KIT_CLOSE_TASK_TOKEN: process.env.STAGE_KIT_TOKEN || 'stage-kit-token-placeholder',
+
+  // Supabase Configuration
+  VITE_SUPABASE_URL: 'https://ouluxdinlqcbvlmvncot.supabase.co',
+  VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY || 'REPLACE_IN_SECRETS_FILE',
   
   // Security
   IS_LIVE_DOMAIN: false,

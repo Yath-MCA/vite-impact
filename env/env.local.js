@@ -39,6 +39,10 @@ export default {
   KIT_CLOSE_TASK_URL: 'http://localhost:7000/close',
   KIT_CLOSE_TASK_TOKEN: 'REPLACE_IN_SECRETS_FILE',
 
+  // Supabase Configuration
+  VITE_SUPABASE_URL: 'https://ouluxdinlqcbvlmvncot.supabase.co',
+  VITE_SUPABASE_ANON_KEY: 'REPLACE_IN_SECRETS_FILE',
+
   // Security (relaxed for local)
   IS_LIVE_DOMAIN: false,
   IS_UAT_DOMAIN: false,

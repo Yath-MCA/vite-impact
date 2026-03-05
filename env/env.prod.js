@@ -42,6 +42,10 @@ export default {
   KIT_CLOSE_TASK_URL: process.env.PROD_KIT_URL || 'https://kit.impact.com/close',
   // SECURITY: Token must be provided via environment variable
   KIT_CLOSE_TASK_TOKEN: process.env.PROD_KIT_TOKEN || '',
+
+  // Supabase Configuration
+  VITE_SUPABASE_URL: 'https://ouluxdinlqcbvlmvncot.supabase.co',
+  VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY || '',
   
   // Security
   IS_LIVE_DOMAIN: true,

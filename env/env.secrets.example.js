@@ -20,6 +20,9 @@ export default {
     // Third-party tokens
     KIT_CLOSE_TASK_TOKEN: 'YOUR_KIT_TOKEN_HERE',
 
+    // Supabase Configuration
+    VITE_SUPABASE_ANON_KEY: 'YOUR_SUPABASE_ANON_KEY_HERE',
+
     // ── Client Branding ────────────────────────────────────────────────────
     // Paste the CLIENT block for your target client from STEP-06-client-config.md
     // Example (NIHR):
