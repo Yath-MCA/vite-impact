@@ -4,11 +4,11 @@
 
 @layer base {
   :root {
-    --primary-50: 239 246 255;
-    --primary-100: 219 234 254;
-    --primary-500: 59 130 246;
-    --primary-600: 37 99 235;
-    --primary-700: 29 78 216;
+    --primary-50: 255 243 232;
+    --primary-100: 255 226 195;
+    --primary-500: 255 134 53;
+    --primary-600: 229 101 21;
+    --primary-700: 204 77 0;
   }
 
   * {

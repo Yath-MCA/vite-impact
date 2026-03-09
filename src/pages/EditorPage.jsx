@@ -7,19 +7,9 @@ import TocPanel from '../components/editor/TocPanel';
 import ThumbnailPanel from '../components/editor/ThumbnailPanel';
 import PdfPreview from '../components/editor/PdfPreview';
 import ModuleManager from '../modules/ModuleManager';
-import Header from '../components/layout/Header';
+import EditorHeader from '../components/layout/EditorHeader';
 import Footer from '../components/layout/Footer';
-import { 
-  LayoutTemplate, 
-  FileText, 
-  Columns, 
-  Maximize2, 
-  Minimize2,
-  Settings,
-  Palette,
-  Type,
-  Image as ImageIcon
-} from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
 
 // Sample modules for demonstration
 const SettingsModule = ({ onClose }) => (
@@ -114,77 +104,9 @@ export default function EditorPage() {
     updateContent(data);
   }, [updateContent]);
 
-  const viewModeButtons = [
-    { mode: VIEW_MODES.EDITOR, icon: FileText, label: 'Editor' },
-    { mode: VIEW_MODES.PDF, icon: LayoutTemplate, label: 'Preview' },
-    { mode: VIEW_MODES.SPLIT, icon: Columns, label: 'Split' }
-  ];
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      <Header />
-      
-      {/* Editor Toolbar */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
-        <div className="flex items-center justify-between">
-          {/* Left: View Mode Toggle */}
-          <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-            {viewModeButtons.map(({ mode, icon: Icon, label }) => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  viewMode === mode
-                    ? 'bg-white dark:bg-gray-600 text-primary-600 dark:text-primary-400 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span className="hidden sm:inline">{label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Center: Document Info */}
-          <div className="hidden md:flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
-            <span>Words: {editorData.replace(/<[^>]*>/g, '').split(/\s+/).filter(w => w.length > 0).length}</span>
-            <span>Characters: {editorData.replace(/<[^>]*>/g, '').length}</span>
-          </div>
-
-          {/* Right: Actions */}
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => openModule('styles')}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Document Styles"
-            >
-              <Palette className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => openModule('media')}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Insert Media"
-            >
-              <ImageIcon className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => openModule('settings')}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Settings"
-            >
-              <Settings className="w-5 h-5" />
-            </button>
-            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-2" />
-            <button
-              onClick={() => toggle('editorFullscreen')}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Toggle Fullscreen"
-            >
-              {toggles.editorFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-      </div>
+      <EditorHeader editorData={editorData} />
 
       {/* Editor Layout */}
       <main className={`flex-1 flex overflow-hidden ${toggles.editorFullscreen ? 'fixed inset-0 z-50' : ''}`}>
