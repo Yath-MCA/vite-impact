@@ -23,13 +23,6 @@ export default {
     // Supabase Configuration
     VITE_SUPABASE_ANON_KEY: 'YOUR_SUPABASE_ANON_KEY_HERE',
 
-    // ── Client Branding ────────────────────────────────────────────────────
-    // Paste the CLIENT block for your target client from STEP-06-client-config.md
-    // Example (NIHR):
-    // CLIENT: {
-    //   INSTRUCTIONS_TPL: 'nihr',
-    //   PAGE_TITLE: 'IMPACT - NIHR Proofing Portal',
-    //   FAVICON: 'UI/client_logo/NIHR_FAVICON.svg',
-    //   ...
-    // }
+
+
 };

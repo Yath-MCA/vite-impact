@@ -5,21 +5,33 @@ import { useLayout } from '../context/LayoutContext';
 import { useModule, MODULE_TYPES } from '../context/ModuleContext';
 import TocPanel from '../components/editor/TocPanel';
 import ThumbnailPanel from '../components/editor/ThumbnailPanel';
-import PdfPreview from '../components/editor/PdfPreview';
+import EditorSection from '../components/editor/EditorSection';
+import PdfSection from '../components/editor/PdfSection';
+import EditorHeader from '../components/editor/EditorHeader';
+import EditorFooter from '../components/editor/EditorFooter';
 import ModuleManager from '../modules/ModuleManager';
-import Header from '../components/layout/Header';
-import Footer from '../components/layout/Footer';
-import { 
-  LayoutTemplate, 
-  FileText, 
-  Columns, 
-  Maximize2, 
+import {
+  LayoutTemplate,
+  FileText,
+  Columns,
+  Maximize2,
   Minimize2,
   Settings,
   Palette,
   Type,
-  Image as ImageIcon
+  Save,
+  Image as ImageIcon,
+  RefreshCw
 } from 'lucide-react';
+
+const journalHtmlFiles = import.meta.glob('../assets/data/journal/*.html', { as: 'url', eager: true });
+const bookHtmlFiles = import.meta.glob('../assets/data/book/*.html', { as: 'url', eager: true });
+const jsonDataFiles = import.meta.glob('../assets/data/*.json', { as: 'url', eager: true });
+
+// Ensure local CKEditor 4 is used instead of CDN
+if (typeof window !== 'undefined') {
+  CKEditor.editorUrl = '/ckeditor4/ckeditor.js';
+}
 
 // Sample modules for demonstration
 const SettingsModule = ({ onClose }) => (
@@ -78,172 +90,168 @@ const MediaModule = ({ onClose }) => (
 );
 
 export default function EditorPage() {
-  const { content, viewMode, setViewMode, updateContent, editorRef } = useEditor();
+  const {
+    content,
+    viewMode,
+    setViewMode,
+    updateContent,
+    editorRef,
+    setActiveHeading,
+    isDirty,
+    setIsDirty
+  } = useEditor();
   const { toggles, toggle } = useLayout();
   const { registerModule, openModule } = useModule();
 
-  const [editorData, setEditorData] = useState(`
-    <h1>Document Title</h1>
-    <p>This is the introduction section of your document.</p>
-    <h2>Section 1: Overview</h2>
-    <p>Content for section 1 goes here. You can add detailed information about this section.</p>
-    <h3>Subsection 1.1</h3>
-    <p>More detailed content can be added in subsections.</p>
-    <h2>Section 2: Details</h2>
-    <p>This section contains additional details and information.</p>
-    <h3>Subsection 2.1</h3>
-    <p>Supporting content for section 2.</p>
-    <h2>Conclusion</h2>
-    <p>Wrap up your document with a strong conclusion.</p>
-  `);
+  const [editorData, setEditorData] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const debugIgnoreContent = false; // Set to true to bypass content setting for layout testing
+
+  const loadRandomContent = useCallback(async () => {
+    if (debugIgnoreContent) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const allFiles = [
+        ...Object.values(journalHtmlFiles),
+        ...Object.values(bookHtmlFiles),
+        ...Object.values(jsonDataFiles)
+      ];
+      const randomUrl = allFiles[Math.floor(Math.random() * allFiles.length)];
+
+      if (randomUrl) {
+        const response = await fetch(randomUrl);
+        let html = '';
+
+        if (randomUrl.endsWith('.json')) {
+          const json = await response.json();
+          html = json.content || '';
+        } else {
+          html = await response.text();
+        }
+
+        setEditorData(html);
+        updateContent(html);
+
+        // Update CKEditor instance if it exists
+        if (editorRef.current?.editor) {
+          editorRef.current.editor.setData(html);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading random content:', error);
+    } finally {
+      setIsLoading(false);
+      setIsDirty(false);
+    }
+  }, [updateContent, editorRef, setIsDirty]);
+
+  // Load initial content
+  useEffect(() => {
+    loadRandomContent();
+  }, []); // Only once on mount
+
+  // Warn before leaving if there are unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
+  const handleSave = () => {
+    if (window.confirm('Are you sure you want to save your changes and proceed?')) {
+      console.log('Saving document...', editorData);
+      setIsDirty(false);
+      alert('Document saved successfully!');
+    }
+  };
 
   // Register modules
   useEffect(() => {
     registerModule('settings', SettingsModule, MODULE_TYPES.RIGHT_SIDEBAR, { title: 'Editor Settings' });
     registerModule('styles', StylesModule, MODULE_TYPES.MODAL, { title: 'Document Styles' });
     registerModule('media', MediaModule, MODULE_TYPES.MODAL, { title: 'Insert Media' });
-    
+
     return () => {
       // Cleanup would go here if needed
     };
   }, [registerModule]);
 
-  const handleEditorChange = useCallback((evt) => {
-    const data = evt.editor.getData();
-    setEditorData(data);
-    updateContent(data);
-  }, [updateContent]);
-
   const viewModeButtons = [
     { mode: VIEW_MODES.EDITOR, icon: FileText, label: 'Editor' },
     { mode: VIEW_MODES.PDF, icon: LayoutTemplate, label: 'Preview' },
-    { mode: VIEW_MODES.SPLIT, icon: Columns, label: 'Split' }
+    { mode: VIEW_MODES.SPLIT, icon: Columns, label: 'Split' },
+    { mode: VIEW_MODES.FOUR_COLUMN, icon: Maximize2, label: 'Full Layout' }
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      <Header />
-      
-      {/* Editor Toolbar */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
-        <div className="flex items-center justify-between">
-          {/* Left: View Mode Toggle */}
-          <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-            {viewModeButtons.map(({ mode, icon: Icon, label }) => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  viewMode === mode
-                    ? 'bg-white dark:bg-gray-600 text-primary-600 dark:text-primary-400 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span className="hidden sm:inline">{label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Center: Document Info */}
-          <div className="hidden md:flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
-            <span>Words: {editorData.replace(/<[^>]*>/g, '').split(/\s+/).filter(w => w.length > 0).length}</span>
-            <span>Characters: {editorData.replace(/<[^>]*>/g, '').length}</span>
-          </div>
-
-          {/* Right: Actions */}
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => openModule('styles')}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Document Styles"
-            >
-              <Palette className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => openModule('media')}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Insert Media"
-            >
-              <ImageIcon className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => openModule('settings')}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Settings"
-            >
-              <Settings className="w-5 h-5" />
-            </button>
-            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-2" />
-            <button
-              onClick={() => toggle('editorFullscreen')}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Toggle Fullscreen"
-            >
-              {toggles.editorFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-      </div>
+    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900 overflow-hidden">
+      <EditorHeader
+        loadRandomContent={loadRandomContent}
+        handleSave={handleSave}
+        editorData={editorData}
+        isLoading={isLoading}
+      />
 
       {/* Editor Layout */}
-      <main className={`flex-1 flex overflow-hidden ${toggles.editorFullscreen ? 'fixed inset-0 z-50' : ''}`}>
-        {/* TOC Panel */}
-        {toggles.showToc && <TocPanel />}
-
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Editor or PDF View */}
-          <div className="flex-1 overflow-hidden">
-            {(viewMode === VIEW_MODES.EDITOR || viewMode === VIEW_MODES.SPLIT) && (
-              <div className={`h-full ${viewMode === VIEW_MODES.SPLIT ? 'h-1/2' : 'h-full'}`}>
-                <div className="h-full p-4 overflow-y-auto">
-                  <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 min-h-[800px]">
-                    <CKEditor
-                      initData={editorData}
-                      onChange={handleEditorChange}
-                      config={{
-                        toolbar: [
-                          { name: 'document', items: ['Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates'] },
-                          { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo'] },
-                          { name: 'editing', items: ['Find', 'Replace', '-', 'SelectAll', '-', 'Scayt'] },
-                          '/',
-                          { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'CopyFormatting', 'RemoveFormat'] },
-                          { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl', 'Language'] },
-                          { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
-                          { name: 'insert', items: ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe'] },
-                          '/',
-                          { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
-                          { name: 'colors', items: ['TextColor', 'BGColor'] },
-                          { name: 'tools', items: ['Maximize', 'ShowBlocks'] }
-                        ],
-                        height: 600,
-                        uiColor: '#f0f0f0',
-                        removePlugins: 'elementspath',
-                        resize_enabled: false
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {(viewMode === VIEW_MODES.PDF || viewMode === VIEW_MODES.SPLIT) && (
-              <div className={`${viewMode === VIEW_MODES.SPLIT ? 'h-1/2 border-t border-gray-200 dark:border-gray-700' : 'h-full'}`}>
-                <PdfPreview />
-              </div>
-            )}
-          </div>
+      <main className="flex-1 flex overflow-hidden">
+        {/* 1. TOC Panel (Left) */}
+        <div
+          className={`border-r-2 border-gray-200 dark:border-gray-700 flex-shrink-0 bg-white dark:bg-gray-800 shadow-sm z-10 transition-all duration-300 ease-in-out ${toggles.showToc ? 'w-64' : 'w-12'
+            }`}
+        >
+          {toggles.showToc ? <TocPanel /> : (
+            <div className="h-full flex flex-col items-center py-4 space-y-4">
+              <button
+                onClick={() => toggle('showToc')}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500"
+              >
+                <Columns className="w-5 h-5" />
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Thumbnail Panel */}
-        {toggles.showThumbnails && <ThumbnailPanel />}
+        {/* 2 & 3. Main Content Area (Editor + PDF) */}
+        <div className="flex-1 flex overflow-hidden relative bg-gray-50 dark:bg-gray-900 gap-px">
+          <EditorSection
+            editorData={editorData}
+            setEditorData={setEditorData}
+            isLoading={isLoading}
+          />
+          <PdfSection />
+        </div>
+
+        {/* 4. Thumbnail Panel (Right) */}
+        <div
+          className={`border-l-2 border-gray-200 dark:border-gray-700 flex-shrink-0 bg-white dark:bg-gray-800 overflow-y-auto shadow-sm transition-all duration-300 ease-in-out ${toggles.showThumbnails ? 'w-56' : 'w-12'
+            }`}
+        >
+          {toggles.showThumbnails ? <ThumbnailPanel /> : (
+            <div className="h-full flex flex-col items-center py-4 space-y-4">
+              <button
+                onClick={() => toggle('showThumbnails')}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500"
+              >
+                <ImageIcon className="w-5 h-5" />
+              </button>
+            </div>
+          )}
+        </div>
       </main>
 
       {/* Module Manager */}
       <ModuleManager />
 
-      {!toggles.editorFullscreen && <Footer />}
+      {!toggles.editorFullscreen && <EditorFooter />}
     </div>
   );
 }

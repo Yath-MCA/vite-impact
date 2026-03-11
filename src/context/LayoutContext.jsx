@@ -25,7 +25,7 @@ export function LayoutProvider({ children }) {
 
   useEffect(() => {
     localStorage.setItem('theme', theme);
-    
+
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else if (theme === 'light') {

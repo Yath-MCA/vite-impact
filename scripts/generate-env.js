@@ -143,7 +143,11 @@ const finalEnv = {
   // Third-party services
   SPELLCHECK_HOST: envConfig.SPELLCHECK_HOST,
   KIT_CLOSE_TASK_URL: envConfig.KIT_CLOSE_TASK_URL,
-  KIT_CLOSE_TASK_TOKEN: envConfig.KIT_CLOSE_TASK_TOKEN
+  KIT_CLOSE_TASK_TOKEN: envConfig.KIT_CLOSE_TASK_TOKEN,
+
+  // Supabase configuration
+  VITE_SUPABASE_URL: envConfig.VITE_SUPABASE_URL,
+  VITE_SUPABASE_ANON_KEY: envConfig.VITE_SUPABASE_ANON_KEY
 };
 
 // Validate configuration

@@ -8,12 +8,12 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Read from window.ENV (runtime config) or import.meta.env (Vite build-time)
-const supabaseUrl = 
-  (typeof window !== 'undefined' && window.ENV?.VITE_SUPABASE_URL) || 
+const supabaseUrl =
+  (typeof window !== 'undefined' && window.ENV?.VITE_SUPABASE_URL) ||
   import.meta.env.VITE_SUPABASE_URL;
 
-const supabaseAnonKey = 
-  (typeof window !== 'undefined' && window.ENV?.VITE_SUPABASE_ANON_KEY) || 
+const supabaseAnonKey =
+  (typeof window !== 'undefined' && window.ENV?.VITE_SUPABASE_ANON_KEY) ||
   import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
@@ -25,8 +25,41 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 /**
  * Shared Supabase client instance.
- * Import this wherever Supabase functionality is needed.
+ * If credentials are missing, returns a dummy object to prevent application crashes.
  */
-const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+let supabase;
+
+if (supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http')) {
+  console.log('[supabaseClient] Initializing real Supabase client');
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
+} else {
+  // Dummy client to bypass "supabaseUrl is required" error when not configured
+  supabase = {
+    auth: {
+      getSession: async () => ({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({
+        data: { subscription: { unsubscribe: () => { } } }
+      }),
+      signOut: async () => ({ error: null }),
+    },
+    storage: {
+      from: () => ({
+        list: async () => ({ data: [], error: null }),
+        upload: async () => ({ data: null, error: new Error('Supabase not configured') }),
+      })
+    },
+    from: () => ({
+      select: () => ({
+        order: () => ({
+          limit: () => Promise.resolve({ data: [], error: null })
+        }),
+        eq: () => Promise.resolve({ data: [], error: null })
+      }),
+      insert: async () => ({ data: null, error: new Error('Supabase not configured') }),
+      update: async () => ({ data: null, error: new Error('Supabase not configured') }),
+      delete: async () => ({ data: null, error: new Error('Supabase not configured') }),
+    })
+  };
+}
 
 export default supabase;
