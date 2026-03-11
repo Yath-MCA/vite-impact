@@ -1,0 +1,297 @@
+{
+  "movedCount": 57,
+  "restoredFiles": [
+    {
+      "original": "src/styles/fonts.js",
+      "restoredFrom": "temp_migration/unused_styles/fonts.js",
+      "reason": "Required by src/main.jsx import"
+    }
+  ],
+  "files": [
+    {
+      "original": "src/checks/checkDeleteBackspace.js",
+      "movedTo": "temp_migration/archived_files/checkDeleteBackspace.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/checks/checkFormatting.js",
+      "movedTo": "temp_migration/archived_files/checkFormatting.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/checks/checkXref.js",
+      "movedTo": "temp_migration/archived_files/checkXref.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/alerts/alertDispatcher.js",
+      "movedTo": "temp_migration/unused_components/alerts/alertDispatcher.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/alerts/EditorAlertContext.jsx",
+      "movedTo": "temp_migration/unused_components/alerts/EditorAlertContext.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/editor/EditorHeader.jsx",
+      "movedTo": "temp_migration/unused_components/editor/EditorHeader.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/editor/EditorSection.jsx",
+      "movedTo": "temp_migration/unused_components/editor/EditorSection.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/editor/EditorWorkspace.jsx",
+      "movedTo": "temp_migration/unused_components/editor/EditorWorkspace.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/editor/PdfSection.jsx",
+      "movedTo": "temp_migration/unused_components/editor/PdfSection.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/editor/PdfViewer.jsx",
+      "movedTo": "temp_migration/unused_components/editor/PdfViewer.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/editor/TocPanel.jsx",
+      "movedTo": "temp_migration/unused_components/editor/TocPanel.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/layout/EditorHeader.jsx",
+      "movedTo": "temp_migration/unused_components/layout/EditorHeader.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/layout/EditorLayout.jsx",
+      "movedTo": "temp_migration/unused_components/layout/EditorLayout.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/layout/MainLayout.jsx",
+      "movedTo": "temp_migration/unused_components/layout/MainLayout.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/loading/AppInitializer.jsx",
+      "movedTo": "temp_migration/unused_components/loading/AppInitializer.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/loading/ImpactRoot.jsx",
+      "movedTo": "temp_migration/unused_components/loading/ImpactRoot.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/loading/InitialLoadDialog.jsx",
+      "movedTo": "temp_migration/unused_components/loading/InitialLoadDialog.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/loading/ProgressCircle.jsx",
+      "movedTo": "temp_migration/unused_components/loading/ProgressCircle.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/ollama/OllamaComponents.jsx",
+      "movedTo": "temp_migration/unused_components/ollama/OllamaComponents.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/overlay/Dialog.jsx",
+      "movedTo": "temp_migration/unused_components/overlay/Dialog.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/overlay/Popout.jsx",
+      "movedTo": "temp_migration/unused_components/overlay/Popout.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/overlay/Sidebar.jsx",
+      "movedTo": "temp_migration/unused_components/overlay/Sidebar.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/PluginDemo.jsx",
+      "movedTo": "temp_migration/unused_components/PluginDemo.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/sidebar/Sidebar.jsx",
+      "movedTo": "temp_migration/unused_components/sidebar/Sidebar.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/components/sidebar/SidebarItem.jsx",
+      "movedTo": "temp_migration/unused_components/sidebar/SidebarItem.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/error/ErrorBoundary.jsx",
+      "movedTo": "temp_migration/archived_files/ErrorBoundary.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/error/ErrorPanel.jsx",
+      "movedTo": "temp_migration/archived_files/ErrorPanel.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/error/ErrorTrackerProvider.jsx",
+      "movedTo": "temp_migration/archived_files/ErrorTrackerProvider.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/events/EventEmitter.js",
+      "movedTo": "temp_migration/archived_files/EventEmitter.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/ExampleUsage.jsx",
+      "movedTo": "temp_migration/archived_files/ExampleUsage.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/grid/columnDefs.js",
+      "movedTo": "temp_migration/archived_files/columnDefs.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/grid/columnVisibilityConfig.js",
+      "movedTo": "temp_migration/archived_files/columnVisibilityConfig.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/grid/dateUtils.js",
+      "movedTo": "temp_migration/archived_files/dateUtils.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/grid/examples/ShareandinviteGrid.jsx",
+      "movedTo": "temp_migration/archived_files/examples/ShareandinviteGrid.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/grid/gridOptions.js",
+      "movedTo": "temp_migration/archived_files/gridOptions.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/grid/GridWrapper.jsx",
+      "movedTo": "temp_migration/archived_files/GridWrapper.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/grid/valueFormatters.js",
+      "movedTo": "temp_migration/archived_files/valueFormatters.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/hooks/editor/useAlertStaging.js",
+      "movedTo": "temp_migration/unused_hooks/editor/useAlertStaging.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/hooks/useLayoutEngine.js",
+      "movedTo": "temp_migration/unused_hooks/useLayoutEngine.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/hooks/useOllama.js",
+      "movedTo": "temp_migration/unused_hooks/useOllama.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/hooks/useOverlayManager.js",
+      "movedTo": "temp_migration/unused_hooks/useOverlayManager.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/hooks/usePermissions.js",
+      "movedTo": "temp_migration/unused_hooks/usePermissions.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/overlay/Dialog.jsx",
+      "movedTo": "temp_migration/archived_files/Dialog.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/overlay/Dock.jsx",
+      "movedTo": "temp_migration/archived_files/Dock.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/overlay/Footer.jsx",
+      "movedTo": "temp_migration/archived_files/Footer.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/overlay/Header.jsx",
+      "movedTo": "temp_migration/archived_files/Header.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/overlay/OverlayManager.jsx",
+      "movedTo": "temp_migration/archived_files/OverlayManager.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/overlay/OverlayProvider.jsx",
+      "movedTo": "temp_migration/archived_files/OverlayProvider.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/overlay/Popout.jsx",
+      "movedTo": "temp_migration/archived_files/Popout.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/overlay/Sidebar.jsx",
+      "movedTo": "temp_migration/archived_files/Sidebar.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/pages/Dashboard.jsx",
+      "movedTo": "temp_migration/unused_pages/Dashboard.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/plugins/aggrid/GridWrapper.jsx",
+      "movedTo": "temp_migration/archived_files/aggrid/GridWrapper.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/plugins/summernote/SummernoteEditor.jsx",
+      "movedTo": "temp_migration/archived_files/summernote/SummernoteEditor.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/plugins/tempusdominus/DateTimePicker.jsx",
+      "movedTo": "temp_migration/archived_files/tempusdominus/DateTimePicker.jsx",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/snippets/replacePlaceholders.js",
+      "movedTo": "temp_migration/archived_files/replacePlaceholders.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/styles/fonts.js",
+      "movedTo": "temp_migration/unused_styles/fonts.js",
+      "reason": "unused/import not found"
+    },
+    {
+      "original": "src/utils/env.js",
+      "movedTo": "temp_migration/unused_utils/env.js",
+      "reason": "unused/import not found"
+    }
+  ]
+}
