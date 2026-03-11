@@ -8,11 +8,13 @@ import React, { useState } from 'react';
 import SupabaseAuth from '../components/supabase/SupabaseAuth';
 import FileDashboard from '../components/supabase/FileDashboard';
 import ContentMetadataRpc from '../components/supabase/ContentMetadataRpc';
+import DocumentSearch from '../components/supabase/DocumentSearch';
 
 const TABS = [
   { id: 'auth', label: '🔐 Auth' },
   { id: 'files', label: '📁 File Dashboard' },
   { id: 'rpc', label: '🗂 Content Metadata RPC' },
+  { id: 'search', label: '🔎 Document Search' },
 ];
 
 /**
@@ -74,6 +76,9 @@ const SupabasePage = () => {
         )}
         {activeTab === 'rpc' && (
           <ContentMetadataRpc />
+        )}
+        {activeTab === 'search' && (
+          <DocumentSearch />
         )}
       </main>
     </div>
