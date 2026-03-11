@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 import { useModule, MODULE_TYPES } from '../context/ModuleContext';
 import { X, Maximize2, Minimize2 } from 'lucide-react';
+import PopoutOverlay from '../components/overlay/PopoutOverlay';
 
 export default function ModuleManager() {
   const {
     activeModals,
     activeSidebars,
+    activePopouts,
     closeModule,
     closeAllModules,
     modalStack
@@ -99,6 +101,18 @@ export default function ModuleManager() {
           ))}
         </div>
       )}
+
+      {/* Popouts */}
+      {activePopouts.map(({ name, component: Component, props }, index) => (
+        <PopoutOverlay
+          key={name}
+          title={props.title || name}
+          initialPosition={props.initialPosition || { x: 120 + (index * 24), y: 120 + (index * 24) }}
+          onClose={() => closeModule(name)}
+        >
+          <Component {...props} onClose={() => closeModule(name)} />
+        </PopoutOverlay>
+      ))}
     </>
   );
 }

@@ -1,10 +1,13 @@
+import { memo, useMemo } from 'react';
 import { useEditor } from '../../context/EditorContext';
 import { useLayout } from '../../context/LayoutContext';
 import { Image as ImageIcon, X } from 'lucide-react';
 
-export default function ThumbnailPanel() {
+function ThumbnailPanel({ pages, onPageSelect }) {
   const { thumbnails, scrollToSegment, activeSegment } = useEditor();
   const { toggle } = useLayout();
+
+  const pageItems = useMemo(() => pages || thumbnails, [pages, thumbnails]);
 
   return (
     <aside className="h-full bg-white dark:bg-gray-900 flex flex-col">
@@ -25,10 +28,19 @@ export default function ThumbnailPanel() {
       {/* Thumbnails */}
       <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
         <div className="space-y-3">
-          {thumbnails.map((thumbnail) => (
+          {pageItems.map((thumbnail, index) => (
             <button
-              key={thumbnail.id}
-              onClick={() => scrollToSegment(thumbnail.segment)}
+              key={thumbnail.id || index}
+              onClick={() => {
+                if (onPageSelect) {
+                  onPageSelect(thumbnail, index);
+                  return;
+                }
+
+                if (thumbnail.segment) {
+                  scrollToSegment(thumbnail.segment);
+                }
+              }}
               className="w-full text-left transition-transform active:scale-95"
             >
               <div className={`relative bg-white dark:bg-gray-800 rounded-md border transition-all duration-200 overflow-hidden ${activeSegment === thumbnail.segment
@@ -53,7 +65,7 @@ export default function ThumbnailPanel() {
               </div>
 
               <p className={`mt-1 text-[10px] truncate px-1 font-medium ${activeSegment === thumbnail.segment ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500'}`}>
-                {thumbnail.segment.replace(/-/g, ' ')}
+                {(thumbnail.segment || `page-${index + 1}`).replace(/-/g, ' ')}
               </p>
             </button>
           ))}
@@ -62,3 +74,5 @@ export default function ThumbnailPanel() {
     </aside>
   );
 }
+
+export default memo(ThumbnailPanel);

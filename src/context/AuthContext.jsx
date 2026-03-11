@@ -9,6 +9,14 @@ import { apiService, ADMIN_CONFIG, ROLE_IDS } from '../services/api/apiService';
 
 const AuthContext = createContext(null);
 
+const RBAC_ACCESS = {
+  Admin: { dashboard: true, editor: true, reports: true, admin: true },
+  Editor: { dashboard: true, editor: true, reports: true, admin: false },
+  Production: { dashboard: true, editor: true, reports: true, admin: false },
+  Author: { dashboard: false, editor: true, reports: false, admin: false },
+  Client: { dashboard: true, editor: false, reports: true, admin: false }
+};
+
 /**
  * AuthProvider component
  * Manages authentication state globally
@@ -163,6 +171,12 @@ export const AuthProvider = ({ children }) => {
     return userRole === roleId;
   }, [userRole]);
 
+  const hasAccess = useCallback((scope) => {
+    const roleName = (userRole || '').toString();
+    const access = RBAC_ACCESS[roleName] || RBAC_ACCESS.Editor;
+    return Boolean(access[scope]);
+  }, [userRole]);
+
   /**
    * Get role details
    */
@@ -182,8 +196,10 @@ export const AuthProvider = ({ children }) => {
     logout,
     updateRole,
     hasRole,
+    hasAccess,
     getRoleDetails,
-    ROLE_IDS
+    ROLE_IDS,
+    RBAC_ACCESS
   };
 
   return (

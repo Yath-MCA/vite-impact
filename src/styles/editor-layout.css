@@ -1,0 +1,84 @@
+.editor-layout {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  background: #ece7de;
+}
+
+.editor-layout__grid {
+  display: grid;
+  height: 100%;
+  width: 100%;
+  transition: grid-template-columns 220ms ease;
+}
+
+.layout-panel {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.layout-panel--nav,
+.layout-panel--thumb {
+  background: #fff;
+  border-color: #e5e7eb;
+}
+
+.layout-panel--nav {
+  border-right: 1px solid #e5e7eb;
+}
+
+.layout-panel--thumb {
+  border-left: 1px solid #e5e7eb;
+}
+
+.layout-panel--editor,
+.layout-panel--preview {
+  transition: width 220ms ease, flex-basis 220ms ease;
+}
+
+.layout-panel--preview {
+  border-left: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.layout-panel.is-closed {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.layout-panel.is-open {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+@media (max-width: 1099px) {
+  .editor-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .layout-panel--editor,
+  .layout-panel--preview {
+    height: 100%;
+  }
+
+  .layout-panel--overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(84vw, 320px);
+    z-index: 30;
+    background: #fff;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.22);
+  }
+
+  .layout-panel--overlay-right {
+    left: auto;
+    right: 0;
+    width: 132px;
+  }
+}

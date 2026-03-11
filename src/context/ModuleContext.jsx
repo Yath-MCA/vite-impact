@@ -4,7 +4,8 @@ const ModuleContext = createContext();
 
 export const MODULE_TYPES = {
   MODAL: 'modal',
-  RIGHT_SIDEBAR: 'right-sidebar'
+  RIGHT_SIDEBAR: 'right-sidebar',
+  POPOUT: 'popout'
 };
 
 export function ModuleProvider({ children }) {
@@ -82,7 +83,8 @@ export function ModuleProvider({ children }) {
     getActiveModulesByType,
     modalStack,
     activeModals: getActiveModulesByType(MODULE_TYPES.MODAL),
-    activeSidebars: getActiveModulesByType(MODULE_TYPES.RIGHT_SIDEBAR)
+    activeSidebars: getActiveModulesByType(MODULE_TYPES.RIGHT_SIDEBAR),
+    activePopouts: getActiveModulesByType(MODULE_TYPES.POPOUT)
   };
 
   return (

@@ -4,13 +4,16 @@ import { AuthProvider } from '../context/AuthContext';
 import ProtectedRoute from './ProtectedRoute';
 import Landing from '../pages/Landing';
 import Login from '../pages/Login';
-import Dashboard from '../pages/Dashboard';
-import AdminDashboard from '../pages/AdminDashboard';
-import ValidateUrl from '../pages/ValidateUrl';
-import DocDashboard from '../pages/DocDashboard';
-import SupabasePage from '../pages/SupabasePage';
 
 const EditorPage = lazy(() => import('../pages/EditorPage'));
+const Dashboard = lazy(() => import('../pages/DashboardPage'));
+const AdminDashboard = lazy(() => import('../pages/AdminDashboard'));
+const ClientDashboard = lazy(() => import('../pages/ClientDashboard'));
+const ReportsPage = lazy(() => import('../pages/ReportsPage'));
+const SettingsPage = lazy(() => import('../pages/SettingsPage'));
+const ValidateUrl = lazy(() => import('../pages/ValidateUrl'));
+const DocDashboard = lazy(() => import('../pages/DocDashboard'));
+const SupabasePage = lazy(() => import('../pages/SupabasePage'));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -23,6 +26,12 @@ const Protected = ({ children, requireAdmin = false }) => (
   <ProtectedRoute requireAdmin={requireAdmin}>
     {children}
   </ProtectedRoute>
+);
+
+const LazyPage = ({ children }) => (
+  <Suspense fallback={<PageLoader />}>
+    {children}
+  </Suspense>
 );
 
 const router = createBrowserRouter([
@@ -38,7 +47,9 @@ const router = createBrowserRouter([
     path: '/dashboard',
     element: (
       <Protected>
-        <Dashboard />
+        <LazyPage>
+          <Dashboard />
+        </LazyPage>
       </Protected>
     )
   },
@@ -46,7 +57,9 @@ const router = createBrowserRouter([
     path: '/doc-dashboard',
     element: (
       <Protected>
-        <DocDashboard />
+        <LazyPage>
+          <DocDashboard />
+        </LazyPage>
       </Protected>
     )
   },
@@ -62,7 +75,9 @@ const router = createBrowserRouter([
     path: '/admindashboard',
     element: (
       <Protected requireAdmin>
-        <AdminDashboard />
+        <LazyPage>
+          <AdminDashboard />
+        </LazyPage>
       </Protected>
     )
   },
@@ -75,24 +90,66 @@ const router = createBrowserRouter([
     element: <Navigate to="/admindashboard" replace />
   },
   {
+    path: '/client',
+    element: (
+      <Protected>
+        <LazyPage>
+          <ClientDashboard />
+        </LazyPage>
+      </Protected>
+    )
+  },
+  {
+    path: '/reports',
+    element: (
+      <Protected>
+        <LazyPage>
+          <ReportsPage />
+        </LazyPage>
+      </Protected>
+    )
+  },
+  {
+    path: '/settings',
+    element: (
+      <Protected>
+        <LazyPage>
+          <SettingsPage />
+        </LazyPage>
+      </Protected>
+    )
+  },
+  {
     path: '/supabase',
-    element: <SupabasePage />
+    element: (
+      <LazyPage>
+        <SupabasePage />
+      </LazyPage>
+    )
   },
   {
     path: '/validateurl',
-    element: <ValidateUrl />
+    element: (
+      <LazyPage>
+        <ValidateUrl />
+      </LazyPage>
+    )
   },
   {
     path: '/validateurl/:client',
-    element: <ValidateUrl />
+    element: (
+      <LazyPage>
+        <ValidateUrl />
+      </LazyPage>
+    )
   },
   {
     path: '/editor',
     element: (
       <Protected>
-        <Suspense fallback={<PageLoader />}>
+        <LazyPage>
           <EditorPage />
-        </Suspense>
+        </LazyPage>
       </Protected>
     )
   },
@@ -100,9 +157,9 @@ const router = createBrowserRouter([
     path: '/editor-readyonly',
     element: (
       <Protected>
-        <Suspense fallback={<PageLoader />}>
+        <LazyPage>
           <EditorPage readOnly />
-        </Suspense>
+        </LazyPage>
       </Protected>
     )
   },

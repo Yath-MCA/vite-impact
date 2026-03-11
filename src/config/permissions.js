@@ -10,6 +10,10 @@ export const PERMISSIONS = {
     ceTrack: false,
     generateTrack: false,
     finalize: false,
+    share: false,
+    save: false,
+    revisions: false,
+    tour: true,
   },
   editor: {
     download: true,
@@ -17,6 +21,10 @@ export const PERMISSIONS = {
     ceTrack: false,
     generateTrack: true,
     finalize: false,
+    share: true,
+    save: true,
+    revisions: true,
+    tour: true,
   },
   admin: {
     download: true,
@@ -24,6 +32,10 @@ export const PERMISSIONS = {
     ceTrack: true,
     generateTrack: true,
     finalize: true,
+    share: true,
+    save: true,
+    revisions: true,
+    tour: true,
   },
 };
 
