@@ -5,22 +5,13 @@ import { useLayout } from '../context/LayoutContext';
 import { useModule, MODULE_TYPES } from '../context/ModuleContext';
 import TocPanel from '../components/editor/TocPanel';
 import ThumbnailPanel from '../components/editor/ThumbnailPanel';
-import EditorSection from '../components/editor/EditorSection';
-import PdfSection from '../components/editor/PdfSection';
-import EditorHeader from '../components/editor/EditorHeader';
-import EditorFooter from '../components/editor/EditorFooter';
 import ModuleManager from '../modules/ModuleManager';
-import Header from '../components/layout/Header';
-import Footer from '../components/layout/Footer';
-import { 
-  LayoutTemplate, 
-  FileText, 
-  Columns, 
-  Maximize2, 
-  Minimize2,
+import Navbar1 from '../components/editor/Navbar1';
+import Navbar2 from '../components/editor/Navbar2';
+import SharedMiddleColumn from '../components/editor/SharedMiddleColumn';
+import {
   Settings,
   Palette,
-  Type,
   Image as ImageIcon
 } from 'lucide-react';
 
@@ -96,10 +87,10 @@ export default function EditorPage() {
 
   const [editorData, setEditorData] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const debugIgnoreContent = false; // Set to true to bypass content setting for layout testing
+  const loadData = false; // Set to true to load content into CKEditor; false to focus on UI
 
   const loadRandomContent = useCallback(async () => {
-    if (debugIgnoreContent) {
+    if (!loadData) {
       setIsLoading(false);
       return;
     }
@@ -182,133 +173,67 @@ export default function EditorPage() {
     updateContent(data);
   }, [updateContent]);
 
-  const viewModeButtons = [
-    { mode: VIEW_MODES.EDITOR, icon: FileText, label: 'Editor' },
-    { mode: VIEW_MODES.PDF, icon: LayoutTemplate, label: 'Preview' },
-    { mode: VIEW_MODES.SPLIT, icon: Columns, label: 'Split' }
-  ];
-
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      <Header />
-      
-      {/* Editor Toolbar */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
-        <div className="flex items-center justify-between">
-          {/* Left: View Mode Toggle */}
-          <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-            {viewModeButtons.map(({ mode, icon: Icon, label }) => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  viewMode === mode
-                    ? 'bg-white dark:bg-gray-600 text-primary-600 dark:text-primary-400 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span className="hidden sm:inline">{label}</span>
-              </button>
-            ))}
-          </div>
+    <div className="h-screen flex flex-col bg-gray-100 overflow-hidden text-gray-800" style={{ fontFamily: "'Inter', 'ui-sans-serif', system-ui" }}>
+      {/* Navbar 1 & 2 */}
+      <Navbar1 />
+      <Navbar2 titleParent="Sample Journal" titleChild="Sample Article" hideMiddle />
 
-          {/* Center: Document Info */}
-          <div className="hidden md:flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
-            <span>Words: {editorData.replace(/<[^>]*>/g, '').split(/\s+/).filter(w => w.length > 0).length}</span>
-            <span>Characters: {editorData.replace(/<[^>]*>/g, '').length}</span>
-          </div>
-
-          {/* Right: Actions */}
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => openModule('styles')}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Document Styles"
-            >
-              <Palette className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => openModule('media')}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Insert Media"
-            >
-              <ImageIcon className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => openModule('settings')}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Settings"
-            >
-              <Settings className="w-5 h-5" />
-            </button>
-            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-2" />
-            <button
-              onClick={() => toggle('editorFullscreen')}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Toggle Fullscreen"
-            >
-              {toggles.editorFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
+      {/* Shared Middle Column for Mobile (<md) */}
+      <div className="md:hidden border-b border-gray-200 bg-white px-2 py-2 flex justify-center">
+        <SharedMiddleColumn />
       </div>
 
-      {/* Editor Layout */}
-      <main className={`flex-1 flex overflow-hidden ${toggles.editorFullscreen ? 'fixed inset-0 z-50' : ''}`}>
-        {/* TOC Panel */}
-        {toggles.showToc && <TocPanel />}
+      {/* Editor Layout: 3 Panels */}
+      <main className="flex-1 flex overflow-hidden bg-gray-100">
+        {/* Left Panel: TOC */}
+        {toggles.showToc && (
+          <div className="w-56 border-r border-gray-200 flex-shrink-0 bg-white">
+            <TocPanel />
+          </div>
+        )}
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Editor or PDF View */}
-          <div className="flex-1 overflow-hidden">
-            {(viewMode === VIEW_MODES.EDITOR || viewMode === VIEW_MODES.SPLIT) && (
-              <div className={`h-full ${viewMode === VIEW_MODES.SPLIT ? 'h-1/2' : 'h-full'}`}>
-                <div className="h-full p-4 overflow-y-auto">
-                  <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 min-h-[800px]">
-                    <CKEditor
-                      initData={editorData}
-                      onChange={handleEditorChange}
-                      config={{
-                        toolbar: [
-                          { name: 'document', items: ['Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates'] },
-                          { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo'] },
-                          { name: 'editing', items: ['Find', 'Replace', '-', 'SelectAll', '-', 'Scayt'] },
-                          '/',
-                          { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'CopyFormatting', 'RemoveFormat'] },
-                          { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl', 'Language'] },
-                          { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
-                          { name: 'insert', items: ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe'] },
-                          '/',
-                          { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
-                          { name: 'colors', items: ['TextColor', 'BGColor'] },
-                          { name: 'tools', items: ['Maximize', 'ShowBlocks'] }
-                        ],
-                        height: 600,
-                        uiColor: '#f0f0f0',
-                        removePlugins: 'elementspath',
-                        resize_enabled: false
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {(viewMode === VIEW_MODES.PDF || viewMode === VIEW_MODES.SPLIT) && (
-              <div className={`${viewMode === VIEW_MODES.SPLIT ? 'h-1/2 border-t border-gray-200 dark:border-gray-700' : 'h-full'}`}>
-                <PdfPreview />
-              </div>
-            )}
+        {/* Center Panel: Editor Canvas */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8 flex justify-center bg-gray-100 pb-32">
+          {/* Document Card */}
+          <div className="w-full max-w-4xl bg-white text-gray-900 shadow-xl rounded-sm min-h-[800px] border border-gray-200 dark:border-gray-800 dark:bg-gray-800 dark:text-gray-100 overflow-hidden relative">
+            <CKEditor
+              initData={editorData}
+              onChange={handleEditorChange}
+              config={{
+                toolbar: [
+                  { name: 'document', items: ['Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates'] },
+                  { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo'] },
+                  { name: 'editing', items: ['Find', 'Replace', '-', 'SelectAll', '-', 'Scayt'] },
+                  '/',
+                  { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'CopyFormatting', 'RemoveFormat'] },
+                  { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl', 'Language'] },
+                  { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
+                  { name: 'insert', items: ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe'] },
+                  '/',
+                  { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
+                  { name: 'colors', items: ['TextColor', 'BGColor'] },
+                  { name: 'tools', items: ['Maximize', 'ShowBlocks'] }
+                ],
+                height: 800,
+                uiColor: '#f0f0f0',
+                removePlugins: 'elementspath',
+                resize_enabled: false
+              }}
+            />
           </div>
         </div>
+
+        {/* Right Panel: Thumbnails */}
+        {toggles.showThumbnails && (
+          <div className="w-[112px] border-l border-gray-200 flex-shrink-0 bg-white">
+            <ThumbnailPanel />
+          </div>
+        )}
       </main>
 
       {/* Module Manager */}
       <ModuleManager />
-
-      {!toggles.editorFullscreen && <EditorFooter />}
     </div>
   );
 }
