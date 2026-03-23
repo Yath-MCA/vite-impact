@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebSocket + Socket.IO Chat Tester</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .path {
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    #messages {
+      background: #fff;
+      border: 1px solid #ccc;
+      height: 350px;
+      overflow-y: auto;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    #messages div {
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .input-area {
+      display: flex;
+      margin-top: 10px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px 0 0 8px;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #2563eb;
+      border: none;
+      color: #fff;
+      border-radius: 0 8px 8px 0;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>🧩 WebSocket + Socket.IO Chat Tester</h2>
+  <span class="path">Connecting...</span>
+
+  <div id="messages"></div>
+
+  <div class="input-area">
+    <input id="inputMsg" placeholder="Type message..." />
+    <button onclick="sendMsg()">Send</button>
+  </div>
+
+  <script>
+    (function () {
+      let ws = null;
+      let ioSocket = null;
+      const receivedSet = new Set();
+      const endpoint = "/collaboration";
+      const hostname = window.location.hostname;
+      const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+
+      // ================================
+      // LOCAL → Java WebSocket connection
+      // ================================
+      if (hostname.includes("localhost")) {
+        const socketUrl = `${protocol}://localhost:8025${endpoint}`;
+        const titleSpan = document.querySelector(".path");
+        if (titleSpan) titleSpan.textContent = socketUrl;
+
+        console.log("🧑‍💻 Connecting to local WebSocket:", socketUrl);
+        ws = new WebSocket(socketUrl);
+
+        ws.onopen = () => {
+          console.log("✅ WebSocket connected (local)");
+          displayMessage("✅ Connected to local WebSocket server");
+        };
+
+        ws.onmessage = (event) => {
+          const msg = event.data;
+          if (receivedSet.has(msg)) return;
+          receivedSet.add(msg);
+          console.log("📩 Message from WebSocket:", msg);
+          displayMessage("📩 " + msg);
+        };
+
+        ws.onclose = () => {
+          console.warn("❌ WebSocket closed");
+          displayMessage("⚠️ WebSocket closed — retrying...");
+          setTimeout(() => window.location.reload(), 3000);
+        };
+
+        ws.onerror = (err) => {
+          console.error("⚠️ WebSocket error:", err);
+          displayMessage("⚠️ WebSocket error: " + (err.message || err));
+        };
+      }
+
+      // ================================
+      // PRODUCTION → Socket.IO connection
+      // ================================
+      else {
+        const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+        const hostname = window.location.hostname;
+        let socketURL = "";
+        let endpoint = "/collaboration";
+        const port = window.location.port ? `:${window.location.port}` : ":8025";
+        socketURL = `${protocol}://${hostname}${port}${endpoint}`;
+
+        const titleSpan = document.querySelector(".path");
+        if (titleSpan) titleSpan.textContent = socketURL;
+
+        console.log("🌐 Connecting to Socket.IO server:", socketURL);
+        ioSocket = io.connect(socketURL, {
+          transports: ["websocket"],
+          reconnectionAttempts: 5,
+        });
+
+        ioSocket.on("connect", () => {
+          console.log("✅ Socket.IO connected:", ioSocket.id);
+          displayMessage("✅ Connected to Socket.IO server");
+        });
+
+        ioSocket.on("listtenants", (data) => {
+          const msg = JSON.stringify(data);
+          if (receivedSet.has(msg)) return;
+          receivedSet.add(msg);
+          console.log("🏢 listtenants:", data);
+          displayMessage("🏢 listtenants: " + msg);
+        });
+
+        ioSocket.on("chatevent", (data) => {
+          const msg = JSON.stringify(data);
+          if (receivedSet.has(msg)) return;
+          receivedSet.add(msg);
+          console.log("💬 chatevent:", data);
+          displayMessage("💬 chat: " + msg);
+        });
+
+        ioSocket.on("disconnect", () => {
+          console.warn("❌ Socket.IO disconnected");
+          displayMessage("⚠️ Socket.IO disconnected — retrying...");
+        });
+
+        ioSocket.on("connect_error", (err) => {
+          console.error("⚠️ Socket.IO error:", err.message);
+          displayMessage("⚠️ Socket.IO error: " + err.message);
+        });
+      }
+
+      // ================================
+      // Message display helper
+      // ================================
+      function displayMessage(message) {
+        const messagesDiv = document.getElementById("messages");
+        if (!messagesDiv) return;
+        const newMessage = document.createElement("div");
+        newMessage.textContent = message;
+        messagesDiv.appendChild(newMessage);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
+
+      // ================================
+      // Send button handler
+      // ================================
+      window.sendMsg = function () {
+        const input = document.getElementById("inputMsg");
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        // Try both
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(msg);
+          displayMessage("📤 (WS) Sent: " + msg);
+        } else if (ioSocket && ioSocket.connected) {
+          ioSocket.emit("chatevent", { user: "Browser", text: msg, time: new Date().toISOString() });
+          displayMessage("📤 (IO) Sent: " + msg);
+        } else {
+          alert("No active socket connection.");
+        }
+
+        input.value = "";
+      };
+    })();
+  </script>
+</body>
+
+</html>

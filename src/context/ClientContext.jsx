@@ -1,12 +1,15 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { BRANDING, THEME } from '../config/theme';
 
 const ClientContext = createContext();
 
 export const CLIENT_CONFIGS = {
   'default-client': {
-    name: 'Default Client',
+    name: BRANDING.productName,
     theme: 'light',
-    primaryColor: '#3b82f6',
+    primaryColor: THEME.primary,
+    logo: BRANDING.companyLogo,
+    productIcon: BRANDING.productIcon,
     apiBaseUrl: 'https://api.default-client.com',
     features: {
       dashboard: true,
@@ -22,9 +25,11 @@ export const CLIENT_CONFIGS = {
     }
   },
   'enterprise-client': {
-    name: 'Enterprise Client',
+    name: `${BRANDING.productName} Enterprise`,
     theme: 'dark',
-    primaryColor: '#8b5cf6',
+    primaryColor: THEME.primary,
+    logo: BRANDING.companyLogo,
+    productIcon: BRANDING.productIcon,
     apiBaseUrl: 'https://api.enterprise-client.com',
     features: {
       dashboard: true,
@@ -41,9 +46,11 @@ export const CLIENT_CONFIGS = {
     }
   },
   'basic-client': {
-    name: 'Basic Client',
+    name: `${BRANDING.productName} Basic`,
     theme: 'light',
-    primaryColor: '#10b981',
+    primaryColor: THEME.primary,
+    logo: BRANDING.companyLogo,
+    productIcon: BRANDING.productIcon,
     apiBaseUrl: 'https://api.basic-client.com',
     features: {
       dashboard: true,
@@ -98,7 +105,8 @@ export function ClientProvider({ children }) {
           updateClientConfig({
             name: branding.LOGO_ALT || resData.client || 'Impact Client',
             logo: branding.LOGO_SRC || branding.logo_src || branding.logoSrc,
-            primaryColor: branding.PRIMARY_COLOR || '#3b82f6' // fallback to default blue
+            productIcon: branding.PRODUCT_ICON || branding.product_icon || branding.productIcon || BRANDING.productIcon,
+            primaryColor: branding.PRIMARY_COLOR || THEME.primary
           });
         }
       }

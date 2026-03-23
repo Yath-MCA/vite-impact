@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google" content="notranslate">
+    <title>Newgen IMPACT | User Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="UI/logo/ng_favicon.ico" rel="icon">
+
+    <link rel="stylesheet" href="assets/${{VERSION}}$/vendor/vendor_jbt.css?_${{TIMESTAMP}}$">
+    <style>
+        #projectname,
+        #clientdtd,
+        #clientname {
+            width: 70%;
+        }
+
+        .formGroup>div {
+            display: -ms-flexbox !important;
+            display: flex !important;
+        }
+
+        #parentDiv {
+            overflow: auto;
+        }
+
+        #TopRow {
+            padding: .7%;
+            background: #f1f1f1;
+        }
+
+        #clientname option:disabled {
+            background-color: gainsboro;
+        }
+    </style>
+    
+    <script src="assets/${{VERSION}}$/vendor/vendor_jbt.js?_${{TIMESTAMP}}$"></script>
+    <script src="assets/${{VERSION}}$/vendor/vendor_smt.js?_${{TIMESTAMP}}$"></script>
+    <script src="assets/${{VERSION}}$/js/userdashboard.js?_${{TIMESTAMP}}$"></script>
+</head>
+<!-- sidebar-mini  -->
+
+<body class="hold-transition layout-navbar-fixed sidebar-collapse">
+    <div class="wrapper">
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="#" class="nav-link" id="R1"><i class="nav-icon fas fa-tachometer-alt"></i> Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#" id="R2"><i class="fas fa-user-graduate"></i> Master</a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-left">
+                        <a href="#" class="dropdown-item" id="MAS01"><i class="fas fa-user-tie mr-2"></i> Users</a>
+                        <a href="#" class="dropdown-item" id="MAS02"><i class="fas fa-users-cog mr-2"></i> Users Rights</a>
+                        <a href="#" class="dropdown-item" id="MAS03"><i class="fas fa-user-tag mr-2"></i> Role</a>
+                        <a href="#" class="dropdown-item" id="MAS04"><i class="fab fa-product-hunt mr-2"></i> Product</a>
+                        <a href="#" class="dropdown-item" id="MAS05"><i class="fas fa-bars mr-2"></i> Category</a>
+                        <a href="#" class="dropdown-item" id="MAS06"><i class="fas fa-sitemap mr-2"></i> Mapping</a>
+                        <a href="#" class="dropdown-item" id="MAS07"><i class="fas fa-bezier-curve mr-2"></i> Workflow</a>
+                        <a href="#" class="dropdown-item" id="MAS08"><i class="fas fa-at mr-2"></i> Email Template</a>
+                        <a href="#" class="dropdown-item" id="MAS09"><i class="fas fa-book-reader mr-2"></i> Guides</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#" id="R3"><i class="fas fa-file"></i> Report</a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-left">
+                        <a href="#" class="dropdown-item" data-page="snippet/doi" onclick="redirectPage(this);" id="REP01"><i class="fas fa-dolly-flatbed mr-2"></i> DOI Report</a>
+                        <a href="#" class="dropdown-item" data-page="snippet/ErrorLog" onclick="redirectPage(this);" id="REP02"><i class="fas fa-exclamation-circle mr-2"></i> Error Report</a>
+                        <a href="#" class="dropdown-item" data-page="snippet/sharedLink" onclick="redirectPage(this);" id="REP03"><i class="fas fa-poll mr-2"></i> Client Shared Links</a>
+                        <a href="#" class="dropdown-item" data-page="snippet/autoupload" onclick="redirectPage(this);" id="REP04"><i class="fas fa-poll mr-2"></i> Auto Upload Status</a>
+                    </div>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <!-- <img src="UI/img/TF_Logo.png" alt="Newgen Logo" class="brand-image" style="height: 40px;"> -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#">
+                        <!-- <i class="fas fa-power-off"></i> -->
+                        <img src="UI/img/profile.png" class="img-circle elevation-2" alt="User Image" style="height: 180%;margin-top: -20%;">
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <span class="dropdown-item dropdown-header">Profile Details</span>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-user mr-2"></i><span id="idname"></span>
+                            <span class="float-right text-muted text-sm"></span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" onclick="log_out()" class="dropdown-item dropdown-footer" id="logout_menu">Logout</a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+        <aside class="main-sidebar sidebar-light-primary elevation-4 d-none">
+            <a href="#" class="brand-link">
+                <img src="UI/img/logo_sm.jpg" alt="Newgen Logo" class="brand-image" style="opacity: .8;height: 30px;">
+                <span class="brand-text font-weight-light"><b>T & F</b></span>
+                <span class="brand-text font-weight-light"> / </span>
+                <span class="brand-text font-weight-light"><b>Newgen IMPACT</b></span>
+            </a>
+        </aside>
+        <div class="content-wrapper">
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1 class="m-0 text-dark">Dashboard</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item active"><a>User Home</a></li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <section class="content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="d-flex align-items-center" id="TopRow">
+                                <div class="test">
+                                    <button onclick="modelpopup(this)" type="button" id="btn_newproject" class="btn btn-primary">New Project</button>
+                                </div>
+                                <div class="test ml-auto">
+                                    <form class="d-flex flex-row">
+                                        <div class="form-group">
+                                            <label class="my-1 mr-2" for="client_select">Clients</label>
+                                            <select class="form-control form-control-sm" id="client_select">
+                                                <option selected value="all">All</option>
+                                                <option value="oup">OUP-J</option>
+                                                <option value="lww">LWW-J</option>
+                                                <option value="nihr">NIHR-J</option>
+                                                <option value="tnf">T&F-B</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group ml-3">
+                                            <label class="my-1 mr-2" for="upload_select">Upload By</label>
+                                            <select class="form-control form-control-sm" id="upload_select">
+                                                <option selected value="nonpubkit">Non-Pubkit</option>
+                                                <option value="all">All</option>
+                                                <option value="pubkit">Pubkit</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group ml-3">
+                                            <label class="my-1 mr-2" for="upload_from">Upload From</label>
+                                            <select class="form-control form-control-sm" id="upload_from">
+                                                <option selected value="today">Today</option>
+                                                <option value="week">This Week</option>
+                                                <option value="onemonth">Last Month</option>
+                                                <option value="threemonth">Last 3 Month</option>
+                                                <option value="all">All</option>
+                                            </select>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="test">
+                                    <button type="button" onclick="Getuserfiles()" id="" class="btn btn-primary">Result</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <table id="userList" class="table table-bordered table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Client</th>
+                                            <th>File Name</th>
+                                            <!-- <th>Share With</th> -->
+                                            <th>DOCID</th>
+                                            <th>Last Accessed</th>
+                                            <th>Status</th>
+                                            <th>Task</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Client</th>
+                                            <th>File Name</th>
+                                            <!-- <th>Share With</th> -->
+                                            <th>DOCID</th>
+                                            <th>Last Accessed</th>
+                                            <th>Status</th>
+                                            <th>Task</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+        <footer class="main-footer">
+            <strong>Copyright &copy; 2020 <a target="_blank" href="http://newgen.co">Newgen</a>.</strong> All rights reserved.
+        </footer>
+        <aside class="control-sidebar control-sidebar-light">
+        </aside>
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <!-- style="width: 65%;padding: 10px;border: 2px solid #ff8635;border-radius: 10px;margin-top: 70px;"> -->
+                <span id="closeBut" class="close" onclick="modelpopup(this)">&times;</span>
+                <br />
+                <div id="parentDiv">
+                    <form id="newprojectform" name="input">
+                        <div class="card">
+                            <h3 for="exampleInputEmail1" class="text-center">New Project Details</h3>
+                            <div class="card-body">
+                                <div class="form-group row formGroup">
+                                    <div class="col-md-6">
+                                        <input type="hidden" id="docid" name="docid_" value="">
+                                        <label>Name</label>
+                                        <input type="text" name="name" class="form-control" id="projectname" placeholder="Project Name">
+                                    </div>
+                                    <div class="col-md-6" id="client_Type">
+                                        <label>Client Type</label>
+                                        <div class="form-check form-check-inline pl-3">
+                                            <input class="form-check-input" type="radio" name="exampleRadios" id="project_book" value="Books" onclick="workFlowClick(this);">
+                                            <label class="form-check-label" for="project_book">Book</label>
+                                        </div>
+                                        <div class="form-check form-check-inline pl-3">
+                                            <input class="form-check-input pl-2" type="radio" name="exampleRadios" id="project_journal" value="Journals" onclick="workFlowClick(this);">
+                                            <label class="form-check-label" for="project_journal">Journal</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row formGroup">
+                                    <div class="col-md-6">
+                                        <label>DTD</label>
+                                        <select title="choose DTD" id="clientdtd" class="form-control" name="select">
+                                            <option value="default">Select</option>
+                                            <option value="BITS">BITS</option>
+                                            <option value="JATS">JATS</option>
+                                            <option value="xyz">XYZ</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Client</label>
+                                        <select title="choose Client" id="clientname" class="form-control" name="select">
+                                            <option value="0" selected>Select</option>
+                                            <option class="journal" value="LWW">J-LWW</option>
+                                            <option class="journal" value="OUP">J-OUP</option>
+                                            <option class="journal" value="wk_nova">J-WK-NOVA</option>
+                                            <option class="book" value="TNF">TnF</option>
+                                            <option class="book" value="OUP">OUP</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div style="margin-top:20px;" id="d-zone1" name="title"></div>
+                                <div id='userinfo' style='padding:10px;width:100%;'></div>
+                                <button type="button" id="projinputupdate" onclick="UpdateProject()" class="btn btn-primary">Update</button>
+                                <button type="button" id="projinputsave" onclick="SaveProject()" class="btn btn-primary">save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

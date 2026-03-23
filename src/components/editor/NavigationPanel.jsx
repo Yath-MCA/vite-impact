@@ -1,6 +1,7 @@
 import { memo, useMemo, useState } from 'react';
 import { BookOpen, MessageSquare, MessagesSquare } from 'lucide-react';
 import { useEditor } from '../../context/EditorContext';
+import { useClient } from '../../context/ClientContext';
 import Toc from './Toc';
 import Queries from './Queries';
 import Comments from './Comments';
@@ -13,6 +14,7 @@ const TABS = [
 
 function NavigationPanel() {
   const { scrollToHeading } = useEditor();
+  const { clientConfig } = useClient();
   const [activeTab, setActiveTab] = useState('toc');
 
   const content = useMemo(() => {
@@ -30,6 +32,15 @@ function NavigationPanel() {
   return (
     <section className="flex h-full flex-col overflow-hidden bg-white" aria-label="Navigation panel">
       <div className="border-b border-gray-200 bg-white px-2 py-2">
+        <div className="mb-2 flex items-center gap-2 rounded-md border border-orange-100 bg-orange-50/40 px-2 py-1.5">
+          <img
+            src={clientConfig.productIcon || '/assets/logo/product-icon.svg'}
+            alt="Product icon"
+            className="h-5 w-5 rounded"
+            loading="lazy"
+          />
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-primary-700">{clientConfig.name}</span>
+        </div>
         <div className="grid grid-cols-3 gap-1 rounded-lg bg-gray-100 p-1">
           {TABS.map(({ id, label, icon: Icon }) => {
             const active = activeTab === id;

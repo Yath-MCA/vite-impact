@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Configuration Manager | IMPACT</title>
+    <link href="UI/logo/ng_favicon.ico" rel="icon">
+    
+    <!-- Bootstrap & FontAwesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- <script type="text/javascript" src="assets/${{VERSION}}$/vendor/vendor_smt.js?_${{TIMESTAMP}}$"></script>
+    <link rel="stylesheet" href="assets/${{VERSION}}$/vendor/vendor_admin_config.css?_${{TIMESTAMP}}$"> -->
+    
+    
+    <!-- CodeMirror for XML Editing -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --bg-light: #ecf0f1;
+            --text-dark: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .main-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 1600px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .breadcrumb-custom {
+            background: var(--bg-light);
+            padding: 15px 30px;
+            margin: 0;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .sidebar {
+            background: #f8f9fa;
+            border-right: 2px solid #dee2e6;
+            min-height: calc(100vh - 200px);
+            padding: 20px 0;
+        }
+
+        .sidebar-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-item:hover {
+            background: #e9ecef;
+            border-left-color: var(--secondary-color);
+        }
+
+        .sidebar-item.active {
+            background: #e3f2fd;
+            border-left-color: var(--secondary-color);
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .content-area {
+            padding: 30px;
+        }
+
+        .card-custom {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .card-custom:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0;
+            font-weight: 600;
+        }
+
+        .btn-custom {
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-success-custom {
+            background: linear-gradient(135deg, var(--success-color) 0%, #229954 100%);
+            color: white;
+        }
+
+        .btn-danger-custom {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .btn-warning-custom {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .CodeMirror {
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .config-tree {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .tree-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 3px 0;
+            transition: all 0.2s ease;
+        }
+
+        .tree-item:hover {
+            background: #f0f0f0;
+        }
+
+        .tree-item.selected {
+            background: #e3f2fd;
+            font-weight: 600;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stats-card h3 {
+            font-size: 36px;
+            margin: 10px 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .search-box {
+            border-radius: 25px;
+            padding: 10px 20px;
+            border: 2px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .badge-custom {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .journal-list-item {
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .journal-list-item:hover {
+            background: #f8f9fa;
+            border-color: var(--secondary-color);
+        }
+
+        .diff-viewer {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .diff-added {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .diff-removed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 999px;
+            padding: 6px 12px 6px 6px;
+            color: #fff;
+            min-height: 40px;
+        }
+
+        .profile-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            background: rgba(255, 255, 255, 0.92);
+            color: #1f2a44;
+        }
+
+        .profile-meta {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .profile-name {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .profile-sub {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        #adminLayoutRow {
+            display: flex;
+            flex-wrap: nowrap;
+        }
+
+        #adminLayoutRow .sidebar-column {
+            flex: 0 0 280px;
+            max-width: 280px;
+            transition: all 0.25s ease;
+        }
+
+        #adminLayoutRow .content-column {
+            flex: 1 1 auto;
+            max-width: calc(100% - 280px);
+            transition: all 0.25s ease;
+        }
+
+        #adminLayoutRow.sidebar-icons .sidebar-column {
+            flex-basis: 84px;
+            max-width: 84px;
+        }
+
+        #adminLayoutRow.sidebar-icons .content-column {
+            max-width: calc(100% - 84px);
+        }
+
+        #adminLayoutRow.sidebar-icons #sidebarSearchWrap {
+            display: none;
+        }
+
+        #adminLayoutRow.sidebar-icons .sidebar-item {
+            justify-content: center;
+            padding: 12px 8px;
+        }
+
+        #adminLayoutRow.sidebar-icons .sidebar-item .sidebar-label {
+            display: none;
+        }
+
+        #adminLayoutRow.sidebar-icons .sidebar-item i {
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            #adminLayoutRow {
+                display: block;
+            }
+
+            #adminLayoutRow .sidebar-column,
+            #adminLayoutRow .content-column,
+            #adminLayoutRow.sidebar-icons .sidebar-column,
+            #adminLayoutRow.sidebar-icons .content-column {
+                max-width: 100%;
+            }
+
+            #adminLayoutRow.sidebar-icons #sidebarSearchWrap {
+                display: block;
+            }
+
+            #adminLayoutRow.sidebar-icons .sidebar-item {
+                justify-content: flex-start;
+                padding: 12px 20px;
+            }
+
+            #adminLayoutRow.sidebar-icons .sidebar-item .sidebar-label {
+                display: inline;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="text-center">
+            <div class="spinner"></div>
+            <p class="text-white mt-3">Processing...</p>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1><i class="fas fa-cogs"></i> Configuration Manager</h1>
+                <p class="mb-0">Manage Client & Journal Configurations</p>
+            </div>
+            <div class="header-right">
+                <div id="headerProfile"></div>
+                <button class="btn btn-info btn-sm" id="sidebarModeToggle" onclick="toggleSidebarMode()">
+                    <i class="fas fa-grip-lines-vertical"></i> Icons Mode
+                </button>
+                <button class="btn btn-light btn-sm" onclick="window.location.href='admindashboard.html'">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
+                <button class="btn btn-warning btn-sm ms-2" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb-custom">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="admindashboard.html">Dashboard</a></li>
+                <li class="breadcrumb-item active" id="breadcrumbCurrent">Configuration Manager</li>
+            </ol>
+        </nav>
+
+        <div class="row g-0" id="adminLayoutRow">
+            <!-- Sidebar -->
+            <div class="col-md-3 sidebar sidebar-column">
+                <div class="px-3 mb-3" id="sidebarSearchWrap">
+                    <input type="text" class="form-control search-box" id="sidebarSearch" placeholder="🔍 Search configs...">
+                </div>
+                
+                <div class="sidebar-item active" data-view="dashboard" onclick="switchView('dashboard')">
+                    <i class="fas fa-th-large"></i> <span class="sidebar-label">Dashboard</span>
+                </div>
+                <div class="sidebar-item" data-view="client-list" onclick="switchView('client-list')">
+                    <i class="fas fa-building"></i> <span class="sidebar-label">Client Configurations</span>
+                </div>
+                <div class="sidebar-item" data-view="journal-list" onclick="switchView('journal-list')">
+                    <i class="fas fa-book"></i> <span class="sidebar-label">Journal Configurations</span>
+                </div>
+                <div class="sidebar-item" data-view="create-new" onclick="switchView('create-new')">
+                    <i class="fas fa-plus-circle"></i> <span class="sidebar-label">Create New Config</span>
+                </div>
+                <div class="sidebar-item" data-view="xml-editor" onclick="switchView('xml-editor')">
+                    <i class="fas fa-code"></i> <span class="sidebar-label">XML Editor</span>
+                </div>
+                <div class="sidebar-item" data-view="compare" onclick="switchView('compare')">
+                    <i class="fas fa-code-compare"></i> <span class="sidebar-label">Compare Configs</span>
+                </div>
+                <div class="sidebar-item" data-view="history" onclick="switchView('history')">
+                    <i class="fas fa-history"></i> <span class="sidebar-label">Change History</span>
+                </div>
+                <div class="sidebar-item" data-view="validation" onclick="switchView('validation')">
+                    <i class="fas fa-check-circle"></i> <span class="sidebar-label">Validate XML</span>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-md-9 content-area content-column">
+                <!-- Dashboard View -->
+                <div id="view-dashboard" class="content-view">
+                    <h2 class="mb-4">Configuration Dashboard</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="stats-card">
+                                <i class="fas fa-building fa-2x mb-2"></i>
+                                <h3 id="totalClients">0</h3>
+                                <p>Total Clients</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <i class="fas fa-book fa-2x mb-2"></i>
+                                <h3 id="totalJournals">0</h3>
+                                <p>Total Journals</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                <i class="fas fa-edit fa-2x mb-2"></i>
+                                <h3 id="recentChanges">0</h3>
+                                <p>Recent Changes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card-custom">
+                                <div class="card-header-custom">
+                                    <i class="fas fa-clock"></i> Recent Activity
+                                </div>
+                                <div class="card-body" id="recentActivity">
+                                    <p class="text-muted">Loading recent activity...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card-custom">
+                                <div class="card-header-custom">
+                                    <i class="fas fa-exclamation-triangle"></i> Quick Actions
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-primary-custom btn-custom" onclick="switchView('create-new')">
+                                            <i class="fas fa-plus"></i> Create New Configuration
+                                        </button>
+                                        <button class="btn btn-success-custom btn-custom" onclick="switchView('xml-editor')">
+                                            <i class="fas fa-edit"></i> Edit Existing Config
+                                        </button>
+                                        <button class="btn btn-warning-custom btn-custom" onclick="switchView('validation')">
+                                            <i class="fas fa-check"></i> Validate Configuration
+                                        </button>
+                                        <button class="btn btn-danger-custom btn-custom" onclick="exportAllConfigs()">
+                                            <i class="fas fa-download"></i> Export All Configs
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Client List View -->
+                <div id="view-client-list" class="content-view" style="display:none;">
+                    <h2 class="mb-4">Client Configurations</h2>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary-custom btn-custom" onclick="loadClientConfig('lww')">
+                            <i class="fas fa-eye"></i> View LWW Config
+                        </button>
+                        <button class="btn btn-success-custom btn-custom" onclick="switchView('create-new')">
+                            <i class="fas fa-plus"></i> Add New Client
+                        </button>
+                    </div>
+                    <div id="clientListContainer" class="config-tree">
+                        <p class="text-muted">Loading client configurations...</p>
+                    </div>
+                </div>
+
+                <!-- Journal List View -->
+                <div id="view-journal-list" class="content-view" style="display:none;">
+                    <h2 class="mb-4">Journal Configurations</h2>
+                    <div class="mb-3">
+                        <select class="form-select" id="clientSelector" onchange="loadJournalsByClient(this.value)">
+                            <option value="">Select Client</option>
+                            <option value="lww">LWW (Lippincott Williams & Wilkins)</option>
+                            <option value="oup">OUP (Oxford University Press)</option>
+                            <option value="plos">PLOS (Public Library of Science)</option>
+                            <option value="medknow">Medknow Publications</option>
+                            <option value="brill">Brill Publishers</option>
+                            <option value="tnfjournals">Taylor & Francis Journals</option>
+                            <option value="acs">ACS (American Chemical Society)</option>
+                            <option value="apa">APA (American Psychological Association)</option>
+                            <option value="intellect">Intellect Books</option>
+                            <option value="nihr">NIHR Journals Library</option>
+                            <option value="oso">OSO (Oxford Scholarship Online)</option>
+                        </select>
+                    </div>
+                    <div id="journalListContainer">
+                        <p class="text-muted">Select a client to view journals</p>
+                    </div>
+                </div>
+
+                <!-- Create New Config View -->
+                <div id="view-create-new" class="content-view" style="display:none;">
+                    <h2 class="mb-4">Create New Configuration</h2>
+                    <div class="card-custom">
+                        <div class="card-body">
+                            <form id="createConfigForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Configuration Type</label>
+                                        <select class="form-select" id="configType" required>
+                                            <option value="">Select Type</option>
+                                            <option value="client">New Client Configuration</option>
+                                            <option value="journal">New Journal Configuration</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Client</label>
+                                        <div id="clientInputContainer">
+                                            <input type="text" class="form-control" id="clientName" placeholder="e.g., lww, oso">
+                                        </div>
+                                        <div id="clientSelectContainer" style="display:none;">
+                                            <select class="form-select" id="existingClientSelect">
+                                                <option value="">Select Client</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-2 mb-3">
+                                        <label class="form-label">Short Code</label>
+                                        <input type="text" class="form-control" id="journalShort" placeholder="e.g., EJGH, MD">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Abbr Title</label>
+                                        <input type="text" class="form-control" id="abbTitle" placeholder="e.g., EJGH">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Full Title</label>
+                                        <input type="text" class="form-control" id="journalTitle" placeholder="Full journal name">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Mantis ID (Issue ID)</label>
+                                        <input type="text" class="form-control" id="mantisId" placeholder="e.g., 12345">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Batch</label>
+                                        <input type="text" class="form-control" id="batchNumber" placeholder="e.g., 101">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Created By (By)</label>
+                                        <input type="text" class="form-control" id="orderBy" placeholder="User ID">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">QC By</label>
+                                        <input type="text" class="form-control" id="qcBy" placeholder="User ID">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Copy Edit By</label>
+                                        <input type="text" class="form-control" id="copyBy" placeholder="User ID">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Template Base / Copy From</label>
+                                    <select class="form-select" id="templateBase">
+                                        <option value="">Start from scratch (Default)</option>
+                                    </select>
+                                    <div class="form-text">If you select a client above, you can copy from an existing journal.</div>
+                                </div>
+                                <div class="action-buttons">
+                                    <button type="submit" class="btn btn-success-custom btn-custom">
+                                        <i class="fas fa-save"></i> Create Configuration
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-custom" onclick="switchView('dashboard')">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- XML Editor View -->
+                <div id="view-xml-editor" class="content-view" style="display:none;">
+                    <h2 class="mb-4">XML Configuration Editor</h2>
+                    <div class="mb-3">
+                        <label class="form-label">Select Configuration File</label>
+                        <select class="form-select" id="xmlFileSelector" onchange="loadXMLFile(this.value)">
+                            <option value="">Choose a file...</option>
+                            <option value="lww/config.xml">LWW - Main Config</option>
+                            <option value="oso/config.xml">OSO - Main Config</option>
+                        </select>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-success-custom btn-custom" onclick="saveXMLFile()">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <button class="btn btn-warning-custom btn-custom" onclick="validateXML()">
+                            <i class="fas fa-check"></i> Validate XML
+                        </button>
+                        <button class="btn btn-primary-custom btn-custom" onclick="formatXML()">
+                            <i class="fas fa-indent"></i> Format XML
+                        </button>
+                        <button class="btn btn-danger-custom btn-custom" onclick="revertChanges()">
+                            <i class="fas fa-undo"></i> Revert Changes
+                        </button>
+                    </div>
+                    <textarea id="xmlEditor"></textarea>
+                </div>
+
+                <!-- Compare View -->
+                <div id="view-compare" class="content-view" style="display:none;">
+                    <h2 class="mb-4">Compare Configurations</h2>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">First Configuration</label>
+                            <select class="form-select" id="compareFile1">
+                                <option value="">Select file...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Second Configuration</label>
+                            <select class="form-select" id="compareFile2">
+                                <option value="">Select file...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary-custom btn-custom mb-3" onclick="compareConfigs()">
+                        <i class="fas fa-code-compare"></i> Compare
+                    </button>
+                    <div id="compareResult" class="diff-viewer">
+                        <p class="text-muted">Select two files to compare</p>
+                    </div>
+                </div>
+
+                <!-- History View -->
+                <div id="view-history" class="content-view" style="display:none;">
+                    <h2 class="mb-4">Change History</h2>
+                    <div id="historyContainer">
+                        <p class="text-muted">Loading change history...</p>
+                    </div>
+                </div>
+
+                <!-- Validation View -->
+                <div id="view-validation" class="content-view" style="display:none;">
+                    <h2 class="mb-4">XML Validation</h2>
+                    <div class="card-custom">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Select File to Validate</label>
+                                <select class="form-select" id="validateFileSelector">
+                                    <option value="">Choose a file...</option>
+                                    <option value="lww/config.xml">LWW - Main Config</option>
+                                    <option value="oso/config.xml">OSO - Main Config</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary-custom btn-custom" onclick="runValidation()">
+                                <i class="fas fa-play"></i> Run Validation
+                            </button>
+                            <div id="validationResult" class="mt-4">
+                                <!-- Validation results will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/xml-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closetag.min.js"></script>
+    
+    <!-- Combine version of third party -->
+    <script type="text/javascript" src="assets/${{VERSION}}$/vendor/vendor_jbt.js?_${{TIMESTAMP}}$"></script>
+    <script type="text/javascript" src="assets/${{VERSION}}$/vendor/vendor_smt.js?_${{TIMESTAMP}}$"></script>
+
+    <script src="assets/${{VERSION}}$/js/adminconfig.js?_${{TIMESTAMP}}$"></script>
+</body>
+</html>

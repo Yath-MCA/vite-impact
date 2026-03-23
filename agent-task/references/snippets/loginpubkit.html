@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google" content="notranslate">
+    <title>IMPACT | Pubkit Log In</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="UI/logo/ng_favicon.ico" rel="icon">
+</head>
+
+<body>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const params = urlParams.toString();
+        const redirectUrl = `login.html?${params}`;
+        window.location.href = redirectUrl;
+    </script>
+</body>
+
+</html>

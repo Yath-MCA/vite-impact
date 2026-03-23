@@ -4,11 +4,14 @@
 
 @layer base {
   :root {
+    --primary-color: #ff8635;
+    --primary-hover: #ff9b55;
+    --primary-dark: #e46e22;
     --primary-50: 255 243 232;
     --primary-100: 255 226 195;
     --primary-500: 255 134 53;
-    --primary-600: 229 101 21;
-    --primary-700: 204 77 0;
+    --primary-600: 228 110 34;
+    --primary-700: 201 95 29;
   }
 
   * {
@@ -18,6 +21,11 @@
   body {
     @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white;
     @apply antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
   }
 }
 
@@ -217,7 +225,7 @@
 
 .bootstrap-datetimepicker-widget table td.active,
 .bootstrap-datetimepicker-widget table td.active:hover {
-  background: #3b82f6 !important;
+  background: var(--primary-color) !important;
   color: white !important;
 }
 
@@ -253,4 +261,23 @@
 /* Adjust show-password toggle spacing */
 [aria-label="Show password"] {
   margin-top: 13px;
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 500ms ease, transform 500ms ease;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

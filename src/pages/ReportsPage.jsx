@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import ReportCharts from '../components/reports/ReportCharts';
 import ReportFilters from '../components/reports/ReportFilters';
 import ReportGrid from '../components/reports/ReportGrid';
+import DashboardTopBar from '../components/layout/DashboardTopBar';
 
 export default function ReportsPage() {
   const [filters, setFilters] = useState({
@@ -40,10 +41,10 @@ export default function ReportsPage() {
   return (
     <div className="min-h-screen bg-[#f6f3ec] p-6">
       <div className="mx-auto max-w-[1400px] space-y-4">
-        <header>
-          <h1 className="text-2xl font-semibold text-gray-900">Reports</h1>
-          <p className="mt-1 text-sm text-gray-600">Generate and export operational insights.</p>
-        </header>
+        <DashboardTopBar
+          title="Reports"
+          subtitle="Generate and export operational insights."
+        />
 
         <ReportFilters filters={filters} onChange={setFilters} />
         <ReportCharts processingData={processingData} activityData={activityData} />

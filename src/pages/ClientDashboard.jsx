@@ -4,6 +4,7 @@ import ArticlesGrid from '../components/client/ArticlesGrid';
 import ProductionOverview from '../components/client/ProductionOverview';
 import QueriesReport from '../components/client/QueriesReport';
 import LineChart from '../components/charts/LineChart';
+import DashboardTopBar from '../components/layout/DashboardTopBar';
 
 export default function ClientDashboard() {
   const overview = useMemo(() => [
@@ -50,10 +51,10 @@ export default function ClientDashboard() {
   return (
     <div className="min-h-screen bg-[#f6f3ec] p-6">
       <div className="mx-auto max-w-[1400px] space-y-4">
-        <header>
-          <h1 className="text-2xl font-semibold text-gray-900">Client Dashboard</h1>
-          <p className="mt-1 text-sm text-gray-600">Publisher view of production status, queries, and schedule progress.</p>
-        </header>
+        <DashboardTopBar
+          title="Client Dashboard"
+          subtitle="Publisher view of production status, queries, and schedule progress."
+        />
 
         <ProductionOverview items={overview} />
 

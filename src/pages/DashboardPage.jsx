@@ -4,6 +4,7 @@ import Notifications from '../components/dashboard/Notifications';
 import QueryChart from '../components/dashboard/QueryChart';
 import RecentDocumentsGrid from '../components/dashboard/RecentDocumentsGrid';
 import StatsCards from '../components/dashboard/StatsCards';
+import DashboardTopBar from '../components/layout/DashboardTopBar';
 
 const activityData = [
   { label: 'Mon', value: 14 },
@@ -47,10 +48,10 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[#f6f3ec] p-6">
       <div className="mx-auto max-w-[1400px] space-y-4">
-        <header>
-          <h1 className="text-2xl font-semibold text-gray-900">CMS Dashboard</h1>
-          <p className="mt-1 text-sm text-gray-600">Operational overview for editorial and production teams.</p>
-        </header>
+        <DashboardTopBar
+          title="CMS Dashboard"
+          subtitle="Operational overview for editorial and production teams."
+        />
 
         <StatsCards stats={stats} />
 

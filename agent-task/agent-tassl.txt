@@ -1,0 +1,53 @@
+add another dashboard, which check local config folder, docid
+
+API_GET_DOCS will be from env based on domain, UAT,DEV,PROD,LIVE
+
+API_GET_DOCS = API_PATH + "getdocs";
+
+find like below, how record have key, then listed in table, also include Client,identifier,docid,status,titleinfo.cover, another column open Link,
+
+if open click, 
+location.href.split("/") and remove last item, add record.editor,
+open tab
+
+
+
+endpoint like,
+user can modify - once ready fetch, if click auto fetch immedtalt,
+use can add into field inside find, client,titleinfo.cover,status whatever can add
+
+default, payload:{tbl:Shareandinvite,
+find:{
+	"key":{$existing:true}
+ },
+limit:10 (per page),
+sort:{time_c:-1}
+}
+
+{
+    "_id" : "N00150bd6-edab-4bcf-a031-efb48b37fa94",
+    "titleinfo" : {
+        "doctitle" : "Rapid and Live-Cell Detection of Senescence in Mesenchymal Stem Cells by Micro Magnetic Resonance Relaxometry",
+        "authorgroup" : "Thamarath Smitha Surendran, Tee Ching Ann, Neo Shu Hui, Yang Dahou, Othman Rashidah, Boyer Laurie A., Han Jongyoon.",
+        "identifier" : "10.1093/stcltm/szad014",
+        "cover" : "STCLTM",
+        "projectname" : "STCLTM_szad014"
+    },
+    "projecttitle" : "Stem Cells Translational Medicine",
+    "identifier" : "10.1093/stcltm/szad014",
+    "docid" : "Nfe50d898-e628-4804-a248-b364d6f55774",
+    "client" : "OUP",
+    "dtd" : "JATS",
+    "type" : "Journals",
+    "division" : "US (OUP)",
+
+    "targettbl" : "Shareandinvite",
+    "sharedcolor" : 1,
+    "status" : "signoff",
+    
+    "role" : "5b53536b4c4a803e9a5abf70",
+    "rolename" : "Author",
+    "key" : "********************************"   
+
+}
+

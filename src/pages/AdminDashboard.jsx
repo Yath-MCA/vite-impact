@@ -3,6 +3,8 @@ import ClientManagementGrid from '../components/admin/ClientManagementGrid';
 import ProjectGrid from '../components/admin/ProjectGrid';
 import SystemMetrics from '../components/admin/SystemMetrics';
 import UserManagementGrid from '../components/admin/UserManagementGrid';
+import DashboardTopBar from '../components/layout/DashboardTopBar';
+import AppLayout from '../components/layout/AppLayout';
 
 export default function AdminDashboard() {
   const systemMetrics = useMemo(() => [
@@ -38,12 +40,12 @@ export default function AdminDashboard() {
   })), []);
 
   return (
-    <div className="min-h-screen bg-[#f6f3ec] p-6">
+    <AppLayout>
       <div className="mx-auto max-w-[1400px] space-y-4">
-        <header>
-          <h1 className="text-2xl font-semibold text-gray-900">Admin Dashboard</h1>
-          <p className="mt-1 text-sm text-gray-600">Manage users, clients, projects, and platform health.</p>
-        </header>
+        <DashboardTopBar
+          title="Admin Dashboard"
+          subtitle="Manage users, clients, projects, and platform health."
+        />
 
         <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
           <h2 className="mb-2 text-sm font-semibold text-gray-800">System Overview</h2>
@@ -66,6 +68,6 @@ export default function AdminDashboard() {
           <p className="mt-1 text-sm text-gray-600">Use `src/hooks/usePermissions.js` and `src/config/clientConfig.js` to tune role/client privileges.</p>
         </section>
       </div>
-    </div>
+    </AppLayout>
   );
 }

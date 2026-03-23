@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en" translate="no">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google" content="notranslate">
+    <title>IMPACT - Landing Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="UI/client_logo/OUP_FAVICON.svg" rel="icon">
+
+    <!-- custom and library css -->
+    <link rel="stylesheet" href="assets/${{VERSION}}$/vendor/vendor_jbt.css?_${{TIMESTAMP}}$">
+    <link rel="stylesheet" href="assets/${{VERSION}}$/css/landing.css?_${{TIMESTAMP}}$">
+
+    <!-- Combine version of third party -->
+
+    <script src="assets/${{VERSION}}$/vendor/vendor_jbt.js?_${{TIMESTAMP}}$"></script>
+    <script src="assets/${{VERSION}}$/vendor/vendor_smt.js?_${{TIMESTAMP}}$"></script>
+    
+    ${{browser_checker}}$
+
+    <!-- Page Script -->
+    <script src="assets/${{VERSION}}$/js/landing.js?_${{TIMESTAMP}}$" type="text/javascript"></script>
+
+    
+    
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-blue">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="https://global.oup.com" rel="noopener" target="_blank"><img src="UI/client_logo/OUP_WHITE.svg" height="30" width="150" alt="OHO logo"></a>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarTogglerDemo03">
+                <ul class="navbar-nav mb-2 mb-lg-0">
+                    <li class="nav-item" id="FAQ_UI" title="Click to download the FAQs">
+                        <!-- As per UI QA Instruction changed Width and height 24 13-11-2022 -->
+                        <a class="nav-link text-light" href="javascript:iDownloadMethod.click('Help_FAQ_pdf', 'landing')"><img class="menu-icon" src="UI/svg/landing/FAQ_white.svg" height="24" width="24" alt="FAQ Icon">FAQs</a>
+                    </li>
+                    <li class="nav-item" id="User_Guide_UI" title="Click to download the User Guide">
+                        <a class="nav-link text-light" aria-current="page" href="javascript:iDownloadMethod.click('Help_Guide_pdf', 'landing')"><img class="menu-icon" src="UI/svg/landing/UserGuide_white.svg" height="24" width="24" alt="User Guide Icon">User Guide</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid mt-5">
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 p-5 blue-text">
+                <!-- Mantis 1996803: More specific and detailed guidance. -->
+                <h3 class="px-4 mx-4 fw-600">Welcome to <span class="impact-title">IMPACT</span>, the online proofing tool that permits authors to directly edit and collaborate on book content for Oxford University Press.</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 col-md-6 col-lg-6 bg-light-blue">
+                <div class="card bg-light-blue pad-2rem">
+                    <div class="card-body">
+
+                        <h4 class="blue-text font-18px fw-600">Instructions</h4>
+                        <ol class="list-group mb-4">
+                            <!-- 3322003: Sean Update -Landing page content-->
+                            <li class="list-item"><span class="fw-600">Proof for Review:</span> To access the proof click “Agree and Continue” below.</li>
+                            <li class="list-item"><span class="fw-600">Respond to Queries:</span> Ensure all copyeditor’s queries are addressed via “Queries” (left panel), or AQ symbols in the Editor View (centre panel).</li>
+                            <li class="list-item"><span class="fw-600">Edit Proof:</span> Make all required corrections in the Editor View (centre panel).</li>
+                            <li class="list-item"><span class="fw-600">Proof for Layout:</span> Review the typeset proof layout (right panel) and instruct any layout-related corrections as comments in the Editor View (centre panel).</li>
+                            <li class="list-item"><span class="fw-600">Finalize:</span> To approve the proof and proceed publication select “Finalize” (top-right).</li>
+                        </ol>
+
+                        <h4 class="blue-text font-18px fw-600">Notes</h4>
+                        <ul class="list-group mb-4">
+                            <!-- 2154559: Landing page content instructions Sean release -->
+                            <li class="list-item">The images displayed in the Editor View are low resolution to optimise the performance of the tool. Please view the typeset proof layout to view images in high resolution.</li>
+                            <li class="list-item">The comment functionality allows you to provide instruction to the production editor or typesetting team to include the ability to supply files as attachments.</li>
+                            <li class="list-item">Post finalisation you will:
+                                <ul class="list-group mt-1">
+                                    <li class="list-item">Receive a copy of the proof with your changes tracked via email for your own records.</li>
+                                    <li class="list-item">Be requested to complete a short survey on the proofing tool, the results of which will be used to inform future improvements.</li>
+                                </ul>
+                            </li>
+                            <li class="list-item">For the smooth operation of our system, we recommend an internet connection speed of at least 10mbps.<br><br>
+                                <!-- Mantis 1996803: More specific and detailed guidance. -->
+                                <!-- Mantis 1996803 : Changes from Video Tour to Video Tutorial -->
+                                <span class="list-item">If you need assistance with IMPACT, please review the <a class="blue-text fw-700" title="Click to view the Guided Tour" href="javascript:GuidedTourLanding();">Guided Tour</a>, <a class="blue-text fw-700" title="Click to download the FAQs" href="javascript:iDownloadMethod.click('Help_FAQ_pdf', 'landing')">FAQs</a>, <a class="blue-text font-weight-bold" title="Click to download the User Guide" href="javascript:iDownloadMethod.click('Help_Guide_pdf', 'landing')">User Guide</a>, and <a id="video_tour" class="blue-text font-weight-bold" title="Click to watch the Video Tutorial" href="" target="_blank">Video Tutorial</a> here, or contact our support team at <a id="support_mail_id" class="font-weight-bold email-text" href="mailto:impact.helpdesk@newgen.co">impact.helpdesk@newgen.co</a>
+                            </li>
+                        </ul>
+                        <h4 class="card-subtitle my-2 blue-text font-18px fw-600">Disclaimer</h4>
+                        <p class="card-text">These proofs are for checking purposes only. They should not be considered as final publication format and must not be used for any other purpose. Please do not post them on your personal/institutional website, and do not print and distribute copies. Neither excerpts nor the whole article in its entirety should be included in other publications until the final version has been published and citation details are available</p>
+                        
+                        ${{trans_only}}$
+                        ${{form_button_group}}$
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-6 col-lg-6">
+                ${{doi_info}}$
+            </div>
+        </div>
+        <div class="row p-3 text-light bg-blue">
+            <footer class="container mw-100">
+                <div class="row">
+                    <div class="col-6 col-sm-6 col-md-6 col-lg-6"><a class="navbar-brand" href="https://global.oup.com" rel="noopener" target="_blank"><img alt="OHO Logo" src="UI/client_logo/OUP_WHITE.svg" height="50" /></a></div>                    
+                    ${{browser}}$
+                </div>
+            </footer>
+        </div>
+    </div>
+    <div id="ModelDialogAppend"></div>
+</body>
+
+</html>

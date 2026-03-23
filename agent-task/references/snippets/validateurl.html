@@ -1,0 +1,77 @@
+﻿<!doctype html>
+<html lang="en" translate="no">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google" content="notranslate">
+    <title>${{CLIENT.PAGE_TITLE}}$</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="${{CLIENT.FAVICON}}$" rel="icon">
+    ${{CLIENT.DOI_HIDE_STYLE}}$
+    <!-- custom and library css -->
+    <link rel="stylesheet" href="assets/${{VERSION}}$/vendor/vendor_jbt.css?_${{TIMESTAMP}}$">
+    <link rel="stylesheet" href="assets/${{VERSION}}$/css/landing.css?_${{TIMESTAMP}}$">
+    <!-- Combine version of third party -->
+    <script src="assets/${{VERSION}}$/vendor/vendor_jbt.js?_${{TIMESTAMP}}$"></script>
+    <script src="assets/${{VERSION}}$/vendor/vendor_smt.js?_${{TIMESTAMP}}$"></script>
+
+    ${{browser_checker}}$
+
+    <!-- Page Script -->
+    <script src="assets/${{VERSION}}$/js/landing.js?_${{TIMESTAMP}}$" type="text/javascript"></script>
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg ${{CLIENT.NAVBAR_CSS}}$">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="${{CLIENT.LOGO_HREF}}$" ${{CLIENT.LOGO_LINK_ATTRS}}$><img src="${{CLIENT.LOGO_SRC}}$" height="${{CLIENT.LOGO_HEIGHT}}$" width="${{CLIENT.LOGO_WIDTH}}$" alt="${{CLIENT.LOGO_ALT}}$"></a>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarTogglerDemo03">
+                <ul class="navbar-nav mb-2 mb-lg-0">
+                    <li class="nav-item mr-4" id="FAQ_UI" title="Click to download the FAQs">
+                        <a class="nav-link ${{CLIENT.NAV_LINK_CSS}}$" href="javascript:iDownloadMethod.click('Help_FAQ_pdf', 'landing')"><img class="menu-icon mr-1" src="UI/svg/landing/FAQ_${{CLIENT.NAV_ICON_VARIANT}}$.svg" height="${{CLIENT.NAV_ICON_SIZE}}$" width="${{CLIENT.NAV_ICON_SIZE}}$" alt="FAQ Icon">FAQs</a>
+                    </li>
+                    <li class="nav-item" id="User_Guide_UI" title="Click to download the User Guide">
+                        <a class="nav-link ${{CLIENT.NAV_LINK_CSS}}$" aria-current="page" href="javascript:iDownloadMethod.click('Help_Guide_pdf', 'landing')"><img class="menu-icon mr-1" src="UI/svg/landing/UserGuide_${{CLIENT.NAV_ICON_VARIANT}}$.svg" height="${{CLIENT.NAV_ICON_SIZE}}$" width="${{CLIENT.NAV_ICON_SIZE}}$" alt="User Guide Icon">User Guide</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid${{CLIENT.CONTAINER_EXTRA_CSS}}$">
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 p-5 blue-text">
+                <h3 class="px-4 mx-4 fw-600">${{CLIENT.WELCOME_TEXT}}$</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 col-md-6 col-lg-6 bg-light-blue">
+                <div class="card bg-light-blue pad-2rem">
+                    <div class="card-body">
+                        ${{client_instructions}}$
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-6 col-lg-6">
+                ${{doi_info}}$
+            </div>
+        </div>
+        <div class="row p-3 text-light bg-blue">
+            <footer class="container mw-100">
+                <div class="row">
+                    <div class="col-6 col-sm-6 col-md-6 col-lg-6">
+                        ${{CLIENT.FOOTER_LOGO_HTML}}$
+                    </div>
+                    ${{browser}}$
+                </div>
+            </footer>
+        </div>
+    </div>
+    <div id="ModelDialogAppend"></div>
+</body>
+
+</html>

@@ -1,577 +1,421 @@
-import { useEffect, useState } from 'react';
-import { 
-  BookOpen, 
-  FileText, 
-  Users, 
-  CheckCircle, 
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
   ArrowRight,
-  Quote,
-  Calculator,
-  Search,
-  FileCheck,
+  CheckCircle2,
   MessageSquare,
-  ListOrdered,
-  Image,
-  Clock,
-  Shield,
-  Database,
-  Zap,
-  ChevronDown,
+  FileCheck,
+  Users,
+  Workflow,
+  ListChecks,
+  Sparkles,
   Menu,
-  X,
-  ExternalLink
+  X
 } from 'lucide-react';
+import { BRANDING } from '../config/theme';
 
-// Publishing partner logos as text (professional presentation)
-const journalClients = [
-  { name: 'Oxford University Press', abbr: 'OUP' },
-  { name: 'Lippincott Williams & Wilkins', abbr: 'LWW' },
-  { name: 'PLOS', abbr: 'PLOS' },
-  { name: 'Brill', abbr: 'Brill' },
-  { name: 'Intellect', abbr: 'Intellect' },
-  { name: 'American Chemical Society', abbr: 'ACS' },
-  { name: 'American Psychological Association', abbr: 'APA' },
-  { name: 'Medknow', abbr: 'Medknow' }
+const NAV_ITEMS = [
+  { id: 'home', label: 'Home' },
+  { id: 'about', label: 'About' },
+  { id: 'features', label: 'Features' },
+  { id: 'contact', label: 'Contact' }
 ];
 
-const bookClients = [
-  { name: 'Taylor & Francis Books', abbr: 'T&F Books' },
-  { name: 'Oxford Handbooks Online', abbr: 'OHO Book' },
-  { name: 'Oxford University Press Books', abbr: 'OUP Book' }
+const UNIQUE_POINTS = [
+  'Fast review cycles with transparent, trackable updates',
+  'Accurate editorial collaboration from first comment to final approval',
+  'One powerful tool to complete the full review cycle and generate reviewed PDF output instantly'
 ];
 
-const features = [
+const WE_DO_POINTS = [
+  'Faster feedback cycles',
+  'Simplified editing workflows',
+  'Seamless collaboration'
+];
+
+const WORKFLOW_BENEFITS = [
+  'Speed up approval cycles',
+  'Improve collaboration',
+  'Maintain publishing quality standards'
+];
+
+const FEATURE_CARDS = [
   {
-    icon: Calculator,
-    title: 'Mathematical Content Editing',
-    description: 'Professional equation editing with Math Live and Wiris integration for standardized MathML output.',
-    items: ['Math Live real-time editing', 'Wiris integration', 'Complex STEM expressions']
+    icon: MessageSquare,
+    title: 'Add comments',
+    description: 'Capture contextual feedback directly where changes are needed.'
   },
   {
-    icon: Search,
-    title: 'Web Spell Check',
-    description: 'Real-time spell validation reduces revision cycles and maintains editorial consistency.',
-    items: ['Real-time validation', 'Error highlighting', 'Consistency checks']
+    icon: Workflow,
+    title: 'Raise queries',
+    description: 'Ask authors and editors targeted questions with clear status tracking.'
   },
   {
     icon: FileCheck,
-    title: 'Gray Proof PDF Generation',
-    description: 'Instant PDF previews reflecting final layout and formatting for accurate review.',
-    items: ['Instant generation', 'Accurate layout reflection', 'Contextual review']
+    title: 'Request changes',
+    description: 'Flag revision points and monitor closure without email back-and-forth.'
   },
   {
-    icon: MessageSquare,
-    title: 'Query Answering System',
-    description: 'Structured communication connecting authors with editorial teams.',
-    items: ['Centralized query tracking', 'Threaded responses', 'Automated notifications']
+    icon: Users,
+    title: 'Collaborate in real time',
+    description: 'Keep teams aligned with synchronized updates and faster decision-making.'
   },
   {
-    icon: ListOrdered,
-    title: 'Reference Management',
-    description: 'Comprehensive DOI-based reference handling with automatic styling.',
-    items: ['DOI auto-fetch', 'APA, CMS, CMS-18 styles', 'Auto renumbering']
+    icon: ListChecks,
+    title: 'Move to next cycle automatically',
+    description: 'Progress workflows smoothly as soon as each stage is complete.'
   },
   {
-    icon: Image,
-    title: 'Image Annotation',
-    description: 'Visual markup tools for figures, charts, and illustrations.',
-    items: ['Inline commenting', 'Graphical markup', 'High-resolution zoom']
+    icon: Sparkles,
+    title: 'Instant reviewed PDF',
+    description: 'Generate final reviewed PDFs for books and journals with one click.'
   }
-];
-
-const workflowFeatures = [
-  {
-    role: 'Authors',
-    description: 'Submit corrections, respond to queries, and approve final proofs within defined timeframes',
-    icon: FileText
-  },
-  {
-    role: 'Editors',
-    description: 'Manage query workflows, verify corrections, and maintain editorial standards',
-    icon: CheckCircle
-  },
-  {
-    role: 'Production Teams',
-    description: 'Monitor progress, generate outputs, and coordinate publication schedules',
-    icon: Clock
-  }
-];
-
-const benefits = [
-  { icon: Database, title: 'XML-Native', description: 'Core architecture supports structured editorial production' },
-  { icon: Shield, title: 'Quality Assurance', description: 'Automated validation reduces human error' },
-  { icon: Zap, title: 'Multi-Client', description: 'Single platform supports multiple publisher clients' },
-  { icon: BookOpen, title: 'Publishing Focused', description: 'Built specifically for academic publishing workflows' }
 ];
 
 export default function Landing() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
+
+  const sectionIds = useMemo(() => NAV_ITEMS.map((item) => item.id), []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setIsScrolled(window.scrollY > 24);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  useEffect(() => {
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+          }
+        });
+      },
+      { threshold: 0.14 }
+    );
+
+    const revealed = document.querySelectorAll('[data-reveal]');
+    revealed.forEach((node) => revealObserver.observe(node));
+
+    return () => revealObserver.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: '-40% 0px -45% 0px', threshold: 0.05 }
+    );
+
+    sectionIds.forEach((id) => {
+      const section = document.getElementById(id);
+      if (section) sectionObserver.observe(section);
+    });
+
+    return () => sectionObserver.disconnect();
+  }, [sectionIds]);
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     setMobileMenuOpen(false);
   };
 
+  const navButtonClass = (id) =>
+    `px-2 py-1 text-sm font-semibold transition-colors ${
+      activeSection === id ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'
+    }`;
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-transparent'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Logo */}
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">I</span>
-              </div>
-              <span className={`text-xl font-bold transition-colors ${
-                isScrolled ? 'text-gray-900' : 'text-gray-900'
-              }`}>
-                IMPACT
-              </span>
-            </div>
+    <div className="min-h-screen bg-[#fffaf5] text-gray-900">
+      <nav
+        className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${
+          isScrolled
+            ? 'border-orange-100 bg-white/95 shadow-sm backdrop-blur-md'
+            : 'border-transparent bg-transparent'
+        }`}
+      >
+        <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <button onClick={() => scrollToSection('home')} className="flex items-center" type="button" aria-label="Go to home">
+            <img src={BRANDING.companyLogo} alt="IMPACT company logo" className="h-9 w-auto" />
+          </button>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <button onClick={() => scrollToSection('features')} className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
-                Features
+          <div className="hidden items-center gap-6 md:flex">
+            {NAV_ITEMS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => scrollToSection(item.id)}
+                className={navButtonClass(item.id)}
+              >
+                {item.label}
               </button>
-              <button onClick={() => scrollToSection('publishing')} className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
-                Publishing
-              </button>
-              <button onClick={() => scrollToSection('workflow')} className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
-                Workflow
-              </button>
-              <button onClick={() => scrollToSection('why-impact')} className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
-                Why IMPACT
-              </button>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="hidden md:flex items-center space-x-4">
-              <button className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
-                Contact
-              </button>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition-all hover:shadow-lg hover:shadow-blue-600/20">
-                Request Demo
-              </button>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button 
-              className="md:hidden p-2 text-gray-600"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            ))}
+            <Link
+              to="/login"
+              className="rounded-md bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-600"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+              Login
+            </Link>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((value) => !value)}
+            className="rounded-md p-2 text-gray-700 md:hidden"
+            aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
 
-        {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-100">
-            <div className="px-4 py-4 space-y-3">
-              <button onClick={() => scrollToSection('features')} className="block w-full text-left text-gray-600 py-2">Features</button>
-              <button onClick={() => scrollToSection('publishing')} className="block w-full text-left text-gray-600 py-2">Publishing</button>
-              <button onClick={() => scrollToSection('workflow')} className="block w-full text-left text-gray-600 py-2">Workflow</button>
-              <button onClick={() => scrollToSection('why-impact')} className="block w-full text-left text-gray-600 py-2">Why IMPACT</button>
-              <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium mt-4">
-                Request Demo
-              </button>
+          <div className="border-t border-orange-100 bg-white md:hidden">
+            <div className="space-y-2 px-4 py-4">
+              {NAV_ITEMS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => scrollToSection(item.id)}
+                  className="block w-full rounded-md px-2 py-2 text-left text-sm font-semibold text-gray-700 hover:bg-orange-50"
+                >
+                  {item.label}
+                </button>
+              ))}
+              <Link
+                to="/login"
+                className="mt-1 block rounded-md bg-primary-500 px-4 py-2 text-center text-sm font-semibold text-white"
+              >
+                Login
+              </Link>
             </div>
           </div>
         )}
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-gray-50" />
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-blue-100/30 to-transparent" />
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            {/* Badge */}
-            <div className="inline-flex items-center space-x-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold mb-8">
-              <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
-              <span>Enterprise Online Proofing System</span>
+      <main>
+        <section id="home" className="relative overflow-hidden px-4 pb-20 pt-32 sm:px-6 lg:px-8 lg:pb-28 lg:pt-40">
+          <div className="pointer-events-none absolute inset-0 -z-10">
+            <div className="absolute -left-20 top-8 h-56 w-56 rounded-full bg-orange-200/40 blur-3xl" />
+            <div className="absolute right-0 top-24 h-72 w-72 rounded-full bg-orange-100/70 blur-3xl" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,155,85,0.22),_transparent_48%)]" />
+          </div>
+
+          <div className="mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-[1.2fr_0.8fr]">
+            <div data-reveal className="reveal-on-scroll space-y-6">
+              <p className="inline-flex items-center rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary-700">
+                Enterprise Online Proofing Tool
+              </p>
+              <h1 className="text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+                Modern review and approval workflow for publishing teams
+              </h1>
+              <p className="max-w-2xl text-lg leading-relaxed text-gray-600">
+                Worried about the review and approval process? Say good-bye to the hectic process. Newgen presents
+                an online proofing tool that reduces complexity and helps teams publish with confidence.
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => scrollToSection('about')}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-500 px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-600"
+                >
+                  Explore IMPACT
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+                <Link
+                  to="/login"
+                  className="inline-flex items-center justify-center rounded-lg border border-orange-200 bg-white px-6 py-3 font-semibold text-primary-700 transition-colors hover:border-orange-300"
+                >
+                  Go to Login
+                </Link>
+              </div>
             </div>
 
-            {/* Headline */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-              Professional Online Proofing for{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-                Academic Publishing
-              </span>
-            </h1>
+            <aside data-reveal className="reveal-on-scroll rounded-2xl border border-orange-100 bg-white p-6 shadow-[0_20px_50px_rgba(228,110,34,0.14)]">
+              <div className="mb-5 flex items-center gap-3">
+                <img src={BRANDING.productIcon} alt="IMPACT product icon" className="h-12 w-12 rounded-xl" />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary-700">Product Branding</p>
+                  <h2 className="text-xl font-bold text-gray-900">IMPACT</h2>
+                </div>
+              </div>
+              <ul className="space-y-3 text-sm text-gray-700">
+                <li className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 text-primary-600" />Real-time collaboration</li>
+                <li className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 text-primary-600" />Structured editorial review cycle</li>
+                <li className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 text-primary-600" />One-click reviewed PDF output</li>
+              </ul>
+            </aside>
+          </div>
+        </section>
 
-            {/* Subheadline */}
-            <p className="text-xl md:text-2xl text-gray-600 mb-6 font-light">
-              Streamlined editorial workflows for journal and book publishers
+        <section id="about" className="px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto w-full max-w-7xl" data-reveal>
+            <h2 className="reveal-on-scroll mb-4 text-3xl font-bold text-primary-700">About IMPACT</h2>
+            <div className="reveal-on-scroll rounded-2xl border border-orange-100 bg-white p-7 shadow-sm">
+              <p className="text-lg leading-relaxed text-gray-700">
+                Worried about the review and approval process? Say good-bye to the hectic process. Yes, it is time to
+                drink our own champagne. Newgen presents an Online Proofing Tool to take up your burden and make you
+                stress-free.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 py-10 sm:px-6 lg:px-8">
+          <div className="mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-2">
+            <article data-reveal className="reveal-on-scroll rounded-2xl border border-orange-100 bg-white p-7 shadow-sm">
+              <h3 className="mb-3 text-2xl font-bold text-primary-700">What is IMPACT</h3>
+              <p className="leading-relaxed text-gray-700">
+                The goal of our platform is to simplify and expedite collaborations. With a few steps, IMPACT
+                accurately flattens the complex review and approval process and produces the final PDF with just one
+                click.
+              </p>
+            </article>
+
+            <article data-reveal className="reveal-on-scroll rounded-2xl border border-orange-100 bg-white p-7 shadow-sm">
+              <h3 className="mb-3 text-2xl font-bold text-primary-700">Why IMPACT is Unique</h3>
+              <p className="mb-4 leading-relaxed text-gray-700">
+                IMPACT transforms the traditional review process by offering a fast, transparent, accurate, and
+                productive method.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-700">
+                {UNIQUE_POINTS.map((point) => (
+                  <li key={point} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 text-primary-600" />{point}</li>
+                ))}
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section className="px-4 py-10 sm:px-6 lg:px-8">
+          <div className="mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <article data-reveal className="reveal-on-scroll rounded-2xl border border-orange-100 bg-white p-7 shadow-sm">
+              <h3 className="mb-3 text-2xl font-bold text-primary-700">What We Do</h3>
+              <p className="mb-4 leading-relaxed text-gray-700">
+                We provide advanced editing and workflow features to save time and improve real-time collaboration
+                between Authors and Editors.
+              </p>
+              <ul className="grid gap-3 sm:grid-cols-3">
+                {WE_DO_POINTS.map((point) => (
+                  <li key={point} className="rounded-xl border border-orange-100 bg-orange-50/40 px-3 py-3 text-sm font-semibold text-gray-700">
+                    {point}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 text-sm leading-relaxed text-gray-600">
+                Our intuitive editing interface allows you to review and comment more easily than traditional proofing
+                systems.
+              </p>
+            </article>
+
+            <article data-reveal className="reveal-on-scroll rounded-2xl border border-orange-100 bg-white p-7 shadow-sm">
+              <h3 className="mb-3 text-2xl font-bold text-primary-700">Workflow Benefits</h3>
+              <p className="mb-4 leading-relaxed text-gray-700">
+                Want to make workflow easier? Our online proofing tool provides efficient workflow management to
+                simplify even complex publishing processes.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-700">
+                {WORKFLOW_BENEFITS.map((benefit) => (
+                  <li key={benefit} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 text-primary-600" />{benefit}</li>
+                ))}
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="features" className="px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto w-full max-w-7xl">
+            <div className="mb-8" data-reveal>
+              <h3 className="reveal-on-scroll mb-2 text-3xl font-bold text-primary-700">Features</h3>
+              <p className="reveal-on-scroll text-gray-700">
+                No waiting. No delays. We value your time and experience, so IMPACT is fast, simple, and elegant.
+              </p>
+            </div>
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {FEATURE_CARDS.map(({ icon: Icon, title, description }, index) => (
+                <article
+                  key={title}
+                  data-reveal
+                  className="reveal-on-scroll rounded-2xl border border-orange-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                  style={{ transitionDelay: `${index * 40}ms` }}
+                >
+                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 text-primary-700">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h4 className="mb-2 text-lg font-bold text-gray-900">{title}</h4>
+                  <p className="text-sm leading-relaxed text-gray-600">{description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" className="px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+          <div data-reveal className="reveal-on-scroll mx-auto w-full max-w-7xl rounded-3xl border border-orange-200 bg-gradient-to-r from-primary-500 to-primary-600 px-6 py-10 text-white sm:px-10">
+            <h3 className="mb-3 text-3xl font-bold">Call-To-Action</h3>
+            <p className="max-w-3xl text-orange-50">
+              Get your reviewed PDF for books and journals instantly. Start using IMPACT to reduce friction in every
+              review cycle and keep your publishing teams aligned.
             </p>
-
-            {/* Description */}
-            <p className="text-lg text-gray-500 max-w-3xl mx-auto mb-10 leading-relaxed">
-              IMPACT is a purpose-built online proofing system designed for the demands of academic publishing. 
-              It enables efficient collaboration between authors, editors, and production teams while maintaining 
-              the precision required for scholarly content.
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <button className="group bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all hover:shadow-xl hover:shadow-blue-600/25 flex items-center space-x-2">
-                <span>Request a Demo</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button 
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link
+                to="/login"
+                className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 font-semibold text-primary-700 transition-colors hover:bg-orange-50"
+              >
+                Login to IMPACT
+              </Link>
+              <button
+                type="button"
                 onClick={() => scrollToSection('features')}
-                className="bg-white border-2 border-gray-200 hover:border-blue-600 text-gray-700 hover:text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg transition-all flex items-center space-x-2"
+                className="inline-flex items-center justify-center rounded-lg border border-white/50 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10"
               >
-                <span>Explore Features</span>
-                <ChevronDown className="w-5 h-5" />
+                Review Features
               </button>
             </div>
           </div>
+        </section>
+      </main>
 
-          {/* Stats */}
-          <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            {[
-              { number: '10+', label: 'Publishing Partners' },
-              { number: 'XML', label: 'Native Workflows' },
-              { number: '24/7', label: 'Platform Access' },
-              { number: '99.9%', label: 'Uptime SLA' }
-            ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-1">{stat.number}</div>
-                <div className="text-sm text-gray-500 uppercase tracking-wider">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+      <footer className="border-t border-orange-100 bg-white px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto grid w-full max-w-7xl gap-6 md:grid-cols-4">
+          <section>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-primary-700">Product Name</h4>
+            <p className="mt-2 text-lg font-bold text-gray-900">{BRANDING.productName}</p>
+          </section>
+          <section>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-primary-700">Company Name</h4>
+            <p className="mt-2 text-gray-700">{BRANDING.companyName}</p>
+          </section>
+          <section>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-primary-700">Quick Links</h4>
+            <ul className="mt-2 space-y-1 text-sm text-gray-700">
+              <li><button type="button" onClick={() => scrollToSection('home')} className="hover:text-primary-700">Home</button></li>
+              <li><button type="button" onClick={() => scrollToSection('about')} className="hover:text-primary-700">About</button></li>
+              <li><button type="button" onClick={() => scrollToSection('features')} className="hover:text-primary-700">Features</button></li>
+            </ul>
+          </section>
+          <section>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-primary-700">Support</h4>
+            <ul className="mt-2 space-y-1 text-sm text-gray-700">
+              <li><a href="mailto:impact.helpdesk@newgen.co" className="hover:text-primary-700">impact.helpdesk@newgen.co</a></li>
+              <li><Link to="/login" className="hover:text-primary-700">Login</Link></li>
+            </ul>
+          </section>
         </div>
-      </section>
-
-      {/* What IMPACT Does Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What IMPACT Does</h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
-              IMPACT provides a centralized platform for managing the proofing stage of academic publications. 
-              The system supports XML-based editorial workflows and handles complex content including mathematical 
-              notation, multi-format references, and structured queries.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 md:p-12">
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">XML-Based Workflows</h3>
-                  <p className="text-gray-600 text-sm">Native support for structured editorial production with validated XML output.</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Users className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Multi-Client Support</h3>
-                  <p className="text-gray-600 text-sm">Manage high-volume output across multiple publisher clients with isolated workflows.</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Quality Control</h3>
-                  <p className="text-gray-600 text-sm">Consistent quality control and streamlined production processes.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Publishing Segments Section */}
-      <section id="publishing" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Publishing Segments</h2>
-            <p className="text-lg text-gray-600">Supporting both journal and book publishing workflows</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Journal Publishing */}
-            <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-8 border border-blue-100">
-              <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center mb-6">
-                <FileText className="w-7 h-7 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Journal Publishing</h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                IMPACT supports journal publishers managing continuous publication workflows. 
-                The system handles article proofing with features designed for rapid turnaround 
-                times and multi-stage editorial review.
-              </p>
-              
-              <div className="mb-6">
-                <p className="text-sm font-semibold text-gray-700 mb-3">Publishing partners include:</p>
-                <div className="flex flex-wrap gap-2">
-                  {journalClients.map((client, index) => (
-                    <span 
-                      key={index}
-                      className="inline-flex items-center px-3 py-1 bg-white border border-blue-200 rounded-full text-sm font-medium text-blue-700"
-                      title={client.name}
-                    >
-                      {client.abbr}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Book Publishing */}
-            <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 border border-gray-200">
-              <div className="w-14 h-14 bg-gray-800 rounded-xl flex items-center justify-center mb-6">
-                <BookOpen className="w-7 h-7 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Book Publishing</h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                For book publishers, IMPACT manages chapter-based workflows and complex reference 
-                structures typical of academic monographs and edited collections.
-              </p>
-              
-              <div className="mb-6">
-                <p className="text-sm font-semibold text-gray-700 mb-3">Publishing partners include:</p>
-                <div className="flex flex-wrap gap-2">
-                  {bookClients.map((client, index) => (
-                    <span 
-                      key={index}
-                      className="inline-flex items-center px-3 py-1 bg-white border border-gray-300 rounded-full text-sm font-medium text-gray-700"
-                      title={client.name}
-                    >
-                      {client.abbr}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Feature Highlights */}
-      <section id="features" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Feature Highlights</h2>
-            <p className="text-lg text-gray-600">Comprehensive tools for academic content proofing</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div 
-                key={index}
-                className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all group"
-              >
-                <div className="w-14 h-14 bg-blue-100 group-hover:bg-blue-600 rounded-xl flex items-center justify-center mb-6 transition-colors">
-                  <feature.icon className="w-7 h-7 text-blue-600 group-hover:text-white transition-colors" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 mb-4 leading-relaxed">{feature.description}</p>
-                <ul className="space-y-2">
-                  {feature.items.map((item, itemIndex) => (
-                    <li key={itemIndex} className="flex items-center text-sm text-gray-500">
-                      <CheckCircle className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Collaboration & Workflow */}
-      <section id="workflow" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Collaboration & Workflow</h2>
-            <p className="text-lg text-gray-600">Coordinated multi-party editorial workflows</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            {workflowFeatures.map((feature, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <feature.icon className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.role}</h3>
-                <p className="text-gray-600">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Workflow Features */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 md:p-12 text-white">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-6 h-6 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-semibold mb-1">Version Control</h4>
-                  <p className="text-blue-100 text-sm">Complete change history with timestamps</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <Zap className="w-6 h-6 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-semibold mb-1">Real-Time Updates</h4>
-                  <p className="text-blue-100 text-sm">Immediate synchronization across users</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <Shield className="w-6 h-6 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-semibold mb-1">Access Management</h4>
-                  <p className="text-blue-100 text-sm">Role-based permissions</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <Clock className="w-6 h-6 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-semibold mb-1">Time Tracking</h4>
-                  <p className="text-blue-100 text-sm">Deadline management and alerts</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Why IMPACT */}
-      <section id="why-impact" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Why IMPACT</h2>
-            <p className="text-lg text-gray-600">Built specifically for academic publishing</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {benefits.map((benefit, index) => (
-              <div key={index} className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex items-start space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <benefit.icon className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{benefit.title}</h3>
-                  <p className="text-gray-600">{benefit.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Testimonial */}
-          <div className="mt-16 bg-white rounded-2xl p-8 md:p-12 shadow-sm border border-gray-200">
-            <div className="max-w-4xl mx-auto text-center">
-              <Quote className="w-12 h-12 text-blue-200 mx-auto mb-6" />
-              <blockquote className="text-xl md:text-2xl text-gray-700 font-light italic mb-6 leading-relaxed">
-                "IMPACT has streamlined our proofing workflow significantly. The XML-native architecture 
-                and reference management tools have reduced our production time while maintaining 
-                the quality standards our authors expect."
-              </blockquote>
-              <div className="text-gray-500">
-                <p className="font-semibold text-gray-900">Production Manager</p>
-                <p>Academic Publishing Partner</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-blue-600 to-blue-800">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Ready to Streamline Your Proofing Workflow?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-            Contact us to discuss how IMPACT can support your editorial production requirements. 
-            Our team works with publishing operations of varying scales and can provide workflow 
-            consultation based on your specific content types and volume.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <button className="group bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-xl font-semibold text-lg transition-all hover:shadow-xl flex items-center space-x-2">
-              <span>Request a Demo</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-            <button className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-8 py-4 rounded-xl font-semibold text-lg transition-all flex items-center space-x-2">
-              <span>Contact Sales</span>
-              <ExternalLink className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div className="col-span-2">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">I</span>
-                </div>
-                <span className="text-xl font-bold text-white">IMPACT</span>
-              </div>
-              <p className="text-gray-400 text-sm leading-relaxed max-w-md">
-                Professional online proofing system designed for academic publishing workflows. 
-                Supporting journal and book publishers with XML-based editorial production.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Platform</h4>
-              <ul className="space-y-2 text-sm">
-                <li><button onClick={() => scrollToSection('features')} className="hover:text-white transition-colors">Features</button></li>
-                <li><button onClick={() => scrollToSection('workflow')} className="hover:text-white transition-colors">Workflow</button></li>
-                <li><button onClick={() => scrollToSection('why-impact')} className="hover:text-white transition-colors">Why IMPACT</button></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Contact</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors">Request Demo</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Sales</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Support</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between">
-            <p className="text-sm text-gray-500">
-              © 2026 IMPACT Online Proofing System. All rights reserved.
-            </p>
-            <div className="flex items-center space-x-6 mt-4 md:mt-0 text-sm text-gray-500">
-              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-            </div>
-          </div>
-        </div>
+        <p className="mx-auto mt-8 w-full max-w-7xl border-t border-orange-100 pt-5 text-xs text-gray-500">
+          Copyright {new Date().getFullYear()} {BRANDING.companyName}. All rights reserved.
+        </p>
       </footer>
     </div>
   );

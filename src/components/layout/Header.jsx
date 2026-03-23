@@ -1,17 +1,43 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useClient } from '../../context/ClientContext';
 import { useLayout } from '../../context/LayoutContext';
+import { useAuth } from '../../context/AuthContext';
 import { Menu, X, Sun, Moon, Monitor, LayoutDashboard, FileText, Settings, User, Database } from 'lucide-react';
 
 export default function Header() {
   const { clientConfig, clientId } = useClient();
   const { toggles, toggle, theme, setTheme } = useLayout();
+  const { user, userRole, isAdmin, logout } = useAuth();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
 
   const themeOptions = [
     { value: 'light', icon: Sun, label: 'Light' },
     { value: 'dark', icon: Moon, label: 'Dark' },
     { value: 'system', icon: Monitor, label: 'System' }
   ];
+
+  const profile = useMemo(() => {
+    const displayName = user?.username || user?.name || user?.email || 'CMS User';
+    const roleLabel = isAdmin
+      ? 'Admin'
+      : userRole
+        ? userRole.charAt(0).toUpperCase() + userRole.slice(1)
+        : 'User';
+    return { displayName, roleLabel };
+  }, [isAdmin, user, userRole]);
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!profileRef.current) return;
+      if (profileRef.current.contains(event.target)) return;
+      setProfileOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
 
   if (!clientConfig.layout.showHeader && toggles.showHeader === false) {
     return null;
@@ -28,7 +54,7 @@ export default function Header() {
                 <img
                   src={clientConfig.logo}
                   alt={clientConfig.name}
-                  className="w-8 h-8 object-contain"
+                  className="h-8 w-auto object-contain"
                 />
               ) : (
                 <div
@@ -72,6 +98,14 @@ export default function Header() {
             >
               <Database className="w-4 h-4" />
               <span>Doc Dashboard</span>
+            </Link>
+
+            <Link
+              to="/devboard"
+              className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              <FileText className="w-4 h-4" />
+              <span>Devboard</span>
             </Link>
 
             {clientConfig.features.editor && (
@@ -122,9 +156,35 @@ export default function Header() {
             </div>
 
             {/* User Menu */}
-            <button className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-              <User className="w-5 h-5" />
-            </button>
+            <div ref={profileRef} className="relative">
+              <button
+                className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                onClick={() => setProfileOpen((prev) => !prev)}
+                aria-label="Open profile menu"
+                aria-expanded={profileOpen}
+              >
+                <User className="w-5 h-5" />
+              </button>
+
+              {profileOpen && (
+                <div className="absolute right-0 mt-2 w-56 rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                  <div className="rounded-md px-2 py-2">
+                    <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">{profile.displayName}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{profile.roleLabel}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfileOpen(false);
+                      logout();
+                    }}
+                    className="mt-1 w-full rounded-md px-2 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -168,6 +228,15 @@ export default function Header() {
             >
               <Database className="w-4 h-4" />
               <span>Doc Dashboard</span>
+            </Link>
+
+            <Link
+              to="/devboard"
+              className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              onClick={() => toggle('sidebarCollapsed')}
+            >
+              <FileText className="w-4 h-4" />
+              <span>Devboard</span>
             </Link>
             {clientConfig.features.editor && (
               <Link

@@ -30,6 +30,18 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const resolveEffectiveRole = useCallback((userData) => {
+    const workflowRole = (userData?._workflow_role || userData?.workflow_role || '').toString().toLowerCase();
+    const isWorkflowSuperAdmin = workflowRole === 'superadmin';
+    const isPosAdmin = userData?.pos === 10;
+
+    if (isWorkflowSuperAdmin || isPosAdmin) {
+      return 'Admin';
+    }
+
+    return userData?.role || null;
+  }, []);
+
   /**
    * Check if user is admin based on localStorage and user ID
    */
@@ -37,11 +49,13 @@ export const AuthProvider = ({ children }) => {
     const isAdminUser = ADMIN_CONFIG.checkIsAdmin();
     const isSuperAdminUser = userData?.userId ?
       ADMIN_CONFIG.checkIsSuperAdmin(userData.userId) : false;
+    const workflowRole = (userData?._workflow_role || userData?.workflow_role || '').toString().toLowerCase();
+    const isWorkflowSuperAdmin = workflowRole === 'superadmin';
     // Treat users with pos === 10 as admin as requested
     const isPosAdmin = userData?.pos === 10;
 
-    setIsAdmin(isAdminUser || isSuperAdminUser || isPosAdmin);
-    setIsSuperAdmin(isSuperAdminUser);
+    setIsAdmin(isAdminUser || isSuperAdminUser || isWorkflowSuperAdmin || isPosAdmin);
+    setIsSuperAdmin(isSuperAdminUser || isWorkflowSuperAdmin);
   }, []);
 
   /**
@@ -56,7 +70,7 @@ export const AuthProvider = ({ children }) => {
           const userData = JSON.parse(storedUser);
           setUser(userData);
           setIsAuthenticated(true);
-          setUserRole(userData.role || null);
+          setUserRole(resolveEffectiveRole(userData));
           checkAdminStatus(userData);
         }
       } catch (err) {
@@ -67,7 +81,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     initAuth();
-  }, [checkAdminStatus]);
+  }, [checkAdminStatus, resolveEffectiveRole]);
 
   /**
    * Login user
@@ -85,13 +99,13 @@ export const AuthProvider = ({ children }) => {
 
       if (response) {
 
-        const userData = response || {};
+        const userData = response?.value || response || {};
 
-        if (!response.username) {
+        if (!userData.username) {
           setError('Invalid email');
           return false;
         }
-        if (response.cred == 0) {
+        if ((response?.cred ?? userData?.cred) == 0) {
           setError('Invalid password');
           return false;
         }
@@ -100,9 +114,9 @@ export const AuthProvider = ({ children }) => {
 
         // Store in localStorage
         localStorage.setItem('xmleditor:appkey', 'xmleditor');
-        localStorage.setItem('xmleditor:apikey', response.apikey ? response.apikey : User_API_KEY);
+        localStorage.setItem('xmleditor:apikey', userData.apikey ? userData.apikey : User_API_KEY);
 
-        // localStorage.setItem('xmleditor:user', JSON.stringify(userData));
+        localStorage.setItem('xmleditor:user', JSON.stringify(userData));
         // localStorage.setItem('xmleditor:token', userData.token || '');
         
         localStorage.setItem('xmleditor:username', userData.username || '');
@@ -110,14 +124,19 @@ export const AuthProvider = ({ children }) => {
 
         // Check admin status
         // Check admin status (include pos === 10 as admin)
-        if (userData.isAdmin || ADMIN_CONFIG.checkIsSuperAdmin(userData.userId) || userData.pos === 10) {
+        if (
+          userData.isAdmin ||
+          ADMIN_CONFIG.checkIsSuperAdmin(userData.userId) ||
+          userData.pos === 10 ||
+          (userData?._workflow_role || '').toString().toLowerCase() === 'superadmin'
+        ) {
           localStorage.setItem('xmleditor:admin', 'superadmin');
         }
 
         // Update state
         setUser(userData);
         setIsAuthenticated(true);
-        setUserRole(userData.role || null);
+        setUserRole(resolveEffectiveRole(userData));
         checkAdminStatus(userData);
 
         return { success: true, user: userData };
@@ -130,7 +149,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [checkAdminStatus]);
+  }, [checkAdminStatus, resolveEffectiveRole]);
 
   /**
    * Logout user
