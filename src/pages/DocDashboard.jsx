@@ -17,12 +17,43 @@ const COMMON_METADATA_KEYS = [
     'linkinfo',
     'shorttitle',
     "mathwflow",
-    "refstyle","vendor","sftpinpath","collaborative","mathwflowupdate","journal_short_title","journal_title",""
+    "refstyle", "vendor", "sftpinpath", "collaborative", "mathwflowupdate", "journal_short_title", "journal_title", ""
 ];
 const COMMON_METADATA_KEY_SET = new Set(COMMON_METADATA_KEYS);
-const HIDDEN_UI_COLUMNS = new Set(['_r', '_w', '_sb', '_v', '_time_c', 'time_u', '_id', '_oid', "docid", "linkinfo","time_c","time_u","timeiso_c","titleinfo","projecttitle","dtd","division","type","client","identifier","shorttitle","editor","taskid","fileid","xmltohtmlres","manuscriptno","projectid","rurlvalidres","rchatbotai","rSandBox","doctype","emailtolist","emailcclist","emailbclist","roletaskid","roleabstracttaskid","allroles","wflow", "nextrole","apikey","vendor","sftpinpath","collaborative","uid","mathwflow","refstyle","__collection","__id","__v","id","key","filename","currenturl","emailto","comparestatus"]);
+const HIDDEN_UI_COLUMNS = new Set(['_r', '_w', '_sb', '_v', '_time_c', 'time_u', '_id', '_oid', "docid", "linkinfo", "time_c", "time_u", "timeiso_c", "titleinfo", "projecttitle", "dtd", "division", "type", "client", "identifier", "shorttitle", "editor", "taskid", "fileid", "xmltohtmlres", "manuscriptno", "projectid", "rurlvalidres", "rchatbotai", "rSandBox", "doctype", "emailtolist", "emailcclist", "emailbclist", "roletaskid", "roleabstracttaskid", "allroles", "wflow", "nextrole", "apikey", "vendor", "sftpinpath", "collaborative", "uid", "mathwflow", "refstyle", "__collection", "__id", "__v", "id", "key", "filename", "currenturl", "emailto", "comparestatus"]);
 
 const EXCEPTION_COLLECTION_SET = new Set(EXCEPTION_COLLECTIONS);
+
+const COLLECTION_CATEGORIES = {
+    content: {
+        label: 'Content & Files',
+        items: new Set(['rCKFulltext', 'rFileslist', 'rattachmentlist', 'rfiles', 'rdocmodifieddata', 'rdoiinfo'])
+    },
+    user: {
+        label: 'User & Auth',
+        items: new Set(['rUserPreference', 'rUseraccess', 'rUsernotes', 'rShareandinvite', 'rlinksharing', 'rgeneratetoken', 'rdocviewhistory'])
+    },
+    workflow: {
+        label: 'Workflow & Status',
+        items: new Set(['rworkflow', 'rsignoffstatus', 'rpubkitapistatus', 'rpubkitapistatusclose', 'rimpactapistatusrecord'])
+    },
+    logs: {
+        label: 'Logs & Errors',
+        items: new Set(['rErrorLogs', 'rPasteLogs', 'rfilesaveerror', 'rhtmltoxmlerror', 'rhtmltoxmlparsingerror'])
+    },
+    technical: {
+        label: 'System & Technical',
+        items: new Set([]) // Will include everything else not specifically categorized
+    }
+};
+
+const getCollectionCategory = (name) => {
+    if (isExceptionCollection(name)) return 'exception';
+    for (const [key, cat] of Object.entries(COLLECTION_CATEGORIES)) {
+        if (cat.items.has(name)) return key;
+    }
+    return 'technical';
+};
 
 const isExceptionCollection = (name) => EXCEPTION_COLLECTION_SET.has(name);
 
@@ -323,6 +354,27 @@ export default function DocDashboard() {
         () => filteredCollections.filter((collection) => !isExceptionCollection(collection)),
         [filteredCollections]
     );
+
+    const categorizedCollections = useMemo(() => {
+        const result = {
+            content: [],
+            user: [],
+            workflow: [],
+            logs: [],
+            technical: []
+        };
+
+        regularCollections.forEach(collection => {
+            const cat = getCollectionCategory(collection);
+            if (result[cat]) {
+                result[cat].push(collection);
+            } else {
+                result.technical.push(collection);
+            }
+        });
+
+        return result;
+    }, [regularCollections]);
 
     const exceptionCollections = useMemo(
         () => filteredCollections.filter((collection) => isExceptionCollection(collection)),
@@ -684,22 +736,51 @@ export default function DocDashboard() {
                                 </button>
                             </div>
 
-                            <div className="max-h-[62vh] overflow-auto space-y-1 pr-1">
-                                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">
-                                    Regular
-                                </div>
-                                {regularSidebarItems.length ? regularSidebarItems : (
-                                    <div className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">No regular collections</div>
-                                )}
+                            <div className="max-h-[62vh] overflow-auto space-y-4 pr-1">
+                                {Object.entries(COLLECTION_CATEGORIES).map(([key, category]) => {
+                                    const items = categorizedCollections[key];
+                                    if (!items || items.length === 0) return null;
 
-                                <div className="border-t border-gray-200 dark:border-gray-700 my-3" />
+                                    return (
+                                        <div key={key} className="space-y-1">
+                                            <div className="text-xs font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400 mb-1 flex items-center justify-between">
+                                                <span>{category.label}</span>
+                                                <span className="text-[10px] bg-primary-50 dark:bg-primary-900/30 px-1.5 py-0.5 rounded text-primary-700 dark:text-primary-300">
+                                                    {items.length}
+                                                </span>
+                                            </div>
+                                            {items.map((collection) => (
+                                                <SidebarCollectionItem
+                                                    key={collection}
+                                                    collection={collection}
+                                                    checked={Boolean(checked[collection])}
+                                                    onToggle={toggleCollection}
+                                                />
+                                            ))}
+                                        </div>
+                                    );
+                                })}
 
-                                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">
-                                    Exception
+                                <div className="border-t border-gray-200 dark:border-gray-700 pt-3" />
+
+                                <div className="space-y-1">
+                                    <div className="text-xs font-semibold uppercase tracking-wide text-red-600 dark:text-red-400 mb-1 flex items-center justify-between">
+                                        <span>Exception</span>
+                                        <span className="text-[10px] bg-red-50 dark:bg-red-900/30 px-1.5 py-0.5 rounded text-red-700 dark:text-red-300">
+                                            {exceptionCollections.length}
+                                        </span>
+                                    </div>
+                                    {exceptionCollections.length ? exceptionCollections.map(collection => (
+                                        <SidebarCollectionItem
+                                            key={collection}
+                                            collection={collection}
+                                            checked={Boolean(checked[collection])}
+                                            onToggle={toggleCollection}
+                                        />
+                                    )) : (
+                                        <div className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">No exception collections</div>
+                                    )}
                                 </div>
-                                {exceptionSidebarItems.length ? exceptionSidebarItems : (
-                                    <div className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">No exception collections</div>
-                                )}
                             </div>
                         </aside>
 

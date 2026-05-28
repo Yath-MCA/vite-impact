@@ -1,4 +1,6 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+
+
 import { Suspense, lazy } from 'react';
 
 // Global Context Providers
@@ -15,24 +17,14 @@ import AppLayout from '../layout/AppLayout';
 import { DashboardProvider } from '../../features/dashboard/context/DashboardContext';
 
 // Feature Routes
-import { DashboardRoutes } from '../../features/dashboard/routes/dashboardRoutes';
-import { ReportsRoutes } from '../../features/reports';
-import { HistoryRoutes } from '../../features/history';
-import { ActivityRoutes } from '../../features/activity';
-import { EditorRoutes } from '../../features/editor';
+import DashboardRoutes from '../../features/dashboard/routes/dashboardRoutes';
+// import { ReportsRoutes } from '../../features/reports';
+// import { HistoryRoutes } from '../../features/history';
+// import { ActivityRoutes } from '../../features/activity';
+// import { EditorRoutes } from '../../features/editor';
 
-// Lazy loaded pages
-const Landing = lazy(() => import('../../pages/Landing'));
-const Login = lazy(() => import('../../pages/Login'));
-const ClientDashboard = lazy(() => import('../../pages/ClientDashboard'));
-const ReportsPage = lazy(() => import('../../pages/ReportsPage'));
-const SettingsPage = lazy(() => import('../../pages/SettingsPage'));
-const ValidateUrl = lazy(() => import('../../pages/ValidateUrl'));
-const DocFinder = lazy(() => import('../../pages/DocFinderDashboard'));
-const SupabasePage = lazy(() => import('../../pages/SupabasePage'));
-
-// Config Manager
-const ConfigManagerPage = lazy(() => import('../../components/ConfigManager/ConfigManagerPage'));
+// Lazy loaded components are now handled using the 'lazy' property in the router config
+// to properly integrate with React Router 6.4's transition management.
 
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -40,39 +32,29 @@ const PageLoader = () => (
   </div>
 );
 
-const LazyPage = ({ children }) => (
-  <Suspense fallback={<PageLoader />}>
-    {children}
-  </Suspense>
-);
-
 // Main router configuration
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Landing />
+    lazy: () => import('../../pages/Landing').then(m => ({ Component: m.default }))
   },
   {
     path: '/login',
-    element: <Login />
+    lazy: () => import('../../pages/Login').then(m => ({ Component: m.default }))
   },
   {
-    path: '/dashboard',
+    path: '/dashboard/*',
     element: (
       <DashboardProvider>
-        <LazyPage>
-          <DashboardRoutes />
-        </LazyPage>
+        <DashboardRoutes />
       </DashboardProvider>
     )
   },
   {
-    path: '/doc-dashboard',
+    path: '/doc-dashboard/*',
     element: (
       <DashboardProvider>
-        <LazyPage>
-          <DashboardRoutes />
-        </LazyPage>
+        <DashboardRoutes />
       </DashboardProvider>
     )
   },
@@ -81,17 +63,15 @@ const router = createBrowserRouter([
     element: <Navigate to="/doc-dashboard" replace />
   },
   {
-    path: '/doc-finder',
-    element: <Navigate to="/devboard" replace />
-  },
-  {
     path: '/docdashboard',
     element: <Navigate to="/doc-dashboard" replace />
   },
   {
-    path: '/doc-dsshbaord',
-    element: <Navigate to="/doc-dashboard" replace />
+    path: '/doc-finder',
+    element: <Navigate to="/devboard" replace />
   },
+
+
   {
     path: '/admindashboard',
     element: <Navigate to="/dashboard/admin" replace />
@@ -106,91 +86,47 @@ const router = createBrowserRouter([
   },
   {
     path: '/client',
-    element: (
-      <LazyPage>
-        <ClientDashboard />
-      </LazyPage>
-    )
+    lazy: () => import('../../pages/ClientDashboard').then(m => ({ Component: m.default }))
   },
-  {
-    path: '/reports',
-    element: (
-      <LazyPage>
-        <ReportsPage />
-      </LazyPage>
-    )
-  },
-  {
-    path: '/reports/*',
-    element: (
-      <LazyPage>
-        <ReportsRoutes />
-      </LazyPage>
-    )
-  },
-  {
-    path: '/settings',
-    element: (
-      <LazyPage>
-        <SettingsPage />
-      </LazyPage>
-    )
-  },
-  {
-    path: '/supabase',
-    element: (
-      <LazyPage>
-        <SupabasePage />
-      </LazyPage>
-    )
-  },
-  {
-    path: '/validateurl',
-    element: (
-      <LazyPage>
-        <ValidateUrl />
-      </LazyPage>
-    )
-  },
-  {
-    path: '/validateurl/:client',
-    element: (
-      <LazyPage>
-        <ValidateUrl />
-      </LazyPage>
-    )
-  },
-  {
-    path: '/editor/*',
-    element: (
-      <LazyPage>
-        <EditorRoutes />
-      </LazyPage>
-    )
-  },
-  {
-    path: '/history',
-    element: (
-      <LazyPage>
-        <HistoryRoutes />
-      </LazyPage>
-    )
-  },
-  {
-    path: '/activity',
-    element: (
-      <LazyPage>
-        <ActivityRoutes />
-      </LazyPage>
-    )
-  },
+  // {
+  //   path: '/reports',
+  //   lazy: () => import('../../pages/ReportsPage').then(m => ({ Component: m.default }))
+  // },
+  // {
+  //   path: '/reports/*',
+  //   lazy: () => import('../../features/reports').then(m => ({ Component: m.ReportsRoutes }))
+  // },
+  // {
+  //   path: '/settings',
+  //   lazy: () => import('../../pages/SettingsPage').then(m => ({ Component: m.default }))
+  // },
+  // {
+  //   path: '/supabase',
+  //   lazy: () => import('../../pages/SupabasePage').then(m => ({ Component: m.default }))
+  // },
+  // {
+  //   path: '/validateurl',
+  //   lazy: () => import('../../pages/ValidateUrl').then(m => ({ Component: m.default }))
+  // },
+  // {
+  //   path: '/validateurl/:client',
+  //   lazy: () => import('../../pages/ValidateUrl').then(m => ({ Component: m.default }))
+  // },
+  // {
+  //   path: '/editor/*',
+  //   lazy: () => import('../../features/editor').then(m => ({ Component: m.EditorRoutes }))
+  // },
+  // {
+  //   path: '/history',
+  //   lazy: () => import('../../features/history').then(m => ({ Component: m.HistoryRoutes }))
+  // },
+  // {
+  //   path: '/activity',
+  //   lazy: () => import('../../features/activity').then(m => ({ Component: m.ActivityRoutes }))
+  // },
   {
     path: '/config-manager/*',
-    element: (
-      <LazyPage>
-        <ConfigManagerPage />
-      </LazyPage>
-    )
+    lazy: () => import('../../components/ConfigManager/ConfigManagerPage').then(m => ({ Component: m.default }))
   },
   {
     path: '*',

@@ -6,30 +6,31 @@ import Landing from '../pages/Landing';
 import Login from '../pages/Login';
 
 // Dashboard pages - updated to use new feature structure
-const Dashboard = lazy(() => import('../features/dashboard/pages/DevDashboard'));
-const AdminDashboard = lazy(() => import('../features/dashboard/pages/AdminDashboard'));
-const DocDashboard = lazy(() => import('../features/dashboard/pages/DocDashboard'));
+const Dashboard = lazy(() => import('../features_old/dashboard/pages/DevDashboard'));
+const AdminDashboard = lazy(() => import('../features_old/dashboard/pages/AdminDashboard'));
+const DocDashboard = lazy(() => import('../features_old/dashboard/pages/DocDashboard'));
 
 const ClientDashboard = lazy(() => import('../pages/ClientDashboard'));
-const ReportsPage = lazy(() => import('../pages/ReportsPage'));
+
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 const ValidateUrl = lazy(() => import('../pages/ValidateUrl'));
 const DocFinder = lazy(() => import('../pages/DocFinderDashboard'));
 const SupabasePage = lazy(() => import('../pages/SupabasePage'));
 
+// const ReportsPage = lazy(() => import('../pages/ReportsPage'));
 // Reports module pages
-const PackagePdfFailure = lazy(() => import('../modules/reports/PackagePdfFailure'));
-const CorrectionCount = lazy(() => import('../modules/reports/CorrectionCount'));
-const SaveFailureItems = lazy(() => import('../modules/reports/SaveFailureItems'));
-const XmlFailure = lazy(() => import('../modules/reports/XmlFailure'));
-const CompareReports = lazy(() => import('../modules/reports/CompareReports'));
+// const PackagePdfFailure = lazy(() => import('../modules/reports/PackagePdfFailure'));
+// const CorrectionCount = lazy(() => import('../modules/reports/CorrectionCount'));
+// const SaveFailureItems = lazy(() => import('../modules/reports/SaveFailureItems'));
+// const XmlFailure = lazy(() => import('../modules/reports/XmlFailure'));
+// const CompareReports = lazy(() => import('../modules/reports/CompareReports'));
 
-// History and Activity modules
-const DocumentHistory = lazy(() => import('../modules/history/DocumentHistory'));
-const UserActivity = lazy(() => import('../modules/activity/UserActivity'));
+// // History and Activity modules
+// const DocumentHistory = lazy(() => import('../modules/history/DocumentHistory'));
+// const UserActivity = lazy(() => import('../modules/activity/UserActivity'));
 
-// Config Manager module - updated to use new component structure
-const ConfigManagerPage = lazy(() => import('../components/ConfigManager/ConfigManagerPage'));
+// // Config Manager module - updated to use new component structure
+// const ConfigManagerPage = lazy(() => import('../components/ConfigManager/ConfigManagerPage'));
 
 // Editor page
 const EditorPage = lazy(() => import('../pages/EditorPage'));
@@ -146,16 +147,16 @@ const router = createBrowserRouter([
       </Protected>
     )
   },
-  {
-    path: '/reports',
-    element: (
-      <Protected>
-        <LazyPage>
-          <ReportsPage />
-        </LazyPage>
-      </Protected>
-    )
-  },
+  // {
+  //   path: '/reports',
+  //   element: (
+  //     <Protected>
+  //       <LazyPage>
+  //         <ReportsPage />
+  //       </LazyPage>
+  //     </Protected>
+  //   )
+  // },
   {
     path: '/settings',
     element: (
@@ -210,86 +211,86 @@ const router = createBrowserRouter([
       </Protected>
     )
   },
-  {
-    path: '/reports/package-failure',
-    element: (
-      <Protected>
-        <LazyPage>
-          <PackagePdfFailure />
-        </LazyPage>
-      </Protected>
-    )
-  },
-  {
-    path: '/reports/correction-count',
-    element: (
-      <Protected>
-        <LazyPage>
-          <CorrectionCount />
-        </LazyPage>
-      </Protected>
-    )
-  },
-  {
-    path: '/reports/save-failure',
-    element: (
-      <Protected>
-        <LazyPage>
-          <SaveFailureItems />
-        </LazyPage>
-      </Protected>
-    )
-  },
-  {
-    path: '/reports/xml-failure',
-    element: (
-      <Protected>
-        <LazyPage>
-          <XmlFailure />
-        </LazyPage>
-      </Protected>
-    )
-  },
-  {
-    path: '/reports/compare',
-    element: (
-      <Protected>
-        <LazyPage>
-          <CompareReports />
-        </LazyPage>
-      </Protected>
-    )
-  },
-  {
-    path: '/history',
-    element: (
-      <Protected>
-        <LazyPage>
-          <DocumentHistory />
-        </LazyPage>
-      </Protected>
-    )
-  },
-  {
-    path: '/activity',
-    element: (
-      <Protected>
-        <LazyPage>
-          <UserActivity />
-        </LazyPage>
-      </Protected>
-    )
-  },
-  {
-    path: '/config-manager',
-    element: (
-      <Protected requireAdmin>
-        <LazyPage>
-          <ConfigManagerPage />
-        </LazyPage>
-      </Protected>
-    )
-  },
+  // {
+  //   path: '/reports/package-failure',
+  //   element: (
+  //     <Protected>
+  //       <LazyPage>
+  //         <PackagePdfFailure />
+  //       </LazyPage>
+  //     </Protected>
+  //   )
+  // },
+  // {
+  //   path: '/reports/correction-count',
+  //   element: (
+  //     <Protected>
+  //       <LazyPage>
+  //         <CorrectionCount />
+  //       </LazyPage>
+  //     </Protected>
+  //   )
+  // },
+  // {
+  //   path: '/reports/save-failure',
+  //   element: (
+  //     <Protected>
+  //       <LazyPage>
+  //         <SaveFailureItems />
+  //       </LazyPage>
+  //     </Protected>
+  //   )
+  // },
+  // {
+  //   path: '/reports/xml-failure',
+  //   element: (
+  //     <Protected>
+  //       <LazyPage>
+  //         <XmlFailure />
+  //       </LazyPage>
+  //     </Protected>
+  //   )
+  // },
+  // {
+  //   path: '/reports/compare',
+  //   element: (
+  //     <Protected>
+  //       <LazyPage>
+  //         <CompareReports />
+  //       </LazyPage>
+  //     </Protected>
+  //   )
+  // },
+  // {
+  //   path: '/history',
+  //   element: (
+  //     <Protected>
+  //       <LazyPage>
+  //         <DocumentHistory />
+  //       </LazyPage>
+  //     </Protected>
+  //   )
+  // },
+  // {
+  //   path: '/activity',
+  //   element: (
+  //     <Protected>
+  //       <LazyPage>
+  //         <UserActivity />
+  //       </LazyPage>
+  //     </Protected>
+  //   )
+  // },
+  // {
+  //   path: '/config-manager',
+  //   element: (
+  //     <Protected requireAdmin>
+  //       <LazyPage>
+  //         <ConfigManagerPage />
+  //       </LazyPage>
+  //     </Protected>
+  //   )
+  // },
   {
     path: '*',
     element: <Navigate to="/" replace />

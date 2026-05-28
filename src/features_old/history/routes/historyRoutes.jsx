@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import ProtectedRoute from '../../../core/router/ProtectedRoute';
-import DocumentHistory from '../pages/DocumentHistory';
+import DocumentHistory from '../../modules/DocumentHistory';
 
 const HistoryRoutes = () => {
   return (

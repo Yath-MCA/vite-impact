@@ -13,7 +13,7 @@ export const DashboardProvider = ({ children }) => {
   // Detect dashboard type from URL
   useEffect(() => {
     const path = location.pathname;
-    
+
     if (path.includes('/dashboard/admin')) {
       setDashboardType('admin');
     } else if (path.includes('/dashboard/dev')) {
@@ -39,7 +39,7 @@ export const DashboardProvider = ({ children }) => {
           developer: ['read', 'write', 'debug', 'view_logs'],
           document: ['read', 'write', 'upload', 'download']
         };
-        
+
         setUserPermissions(mockPermissions[dashboardType] || []);
       } catch (error) {
         console.error('Error loading user permissions:', error);
@@ -60,7 +60,7 @@ export const DashboardProvider = ({ children }) => {
     if (!menuItem.permissions || menuItem.permissions.length === 0) {
       return true;
     }
-    
+
     return menuItem.permissions.some(permission => hasPermission(permission));
   };
 

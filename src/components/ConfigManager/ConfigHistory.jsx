@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FiHistory, 
-  FiCalendar, 
-  FiUser, 
-  FiFile, 
-  FiChevronDown, 
+import { FaRocket } from 'react-icons/fa';
+import {
+  FiRefreshCw,
+  FiCalendar,
+  FiUser,
+  FiFile,
+  FiChevronDown,
   FiChevronUp,
   FiEye,
   FiDownload,
   FiFilter,
   FiSearch,
-  FiRefreshCw,
-  FiGitBranch,
   FiDatabase,
-  FiPlusCircle,
-  FiRocket
+  FiPlusCircle
 } from 'react-icons/fi';
 
 const ConfigHistory = () => {
@@ -30,20 +28,20 @@ const ConfigHistory = () => {
   // Configuration paths
   const CONFIG_PATHS = {
     journals: {
-      lww: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/lww/config.xml`,
-      oup: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/oup/config.xml`,
-      plos: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/plos/config.xml`,
-      medknow: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/medknow/config.xml`,
-      brill: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/brill/config.xml`,
-      tnfjournals: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/tnfjournals/config.xml`,
-      acs: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/acs/config.xml`,
-      intellect: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/intellect/config.xml`,
-      nihr: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/nihr/config.xml`,
+      lww: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/lww/config.xml`,
+      oup: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/oup/config.xml`,
+      plos: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/plos/config.xml`,
+      medknow: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/medknow/config.xml`,
+      brill: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/brill/config.xml`,
+      tnfjournals: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/tnfjournals/config.xml`,
+      acs: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/acs/config.xml`,
+      intellect: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/intellect/config.xml`,
+      nihr: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/nihr/config.xml`,
     },
     books: {
-      oso: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/books/oso/config.xml`,
-      tnf: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/books/tnf/config.xml`,
-      oho: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/books/oho/config.xml`
+      oso: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/books/oso/config.xml`,
+      tnf: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/books/tnf/config.xml`,
+      oho: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/books/oho/config.xml`
     }
   };
 
@@ -298,7 +296,7 @@ const ConfigHistory = () => {
     const clientKey = item.clientId || 'unknown';
     const batchKey = item.batch || 'N/A';
     const groupKey = `${clientKey}__${batchKey}`;
-    
+
     if (!acc[groupKey]) {
       acc[groupKey] = {
         clientId: clientKey,
@@ -312,16 +310,16 @@ const ConfigHistory = () => {
 
   // Apply filters
   const filteredGroups = Object.entries(groupedHistory).filter(([groupKey, group]) => {
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       groupKey.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      group.items.some(item => 
+      group.items.some(item =>
         item.journal?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.journalShort?.toLowerCase().includes(searchQuery.toLowerCase())
       );
-    
+
     const matchesClient = !filterClient || group.clientId === filterClient;
     const matchesBatch = !filterBatch || group.batch === filterBatch;
-    
+
     return matchesSearch && matchesClient && matchesBatch;
   });
 
@@ -359,10 +357,10 @@ const ConfigHistory = () => {
     <div className="config-history">
       <div className="history-header">
         <h2>
-          <FiHistory className="me-2" />
+          <FiRefreshCw className="me-2" />
           Change History
         </h2>
-        
+
         <div className="history-controls">
           <div className="search-box">
             <FiSearch className="search-icon" />
@@ -373,16 +371,16 @@ const ConfigHistory = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          
-          <button 
+
+          <button
             className="btn btn-outline-secondary"
             onClick={() => setShowFilters(!showFilters)}
           >
             <FiFilter className="me-2" />
             Filters
           </button>
-          
-          <button 
+
+          <button
             className="btn btn-outline-primary"
             onClick={loadChangeHistory}
             disabled={loading}
@@ -398,7 +396,7 @@ const ConfigHistory = () => {
           <div className="row">
             <div className="col-md-4">
               <label>Client:</label>
-              <select 
+              <select
                 value={filterClient}
                 onChange={(e) => setFilterClient(e.target.value)}
                 className="form-select"
@@ -411,7 +409,7 @@ const ConfigHistory = () => {
             </div>
             <div className="col-md-4">
               <label>Batch:</label>
-              <select 
+              <select
                 value={filterBatch}
                 onChange={(e) => setFilterBatch(e.target.value)}
                 className="form-select"
@@ -423,7 +421,7 @@ const ConfigHistory = () => {
             </div>
             <div className="col-md-4">
               <label>Action:</label>
-              <select 
+              <select
                 value={filterAction}
                 onChange={(e) => setFilterAction(e.target.value)}
                 className="form-select"
@@ -449,7 +447,7 @@ const ConfigHistory = () => {
             const groupKey = `${group.clientId}_${group.batch}_${groupIndex}`;
             const isExpanded = expandedGroups.has(groupKey);
             const clientLabel = clientNames[group.clientId] || group.clientId?.toUpperCase() || 'Unknown';
-            
+
             const commonDataCreated = getCommonMeta(group.items, 'dataCreated');
             const commonCreated = getCommonMeta(group.items, 'created');
             const commonDeployed = getCommonMeta(group.items, 'deployed');
@@ -465,7 +463,7 @@ const ConfigHistory = () => {
                       <span className="badge bg-secondary ms-2">{group.items.length} journal(s)</span>
                     </h5>
                   </div>
-                  <button 
+                  <button
                     className="btn btn-sm btn-outline-secondary"
                     onClick={() => toggleGroupExpansion(groupKey)}
                   >
@@ -490,28 +488,28 @@ const ConfigHistory = () => {
                               <strong>{item.file}</strong>
                             </h6>
                             <p className="item-title">{item.journal}</p>
-                            
+
                             {!commonDataCreated && renderEventRow(item.dataCreated, 'bg-secondary', 'fas fa-database', 'UI Created')}
                             {!commonCreated && renderEventRow(item.created, 'bg-success', 'fas fa-plus-circle', 'Created')}
                             {!commonDeployed && renderEventRow(item.deployed, 'bg-primary', 'fas fa-rocket', 'Deployed')}
                           </div>
-                          
+
                           <div className="item-actions">
-                            <button 
+                            <button
                               className="btn btn-sm btn-outline-primary"
                               onClick={() => viewJournalConfig(item.clientId, item.journalShort)}
                             >
                               <FiEye className="me-1" />
                               View
                             </button>
-                            <button 
+                            <button
                               className="btn btn-sm btn-outline-secondary"
                               onClick={() => downloadVersion(item.id)}
                             >
                               <FiDownload className="me-1" />
                               Download
                             </button>
-                            <button 
+                            <button
                               className="btn btn-sm btn-outline-warning"
                               onClick={() => restoreVersion(item.id)}
                             >
@@ -530,7 +528,7 @@ const ConfigHistory = () => {
         </div>
       ) : (
         <div className="no-history">
-          <FiHistory className="no-history-icon" />
+          <FiRefreshCw className="no-history-icon" />
           <h3>No Change History Found</h3>
           <p>No configuration changes have been recorded yet.</p>
         </div>

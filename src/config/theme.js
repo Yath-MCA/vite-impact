@@ -11,6 +11,6 @@ export const BRANDING = {
   productName: 'IMPACT',
   companyName: 'Newgen',
   companyLogo: '/assets/logo/company-logo.svg',
-  productIcon: '/assets/logo/product-icon.svg',
+  productIcon: '/assets/logo/product-icon.png',
   favicon: '/assets/logo/favicon.svg'
 };

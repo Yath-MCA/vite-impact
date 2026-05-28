@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Outlet } from 'react-router-dom';
 import DashboardSidebar from './DashboardSidebar';
-import { DashboardContext } from '../context/DashboardContext';
+import DashboardContext from '../context/DashboardContext';
 import './DashboardLayout.css';
 
 const DashboardLayout = () => {

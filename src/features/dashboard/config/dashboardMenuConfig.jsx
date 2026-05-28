@@ -1,10 +1,10 @@
-import { 
-  FiHome, 
-  FiFile, 
-  FiSettings, 
-  FiBarChart2, 
-  FiHistory, 
-  FiBook, 
+import {
+  FiHome,
+  FiFile,
+  FiSettings,
+  FiBarChart2,
+  FiRefreshCw,
+  FiBook,
   FiDatabase,
   FiGitBranch,
   FiShield,
@@ -64,7 +64,7 @@ export const dashboardMenuConfig = {
         {
           label: 'Change History',
           path: '/config-manager/history',
-          icon: FiHistory,
+          icon: FiRefreshCw,
           permissions: ['read']
         }
       ]
@@ -106,7 +106,7 @@ export const dashboardMenuConfig = {
       id: 'history',
       label: 'History',
       path: '/history',
-      icon: FiHistory,
+      icon: FiRefreshCw,
       permissions: ['read']
     },
     {
@@ -249,7 +249,7 @@ export const dashboardMenuConfig = {
       id: 'recent',
       label: 'Recent Activity',
       path: '/documents/recent',
-      icon: FiHistory,
+      icon: FiRefreshCw,
       permissions: ['read']
     }
   ]

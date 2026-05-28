@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  FiSave, 
-  FiCheck, 
-  FiIndent, 
-  FiRotateCcw, 
+import { FaIndent, FaOutdent, FaRocket } from 'react-icons/fa'
+import {
+  FiSave,
+  FiCheck,
+  FiRotateCcw,
   FiDownload,
   FiUpload,
   FiFile,
@@ -31,26 +31,26 @@ const ConfigEditor = () => {
   const [showLineNumbers, setShowLineNumbers] = useState(true);
   const [showWordWrap, setShowWordWrap] = useState(true);
   const [fontSize, setFontSize] = useState(14);
-  
+
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
 
   // Sample configuration files for demo
   const sampleFiles = [
-    { 
-      value: 'lww/config.xml', 
+    {
+      value: 'lww/config.xml',
       label: 'LWW - Main Config',
-      path: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/lww/config.xml`
+      path: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/lww/config.xml`
     },
-    { 
-      value: 'oup/config.xml', 
+    {
+      value: 'oup/config.xml',
       label: 'OUP - Main Config',
-      path: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/oup/config.xml`
+      path: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/oup/config.xml`
     },
-    { 
-      value: 'oso/config.xml', 
+    {
+      value: 'oso/config.xml',
       label: 'OSO - Main Config',
-      path: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/books/oso/config.xml`
+      path: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/books/oso/config.xml`
     }
   ];
 
@@ -84,7 +84,7 @@ const ConfigEditor = () => {
         </listofjournals>
     </project>
 </impact>`;
-    
+
     setContent(sampleXML);
     setOriginalContent(sampleXML);
     setCurrentFile('sample.xml');
@@ -99,7 +99,7 @@ const ConfigEditor = () => {
       if (!response.ok) {
         throw new Error('File not found');
       }
-      
+
       const xmlContent = await response.text();
       setContent(xmlContent);
       setOriginalContent(xmlContent);
@@ -118,7 +118,7 @@ const ConfigEditor = () => {
     try {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
-      
+
       const parseError = xmlDoc.getElementsByTagName('parsererror');
       if (parseError.length > 0) {
         setValidation({
@@ -185,13 +185,13 @@ const ConfigEditor = () => {
       // TODO: Implement actual API call to save file
       console.log('Saving to:', currentFile);
       console.log('Content length:', content.length);
-      
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       setOriginalContent(content);
       setIsModified(false);
-      
+
       // Show success message
       alert('File saved successfully!');
     } catch (error) {
@@ -243,7 +243,7 @@ const ConfigEditor = () => {
 
     const lines = content.split('\n');
     const results = [];
-    
+
     lines.forEach((line, index) => {
       if (line.toLowerCase().includes(searchQuery.toLowerCase())) {
         results.push({
@@ -256,7 +256,7 @@ const ConfigEditor = () => {
 
     setSearchResults(results);
     setCurrentSearchIndex(0);
-    
+
     if (results.length > 0) {
       // Scroll to first result
       scrollToLine(results[0].lineNumber);
@@ -327,10 +327,10 @@ const ConfigEditor = () => {
           {currentFile && <span className="current-file"> - {currentFile}</span>}
           {isModified && <span className="modified-indicator"> *</span>}
         </div>
-        
+
         <div className="editor-controls">
           <div className="file-selector">
-            <select 
+            <select
               value={currentFile}
               onChange={(e) => loadFile(e.target.value)}
               className="form-select form-select-sm"
@@ -343,16 +343,16 @@ const ConfigEditor = () => {
               ))}
             </select>
           </div>
-          
+
           <div className="view-mode-toggle">
-            <button 
+            <button
               className={`btn btn-sm ${viewMode === 'edit' ? 'btn-primary' : 'btn-outline-secondary'}`}
               onClick={() => setViewMode('edit')}
             >
               <FiEdit3 className="me-1" />
               Edit
             </button>
-            <button 
+            <button
               className={`btn btn-sm ${viewMode === 'preview' ? 'btn-primary' : 'btn-outline-secondary'}`}
               onClick={() => setViewMode('preview')}
             >
@@ -365,7 +365,7 @@ const ConfigEditor = () => {
 
       <div className="editor-toolbar">
         <div className="toolbar-left">
-          <button 
+          <button
             className="btn btn-sm btn-success"
             onClick={saveFile}
             disabled={!isModified && !validation.valid}
@@ -373,8 +373,8 @@ const ConfigEditor = () => {
             <FiSave className="me-1" />
             Save
           </button>
-          
-          <button 
+
+          <button
             className="btn btn-sm btn-warning"
             onClick={revertChanges}
             disabled={!isModified}
@@ -382,50 +382,50 @@ const ConfigEditor = () => {
             <FiRotateCcw className="me-1" />
             Revert
           </button>
-          
-          <button 
+
+          <button
             className="btn btn-sm btn-info"
             onClick={formatXML}
           >
-            <FiIndent className="me-1" />
+            <FaIndent className="me-1" />
             Format
           </button>
-          
-          <button 
+
+          <button
             className="btn btn-sm btn-primary"
             onClick={() => setShowValidation(!showValidation)}
           >
             <FiCheck className="me-1" />
             Validate
           </button>
-          
+
           <div className="divider"></div>
-          
-          <button 
+
+          <button
             className="btn btn-sm btn-outline-secondary"
             onClick={downloadFile}
           >
             <FiDownload className="me-1" />
             Download
           </button>
-          
-          <button 
+
+          <button
             className="btn btn-sm btn-outline-secondary"
             onClick={() => fileInputRef.current?.click()}
           >
             <FiUpload className="me-1" />
             Upload
           </button>
-          
-          <input 
+
+          <input
             ref={fileInputRef}
             type="file"
             accept=".xml"
             style={{ display: 'none' }}
             onChange={uploadFile}
           />
-          
-          <button 
+
+          <button
             className="btn btn-sm btn-outline-secondary"
             onClick={copyToClipboard}
           >
@@ -433,7 +433,7 @@ const ConfigEditor = () => {
             Copy
           </button>
         </div>
-        
+
         <div className="toolbar-right">
           <div className="search-box">
             <FiSearch className="search-icon" />
@@ -456,13 +456,13 @@ const ConfigEditor = () => {
             {searchResults.length > 0 && (
               <div className="search-results">
                 {currentSearchIndex + 1}/{searchResults.length}
-                <button 
+                <button
                   className="btn btn-sm btn-outline-secondary"
                   onClick={prevSearchResult}
                 >
                   ▲
                 </button>
-                <button 
+                <button
                   className="btn btn-sm btn-outline-secondary"
                   onClick={nextSearchResult}
                 >
@@ -471,10 +471,10 @@ const ConfigEditor = () => {
               </div>
             )}
           </div>
-          
+
           <div className="editor-settings">
             <label className="form-check form-check-inline">
-              <input 
+              <input
                 type="checkbox"
                 checked={showLineNumbers}
                 onChange={(e) => setShowLineNumbers(e.target.checked)}
@@ -482,9 +482,9 @@ const ConfigEditor = () => {
               />
               <span className="form-check-label">Line Numbers</span>
             </label>
-            
+
             <label className="form-check form-check-inline">
-              <input 
+              <input
                 type="checkbox"
                 checked={showWordWrap}
                 onChange={(e) => setShowWordWrap(e.target.checked)}
@@ -492,8 +492,8 @@ const ConfigEditor = () => {
               />
               <span className="form-check-label">Word Wrap</span>
             </label>
-            
-            <select 
+
+            <select
               value={fontSize}
               onChange={(e) => setFontSize(Number(e.target.value))}
               className="form-select form-select-sm"
@@ -521,7 +521,7 @@ const ConfigEditor = () => {
               Validation Error: {validation.error}
             </div>
           )}
-          <button 
+          <button
             className="btn-close"
             onClick={() => setShowValidation(false)}
           >

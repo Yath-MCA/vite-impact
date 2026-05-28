@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FiBuilding, 
-  FiBook, 
-  FiEdit, 
-  FiTrash2, 
-  FiEye, 
+// Font Awesome Icons
+import { FaBuilding, FaIndent, FaRocket } from 'react-icons/fa';
+import {
+
+  FiBook,
+  FiEdit,
+  FiTrash2,
+  FiEye,
   FiPlus,
   FiSearch,
   FiFilter,
@@ -23,20 +25,20 @@ const ConfigList = ({ type }) => {
   // Configuration paths
   const CONFIG_PATHS = {
     journals: {
-      lww: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/lww/config.xml`,
-      oup: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/oup/config.xml`,
-      plos: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/plos/config.xml`,
-      medknow: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/medknow/config.xml`,
-      brill: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/brill/config.xml`,
-      tnfjournals: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/tnfjournals/config.xml`,
-      acs: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/acs/config.xml`,
-      intellect: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/intellect/config.xml`,
-      nihr: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/nihr/config.xml`,
+      lww: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/lww/config.xml`,
+      oup: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/oup/config.xml`,
+      plos: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/plos/config.xml`,
+      medknow: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/medknow/config.xml`,
+      brill: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/brill/config.xml`,
+      tnfjournals: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/tnfjournals/config.xml`,
+      acs: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/acs/config.xml`,
+      intellect: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/intellect/config.xml`,
+      nihr: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/nihr/config.xml`,
     },
     books: {
-      oso: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/books/oso/config.xml`,
-      tnf: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/books/tnf/config.xml`,
-      oho: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/books/oho/config.xml`
+      oso: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/books/oso/config.xml`,
+      tnf: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/books/tnf/config.xml`,
+      oho: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/books/oho/config.xml`
     }
   };
 
@@ -152,7 +154,7 @@ const ConfigList = ({ type }) => {
     setLoading(true);
     try {
       let configPath = CONFIG_PATHS.journals[clientId] || CONFIG_PATHS.books[clientId];
-      
+
       if (!configPath) {
         console.error(`No configuration path found for client: ${clientId}`);
         setJournals([]);
@@ -279,7 +281,7 @@ const ConfigList = ({ type }) => {
             filteredClients.map(client => (
               <div key={client.id} className="tree-item">
                 <div className="tree-item-content">
-                  <FiBuilding className="tree-icon text-warning" />
+                  <FaBuilding className="tree-icon text-warning" />
                   <div className="tree-item-info">
                     <strong>{client.name}</strong>
                     <span className="badge badge-primary ms-2">
@@ -287,14 +289,14 @@ const ConfigList = ({ type }) => {
                     </span>
                   </div>
                   <div className="tree-item-actions">
-                    <button 
+                    <button
                       className="btn btn-sm btn-outline-primary"
                       onClick={() => handleEditClient(client.id)}
                       title="Edit Client"
                     >
                       <FiEdit />
                     </button>
-                    <button 
+                    <button
                       className="btn btn-sm btn-outline-danger"
                       onClick={() => handleDeleteClient(client.id)}
                       title="Delete Client"
@@ -320,7 +322,7 @@ const ConfigList = ({ type }) => {
         <div className="list-controls">
           <div className="client-selector">
             <label>Select Client:</label>
-            <select 
+            <select
               value={selectedClient}
               onChange={(e) => setSelectedClient(e.target.value)}
               className="form-select"
@@ -342,7 +344,7 @@ const ConfigList = ({ type }) => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <button 
+          <button
             className="btn btn-outline-secondary"
             onClick={() => setShowFilters(!showFilters)}
           >
@@ -397,7 +399,7 @@ const ConfigList = ({ type }) => {
                     </div>
                   </div>
                   <div className="journal-actions">
-                    <button 
+                    <button
                       className="btn btn-sm btn-outline-primary"
                       onClick={() => handleEditJournal(journal.clientId, journal.short)}
                       title="Edit Journal"
@@ -405,7 +407,7 @@ const ConfigList = ({ type }) => {
                       <FiEdit />
                       Edit
                     </button>
-                    <button 
+                    <button
                       className="btn btn-sm btn-outline-success"
                       onClick={() => handleViewJournal(journal.clientId, journal.short)}
                       title="View Journal"
@@ -413,7 +415,7 @@ const ConfigList = ({ type }) => {
                       <FiEye />
                       View
                     </button>
-                    <button 
+                    <button
                       className="btn btn-sm btn-outline-danger"
                       onClick={() => handleDeleteJournal(journal.clientId, journal.short)}
                       title="Delete Journal"

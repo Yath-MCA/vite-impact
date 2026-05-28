@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FiSettings, 
-  FiHome, 
-  FiBuilding, 
-  FiBook, 
-  FiPlus, 
-  FiCode, 
-  FiGitCompare, 
-  FiHistory, 
+// Font Awesome Icons
+import { FaBuilding, FaIndent } from 'react-icons/fa';
+import {
+  FiSettings,
+  FiHome,
+
+  FiBook,
+  FiPlus,
+  FiCode,
+  FiRefreshCw,
   FiCheckCircle,
   FiMenu,
   FiX,
   FiSearch,
-  FiRefreshCw,
   FiDownload,
   FiUser,
   FiChevronDown,
   FiGrid,
   FiList
 } from 'react-icons/fi';
+import { LuGitCompare } from 'react-icons/lu';
+
 import ConfigList from './ConfigList';
 import ConfigEditor from './ConfigEditor';
 import ConfigHistory from './ConfigHistory';
@@ -44,31 +46,31 @@ const ConfigManagerPage = () => {
   // Configuration paths (mirroring the vanilla implementation)
   const CONFIG_PATHS = {
     journals: {
-      lww: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/lww/config.xml`,
-      oup: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/oup/config.xml`,
-      plos: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/plos/config.xml`,
-      medknow: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/medknow/config.xml`,
-      brill: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/brill/config.xml`,
-      tnfjournals: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/tnfjournals/config.xml`,
-      acs: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/acs/config.xml`,
-      intellect: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/intellect/config.xml`,
-      nihr: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/journals/nihr/config.xml`,
+      lww: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/lww/config.xml`,
+      oup: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/oup/config.xml`,
+      plos: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/plos/config.xml`,
+      medknow: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/medknow/config.xml`,
+      brill: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/brill/config.xml`,
+      tnfjournals: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/tnfjournals/config.xml`,
+      acs: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/acs/config.xml`,
+      intellect: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/intellect/config.xml`,
+      nihr: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/journals/nihr/config.xml`,
     },
     books: {
-      oso: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/books/oso/config.xml`,
-      tnf: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/books/tnf/config.xml`,
-      oho: `assets/${process.env.REACT_APP_VERSION || 'v1.0'}/config/books/oho/config.xml`
+      oso: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/books/oso/config.xml`,
+      tnf: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/books/tnf/config.xml`,
+      oho: `assets/${import.meta.env.VITE_APP_VERSION || 'v1.0'}/config/books/oho/config.xml`
     }
   };
 
   const sidebarItems = [
     { id: 'dashboard', label: 'Dashboard', icon: FiHome },
-    { id: 'client-list', label: 'Client Configurations', icon: FiBuilding },
+    { id: 'client-list', label: 'Client Configurations', icon: FaBuilding },
     { id: 'journal-list', label: 'Journal Configurations', icon: FiBook },
     { id: 'create-new', label: 'Create New Config', icon: FiPlus },
     { id: 'xml-editor', label: 'XML Editor', icon: FiCode },
-    { id: 'compare', label: 'Compare Configs', icon: FiGitCompare },
-    { id: 'history', label: 'Change History', icon: FiHistory },
+    { id: 'compare', label: 'Compare Configs', icon: LuGitCompare },
+    { id: 'history', label: 'Change History', icon: FiRefreshCw },
     { id: 'validation', label: 'Validate XML', icon: FiCheckCircle }
   ];
 
@@ -82,7 +84,7 @@ const ConfigManagerPage = () => {
     try {
       // Simulate API calls - replace with actual API calls
       const totalClients = Object.keys(CONFIG_PATHS.journals).length + Object.keys(CONFIG_PATHS.books).length;
-      
+
       // Fetch journal counts from each client's XML
       let totalJournals = 0;
       for (const [clientId, path] of Object.entries(CONFIG_PATHS.journals)) {
@@ -172,12 +174,12 @@ const ConfigManagerPage = () => {
   const renderDashboard = () => (
     <div className="dashboard-view">
       <h2 className="mb-4">Configuration Dashboard</h2>
-      
+
       {/* Stats Cards */}
       <div className="row mb-4">
         <div className="col-md-4">
           <div className="stats-card clients">
-            <FiBuilding className="stats-icon" />
+            <FaBuilding className="stats-icon" />
             <h3>{stats.totalClients}</h3>
             <p>Total Clients</p>
           </div>
@@ -202,7 +204,7 @@ const ConfigManagerPage = () => {
         <div className="col-md-6">
           <div className="card">
             <div className="card-header">
-              <FiHistory className="me-2" />
+              <FiRefreshCw className="me-2" />
               Recent Activity
             </div>
             <div className="card-body">
@@ -231,30 +233,30 @@ const ConfigManagerPage = () => {
             </div>
             <div className="card-body">
               <div className="d-grid gap-2">
-                <button 
-                  className="btn btn-primary" 
-                  onClick={() => setActiveView('create-new')}
+                <button
+                  className="btn btn-primary"
+                  onClick={() => React.startTransition(() => setActiveView('create-new'))}
                 >
                   <FiPlus className="me-2" />
                   Create New Configuration
                 </button>
-                <button 
-                  className="btn btn-success" 
-                  onClick={() => setActiveView('xml-editor')}
+                <button
+                  className="btn btn-success"
+                  onClick={() => React.startTransition(() => setActiveView('xml-editor'))}
                 >
                   <FiCode className="me-2" />
                   Edit Existing Config
                 </button>
-                <button 
-                  className="btn btn-warning" 
-                  onClick={() => setActiveView('validation')}
+                <button
+                  className="btn btn-warning"
+                  onClick={() => React.startTransition(() => setActiveView('validation'))}
                 >
                   <FiCheckCircle className="me-2" />
                   Validate Configuration
                 </button>
-                <button 
-                  className="btn btn-danger" 
-                  onClick={() => {/* Export functionality */}}
+                <button
+                  className="btn btn-danger"
+                  onClick={() => {/* Export functionality */ }}
                 >
                   <FiDownload className="me-2" />
                   Export All Configs
@@ -307,19 +309,19 @@ const ConfigManagerPage = () => {
                 <div className="profile-role">{userProfile.role}</div>
               </div>
             </div>
-            
+
             {/* Sidebar Mode Toggle */}
-            <button 
-              className="btn btn-light btn-sm ms-3" 
+            <button
+              className="btn btn-light btn-sm ms-3"
               onClick={toggleSidebarMode}
             >
               {sidebarMode === 'full' ? <FiGrid /> : <FiList />}
               {sidebarMode === 'full' ? 'Icons' : 'Full'} Mode
             </button>
-            
+
             {/* Refresh Button */}
-            <button 
-              className="btn btn-warning btn-sm ms-2" 
+            <button
+              className="btn btn-warning btn-sm ms-2"
               onClick={loadDashboardData}
             >
               <FiRefreshCw className="me-1" />
@@ -353,12 +355,12 @@ const ConfigManagerPage = () => {
                 </div>
               </div>
             )}
-            
+
             {filteredSidebarItems.map(item => (
               <div
                 key={item.id}
                 className={`sidebar-item ${activeView === item.id ? 'active' : ''}`}
-                onClick={() => setActiveView(item.id)}
+                onClick={() => React.startTransition(() => setActiveView(item.id))}
               >
                 <item.icon className="sidebar-icon" />
                 {sidebarMode === 'full' && (

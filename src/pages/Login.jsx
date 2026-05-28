@@ -3,7 +3,7 @@
  * @description Login page with authentication
  */
 
-import React, { useState } from 'react';
+import React, { useState, startTransition } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BRANDING } from '../config/theme';
@@ -42,21 +42,30 @@ const Login = () => {
 
     const result = await login(formData);
     if (result.success) {
-      navigate('/dashboard');
+      startTransition(() => {
+        navigate('/dashboard');
+      });
     } else {
       setLocalError(result.error || 'Login failed');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50 px-4">
+    <div
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{
+        backgroundImage: `url(${BRANDING.companyLogo})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-md border border-orange-100">
         <div className="text-center mb-8">
           <div className="mb-4 flex items-center justify-center gap-3">
-            <img src={BRANDING.productIcon} alt="IMPACT product icon" className="h-10 w-10" loading="lazy" />
-            <img src={BRANDING.companyLogo} alt="IMPACT company logo" className="h-8 w-auto" loading="lazy" />
+            <img src={BRANDING.productIcon} alt="IMPACT company logo" className="h-8 w-auto" loading="lazy" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">IMPACT Login</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Login</h1>
           <p className="text-gray-600 dark:text-gray-400">
             Sign in to your account
           </p>
@@ -82,10 +91,10 @@ const Login = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-               placeholder="Enter your email"
-               disabled={loading}
-             />
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              placeholder="Enter your email"
+              disabled={loading}
+            />
           </div >
 
           <div className="relative">
@@ -101,10 +110,10 @@ const Login = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-               className="w-full pr-10 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-               placeholder="Enter your password"
-               disabled={loading}
-             />
+              className="w-full pr-10 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              placeholder="Enter your password"
+              disabled={loading}
+            />
 
             <button
               type="button"

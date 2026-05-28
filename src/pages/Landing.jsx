@@ -132,18 +132,16 @@ export default function Landing() {
   };
 
   const navButtonClass = (id) =>
-    `px-2 py-1 text-sm font-semibold transition-colors ${
-      activeSection === id ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'
+    `px-2 py-1 text-sm font-semibold transition-colors ${activeSection === id ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'
     }`;
 
   return (
     <div className="min-h-screen bg-[#fffaf5] text-gray-900">
       <nav
-        className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${
-          isScrolled
+        className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${isScrolled
             ? 'border-orange-100 bg-white/95 shadow-sm backdrop-blur-md'
             : 'border-transparent bg-transparent'
-        }`}
+          }`}
       >
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <button onClick={() => scrollToSection('home')} className="flex items-center" type="button" aria-label="Go to home">

@@ -1,18 +1,18 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-  FiHome, 
-  FiFile, 
-  FiSettings, 
-  FiBarChart2, 
-  FiHistory, 
-  FiBook, 
+import {
+  FiHome,
+  FiFile,
+  FiSettings,
+  FiBarChart2,
+  FiRefreshCw,
+  FiBook,
   FiUsers,
   FiMenu,
   FiX,
   FiChevronDown
 } from 'react-icons/fi';
-import { DashboardContext } from '../context/DashboardContext';
+import DashboardContext from '../context/DashboardContext';
 import { dashboardMenuConfig } from '../config/dashboardMenuConfig';
 import './DashboardSidebar.css';
 
@@ -39,7 +39,9 @@ const DashboardSidebar = () => {
   };
 
   const handleNavigation = (path) => {
-    navigate(path);
+    React.startTransition(() => {
+      navigate(path);
+    });
   };
 
   const isActive = (path) => {
@@ -68,12 +70,12 @@ const DashboardSidebar = () => {
             <span className="menu-label">{item.label}</span>
           </div>
           {hasSubItems && (
-            <FiChevronDown 
+            <FiChevronDown
               className={`menu-chevron ${isExpanded ? 'expanded' : ''}`}
             />
           )}
         </div>
-        
+
         {hasSubItems && isExpanded && (
           <div className="submenu">
             {item.subItems.map((subItem, subIndex) => (
@@ -95,7 +97,7 @@ const DashboardSidebar = () => {
   return (
     <>
       {/* Mobile Menu Toggle */}
-      <button 
+      <button
         className="sidebar-toggle mobile"
         onClick={toggleSidebar}
       >
@@ -105,7 +107,7 @@ const DashboardSidebar = () => {
       {/* Sidebar */}
       <div className={`dashboard-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         {/* Desktop Menu Toggle */}
-        <button 
+        <button
           className="sidebar-toggle desktop"
           onClick={toggleSidebar}
         >

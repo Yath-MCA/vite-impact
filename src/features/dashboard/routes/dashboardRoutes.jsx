@@ -11,9 +11,11 @@ import DocDashboard from '../pages/DocDashboard';
 // Import feature modules
 import ConfigManagerPage from '../../../components/ConfigManager/ConfigManagerPage';
 
+import { Routes } from 'react-router-dom';
+
 const DashboardRoutes = () => {
   return (
-    <>
+    <Routes>
       {/* Admin Dashboard Routes */}
       <Route path="/dashboard/admin" element={
         <ProtectedRoute requireAdmin={true}>
@@ -48,7 +50,7 @@ const DashboardRoutes = () => {
       <Route path="/admin/dashboard" element={<Navigate to="/dashboard/admin" replace />} />
       <Route path="/dev/dashboard" element={<Navigate to="/dashboard/dev" replace />} />
       <Route path="/dashboard" element={<Navigate to="/dashboard/admin" replace />} />
-    </>
+    </Routes>
   );
 };
 
