@@ -1,10 +1,10 @@
 import React from 'react';
+import DocsGrid from '../../../components/DocFinder/DocsGrid';
 
 const DocDashboard = () => {
   return (
     <div>
-      <h1>Document Dashboard</h1>
-      <p>This is the Document Dashboard page.</p>
+      {/* <DocsGrid rowData={[]} onOpen={() => { }} /> */}
     </div>
   );
 };

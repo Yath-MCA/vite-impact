@@ -1,8 +1,8 @@
 /* Sidebar Toggle Button */
 .sidebar-toggle {
   position: fixed;
-  top: 20px;
-  left: 20px;
+  bottom: 85px;
+  /* left: 20px; */
   z-index: 1001;
   background: #2c3e50;
   border: none;
@@ -23,8 +23,18 @@
   display: none;
 }
 
-.sidebar-toggle.desktop {
+.sidebar-toggle.desktop-floating {
   display: block;
+  /* top: 20px; */
+  left: 20px;
+}
+
+.sidebar-toggle.desktop-floating.shifted {
+  left: 200px;
+}
+
+.sidebar-backdrop {
+  display: none;
 }
 
 /* Main Sidebar */
@@ -48,7 +58,8 @@
 }
 
 .dashboard-sidebar.closed {
-  transform: translateX(-100%);
+  width: 72px;
+  transform: translateX(0);
 }
 
 /* Sidebar Header */
@@ -69,6 +80,20 @@
   font-size: 14px;
   opacity: 0.8;
   font-weight: 500;
+}
+
+.dashboard-sidebar.closed .sidebar-header {
+  padding: 20px 10px;
+  text-align: center;
+}
+
+.dashboard-sidebar.closed .sidebar-header h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.dashboard-sidebar.closed .dashboard-type {
+  display: none;
 }
 
 /* Navigation */
@@ -94,6 +119,11 @@
   border-left: 4px solid transparent;
 }
 
+.dashboard-sidebar.closed .menu-link {
+  padding: 14px 0;
+  justify-content: center;
+}
+
 .menu-link:hover {
   background: rgba(255,255,255,0.1);
   color: white;
@@ -113,6 +143,11 @@
   gap: 12px;
 }
 
+.dashboard-sidebar.closed .menu-content {
+  justify-content: center;
+  width: 100%;
+}
+
 .menu-icon {
   font-size: 18px;
   flex-shrink: 0;
@@ -121,6 +156,12 @@
 .menu-label {
   font-size: 14px;
   font-weight: 500;
+}
+
+.dashboard-sidebar.closed .menu-label,
+.dashboard-sidebar.closed .menu-chevron,
+.dashboard-sidebar.closed .submenu {
+  display: none;
 }
 
 .menu-chevron {
@@ -176,6 +217,18 @@
   margin-top: auto;
 }
 
+.dashboard-sidebar.closed .sidebar-footer {
+  padding: 12px 8px;
+}
+
+.dashboard-sidebar.closed .user-details {
+  display: none;
+}
+
+.dashboard-sidebar.closed .user-info {
+  justify-content: center;
+}
+
 .user-info {
   display: flex;
   align-items: center;
@@ -216,13 +269,27 @@
     display: block;
   }
   
-  .sidebar-toggle.desktop {
+  .sidebar-toggle.desktop-floating {
     display: none;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 999;
   }
   
   .dashboard-sidebar {
     width: 100%;
     max-width: 300px;
+  }
+
+  .dashboard-sidebar.closed {
+    width: 100%;
+    max-width: 300px;
+    transform: translateX(-100%);
   }
   
   .sidebar-header {

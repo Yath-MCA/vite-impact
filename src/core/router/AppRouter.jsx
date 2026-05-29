@@ -59,10 +59,6 @@ const router = createBrowserRouter([
     )
   },
   {
-    path: '/devboard',
-    element: <Navigate to="/doc-dashboard" replace />
-  },
-  {
     path: '/docdashboard',
     element: <Navigate to="/doc-dashboard" replace />
   },
@@ -70,23 +66,14 @@ const router = createBrowserRouter([
     path: '/doc-finder',
     element: <Navigate to="/devboard" replace />
   },
-
-
   {
     path: '/admindashboard',
     element: <Navigate to="/dashboard/admin" replace />
   },
-  {
-    path: '/admin-dashboard',
-    element: <Navigate to="/dashboard/admin" replace />
-  },
-  {
-    path: '/admin',
-    element: <Navigate to="/dashboard/admin" replace />
-  },
+
   {
     path: '/client',
-    lazy: () => import('../../pages/ClientDashboard').then(m => ({ Component: m.default }))
+    lazy: () => import('../../features/extras/ClientDashboard').then(m => ({ Component: m.default }))
   },
   // {
   //   path: '/reports',
@@ -104,14 +91,14 @@ const router = createBrowserRouter([
   //   path: '/supabase',
   //   lazy: () => import('../../pages/SupabasePage').then(m => ({ Component: m.default }))
   // },
-  // {
-  //   path: '/validateurl',
-  //   lazy: () => import('../../pages/ValidateUrl').then(m => ({ Component: m.default }))
-  // },
-  // {
-  //   path: '/validateurl/:client',
-  //   lazy: () => import('../../pages/ValidateUrl').then(m => ({ Component: m.default }))
-  // },
+  {
+    path: '/validateurl',
+    lazy: () => import('../../pages/Landing').then(m => ({ Component: m.default }))
+  },
+  {
+    path: '/validateurl/:client',
+    lazy: () => import('../../pages/Landing').then(m => ({ Component: m.default }))
+  },
   // {
   //   path: '/editor/*',
   //   lazy: () => import('../../features/editor').then(m => ({ Component: m.EditorRoutes }))
@@ -137,7 +124,9 @@ const router = createBrowserRouter([
 const AppRouter = () => {
   return (
     <AuthProvider>
-      <RouterProvider router={router} />
+      <ClientProvider>
+        <RouterProvider router={router} />
+      </ClientProvider>
     </AuthProvider>
   );
 };

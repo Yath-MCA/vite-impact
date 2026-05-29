@@ -17,7 +17,7 @@ const Login = () => {
 
   const [formData, setFormData] = useState({
     email: IS_LOCAL_HOST ? "yasar.mohideen@newgen.co" : "",
-    password: IS_LOCAL_HOST ? "Impact@123" : ""
+    password: IS_LOCAL_HOST ? "Test123" : ""
   });
   const [localError, setLocalError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -55,7 +55,7 @@ const Login = () => {
       className="min-h-screen flex items-center justify-center px-4"
       style={{
         backgroundImage: `url(${BRANDING.companyLogo})`,
-        backgroundSize: 'cover',
+        backgroundSize: '75em',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}

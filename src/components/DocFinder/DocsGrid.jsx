@@ -12,15 +12,15 @@ export default function DocsGrid({ rowData = [], onOpen }) {
     { headerName: 'Identifier', field: 'identifier', sortable: true, filter: true },
     { headerName: 'DocID', field: 'docid', sortable: true, filter: true },
     { headerName: 'Status', field: 'status', sortable: true, filter: true },
-    { headerName: 'Journal', field: 'titleinfo.cover', valueGetter: params => params.data?.titleinfo?.cover },
-    { headerName: 'Project Title', field: 'projecttitle' },
+    // { headerName: 'Journal', field: 'titleinfo.cover', valueGetter: params => params.data?.titleinfo?.cover },
+    // { headerName: 'Project Title', field: 'projecttitle' },
     { headerName: 'Role Name', field: 'rolename' },
     {
       headerName: 'Open Link', field: 'editor', cellRenderer: params => {
         const rec = params.data || {};
         return (
           <button
-            style={{ background: '#ff8635', color: '#fff', border: 'none', padding: '4px 8px' }}
+            style={{ background: '#a79e99', color: '#fff', border: 'none', padding: '4px 8px' }}
             onClick={() => {
               if (onOpen) return onOpen(rec);
               try {

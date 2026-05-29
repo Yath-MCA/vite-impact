@@ -14,7 +14,7 @@
 }
 
 .dashboard-main.sidebar-closed {
-  margin-left: 0;
+  margin-left: 72px;
 }
 
 .dashboard-main.sidebar-open {
@@ -43,6 +43,10 @@
 
 @media (max-width: 768px) {
   .dashboard-main {
+    margin-left: 0;
+  }
+  
+  .dashboard-main.sidebar-closed {
     margin-left: 0;
   }
   

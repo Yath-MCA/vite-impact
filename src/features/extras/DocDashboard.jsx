@@ -1034,44 +1034,6 @@ export default function DocDashboard() {
                                     )}
 
                                     {activeDocId && combinedRows.length > 0 && visibleColumns.length > 0 && (
-                                        <div className="overflow-auto max-h-[62vh] border border-gray-200 dark:border-gray-700 rounded-lg">
-                                            <table className="min-w-full text-xs">
-                                                <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0">
-                                                    <tr>
-                                                        {visibleColumns.map((column) => (
-                                                            <th
-                                                                key={column}
-                                                                className="text-left px-3 py-2 font-semibold text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 cursor-pointer select-none"
-                                                                onClick={() => toggleSortOnColumn(column)}
-                                                            >
-                                                                <span className="inline-flex items-center gap-1">
-                                                                    {column}
-                                                                    {sortColumn === column ? (sortDirection === 'asc' ? '↑' : '↓') : ''}
-                                                                </span>
-                                                            </th>
-                                                        ))}
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {filteredAndSortedRows.map((row, index) => (
-                                                        <tr key={`${row.__collection || 'row'}-${index}`} className="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-900 dark:even:bg-gray-800/50">
-                                                            {visibleColumns.map((column) => {
-                                                                const value = row[column];
-                                                                const displayValue = toDisplayText(column, value);
-
-                                                                return (
-                                                                    <td
-                                                                        key={`${index}-${column}`}
-                                                                        className="px-3 py-2 align-top text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-gray-800 max-w-[24rem] break-words"
-                                                                    >
-                                                                        {displayValue}
-                                                                    </td>
-                                                                );
-                                                            })}
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
                                         </div>
                                     )}
 

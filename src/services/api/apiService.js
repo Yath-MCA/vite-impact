@@ -323,6 +323,7 @@ class FetchService {
   }
 
   async getDocs(data = {}) {
+    data.length = 2500;
     return this.makeRequest(API_ENDPOINTS.GET_DOCS, data);
   }
 

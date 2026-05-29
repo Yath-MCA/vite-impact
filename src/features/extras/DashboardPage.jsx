@@ -1,10 +1,12 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import ActivityChart from '../components/dashboard/ActivityChart';
 import Notifications from '../components/dashboard/Notifications';
 import QueryChart from '../components/dashboard/QueryChart';
 import RecentDocumentsGrid from '../components/dashboard/RecentDocumentsGrid';
 import StatsCards from '../components/dashboard/StatsCards';
 import DashboardTopBar from '../components/layout/DashboardTopBar';
+import DashboardHeader from '../components/common/DashboardHeader';
+import ResultTable from '../components/common/ResultTable';
 
 const activityData = [
   { label: 'Mon', value: 14 },
@@ -23,6 +25,7 @@ const queryData = [
 ];
 
 export default function DashboardPage() {
+  const [tableRows, setTableRows] = useState([]);
   const stats = useMemo(() => [
     { label: 'Documents', value: 182, hint: 'Across active projects' },
     { label: 'Active Sessions', value: 37, hint: 'Editors online now' },
@@ -52,6 +55,8 @@ export default function DashboardPage() {
           title="CMS Dashboard"
           subtitle="Operational overview for editorial and production teams."
         />
+        <DashboardHeader onDataFetched={setTableRows} />
+        <ResultTable rows={tableRows} />
 
         <StatsCards stats={stats} />
 

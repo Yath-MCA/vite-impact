@@ -22,9 +22,9 @@ export default function QueryBuilder({ value = {}, onChange }) {
     ...value
   });
 
-  useEffect(() => {
-    setForm(f => ({ ...f, ...value }));
-  }, [value]);
+  // useEffect(() => {
+  //   setForm(f => ({ ...f, ...value }));
+  // }, [value]);
 
   // build the find object synchronously from form
   const buildFind = (f) => {
@@ -56,7 +56,7 @@ export default function QueryBuilder({ value = {}, onChange }) {
         <input placeholder="identifier" value={form.identifier} onChange={e=>setForm({...form,identifier:e.target.value})} />
         <input placeholder="docid" value={form.docid} onChange={e=>setForm({...form,docid:e.target.value})} />
         <input placeholder="status" value={form.status} onChange={e=>setForm({...form,status:e.target.value})} />
-        <input placeholder="titleinfo.cover" value={form.titleinfoCover} onChange={e=>setForm({...form,titleinfoCover:e.target.value})} />
+        {/* <input placeholder="titleinfo.cover" value={form.titleinfoCover} onChange={e=>setForm({...form,titleinfoCover:e.target.value})} /> */}
         <input placeholder="rolename" value={form.rolename} onChange={e=>setForm({...form,rolename:e.target.value})} />
       </div>
 

@@ -8,6 +8,8 @@ export const DashboardProvider = ({ children }) => {
   const [dashboardType, setDashboardType] = useState('admin');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [userPermissions, setUserPermissions] = useState([]);
+  const [rowData, setRowData] = useState([]);
+  const [fetchLoading, setFetchLoading] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Detect dashboard type from URL
@@ -78,7 +80,11 @@ export const DashboardProvider = ({ children }) => {
     setUserPermissions,
     hasPermission,
     canAccessMenu,
-    loading
+    loading,
+    rowData,
+    setRowData,
+    fetchLoading,
+    setFetchLoading
   };
 
   return (
