@@ -1,0 +1,115 @@
+{
+    "logo": {
+        "default": {
+            "header-logo": {
+                "name": "OUP_BLUE.svg",
+                "alt": "OUP Logo",
+                "width": "150px",
+                "height": "30"
+            },
+            "footer-logo": {
+                "name": "OUP_BLUE.svg",
+                "alt": "OUP Logo",
+                "height": "50"
+            },
+            "favicon": {
+                "name": "OUP_FAVICON.svg",
+                "alt": "OUP Favicon"
+            },
+            "website": "https://global.oup.com"
+        },
+        "oup": {
+            "theme": "oxford",
+            "header-logo": {
+                "name": "OUP_BLUE.svg",
+                "alt": "OUP Logo",
+                "width": "150px",
+                "height": "30"
+            },
+            "footer-logo": {
+                "name": "OUP_BLUE.svg",
+                "alt": "OUP Logo",
+                "height": "50"
+            },
+            "favicon": {
+                "name": "OUP_FAVICON.svg",
+                "alt": "OUP Favicon"
+            },
+            "website": "https://global.oup.com"
+        }
+    },
+    "sections": {
+
+        "header-title": [
+            {
+                "name": "default",
+                "header-title": ""
+
+            }
+
+        ],
+        "instructions": [{
+                "content": "Log in to IMPACT in a single browser window at a time (but if you would like your co-authors to review the article as well, please share it with them by selecting the sharing option in IMPACT).",
+                "allowedclient": ["medknow", "plos"]
+            },
+            {
+                "content": "Review your proof carefully, making any necessary amendments directly into the article.",
+                "allowedclient": ["medknow", "plos"]
+            },
+            {
+                "content": "Save your changes if you want to pause reviewing and use the logout option before closing the browser window. You may log in again later to resume reviewing using your log-in link.",
+                "allowedclient": ["medknow", "plos"]
+            },
+            {
+                "content": "Only finish your review in IMPACT when you are sure you have no additional changes to add as the review will be closed and not be accessible after reviewing has been completed.",
+                "allowedclient": ["medknow", "plos"]
+            },
+            {
+                "content": "Note that the images in IMPACT are low resolution to optimize the performance of the tool.",
+                "allowedclient": ["medknow", "plos"]
+            },
+            {
+                "content": "Submit the article when you have reviewed the entire article and resolved all author queries.",
+                "allowedclient": ["medknow", "plos"]
+            },
+            {
+                "content": "You will receive a copy of the proof with your changes tracked via email for your own records.",
+                "allowedclient": ["medknow", "plos"]
+            },
+            {
+                "content": "Take a thorough look at your proof and make any necessary modifications directly within the reports or article.",
+                "allowedclient": ["default"]
+            },
+            {
+                "content": "It should be noted that the images in IMPACT have a low resolution to enhance the performance of the tool.",
+                "allowedclient": ["default"]
+            },
+            {
+                "content": "Once you have reviewed the entire report and resolved all author queries, submit the article.",
+                "allowedclient": ["default"]
+            },
+            {
+                "content": "An email will be sent to you with a copy of the proof containing your tracked changes for your own records.",
+                "allowedclient": ["default"]
+            }
+        ],
+        "disclaimer": [{
+                "content": "These proofs are for checking purposes only. They should not be considered as final publication format and must not be used for any other purpose. Please do not post them on your personal/institutional website, and do not print and distribute copies. Neither excerpts nor the whole article in its entirety should be included in other publications until the final version has been published and citation details are available.",
+                "allowedclient": ["medknow", "plos"]
+            },
+            {
+                "content": "The proofs provided are intended solely for checking purposes and should not be regarded as the final publication format, nor should they be utilized for any other reason. It is crucial that they are not posted on personal or institutional websites or printed and distributed. Until the final version has been published and citation details are obtainable, no excerpts or the entire article in its entirety should be included in any other publications.",
+                "allowedclient": ["default"]
+            }
+        ],
+        "thirdPartyPlugins": [{
+            "content": {
+                "title": "Third Party Plug-Ins:",
+                "text": "Using any third-party plug-in to translate the content or make any changes in the editor is not recommended as it might affect the content quality and the underlying metadata, which will delay publication.",
+                "chineseLabel": "Chinese Version:",
+                "chineseText": "请不要使用任何第三方插件翻译或者修改编辑器中的内容，因为这样可能会影响内容质量和底层元数据，从而导致发表延迟。"
+            },
+            "allowedclient": ["medknow", "plos", "default"]
+        }]
+    }
+}

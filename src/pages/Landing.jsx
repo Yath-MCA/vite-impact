@@ -145,17 +145,14 @@ function ValidateUrlView({ accessKey, clientParam }) {
         type: resData.type,
         cover: resData.titleinfo?.cover,
         projectname: resData.titleinfo?.projectname,
-        journaltitle: resData.xmltohtmlres?.journaltitle,
-        articletitle: resData.xmltohtmlres?.articletitle,
-        booktitle: resData.xmltohtmlres?.booktitle,
-        authorgroup: resData.xmltohtmlres?.authorgroup,
-        doi: resData.xmltohtmlres?.doi,
-        clientname: resData.xmltohtmlres?.clientname,
-        figcount: resData.xmltohtmlres?.figcount,
-        tablecount: resData.xmltohtmlres?.tablecount,
-        Query: resData.xmltohtmlres?.Query,
-        Equation: resData.xmltohtmlres?.Equation,
-        branding: resData.branding || resData.client_metadata || resData.client_config || {}
+        journaltitle: resData.xmltohtmlres?.journaltitle || "",
+        articletitle: resData.xmltohtmlres?.articletitle || "",
+        booktitle: resData.xmltohtmlres?.booktitle || "",
+        authorgroup: resData.xmltohtmlres?.authorgroup || "",
+        figcount: resData.xmltohtmlres?.figcount || 0,
+        tablecount: resData.xmltohtmlres?.tablecount || 0,
+        Query: resData.xmltohtmlres?.Query || 0,
+        Equation: resData.xmltohtmlres?.Equation || 0
       };
       setDocData(flatDocData);
 
@@ -205,6 +202,7 @@ function ValidateUrlView({ accessKey, clientParam }) {
 
   // Show the full landing page after validation succeeds
   if (showLanding && docData) {
+    console.log('docData', docData);
     return <ValidateUrlLanding docData={docData} />;
   }
 

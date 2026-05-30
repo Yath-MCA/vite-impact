@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, Users, HelpCircle, BookOpen, Monitor } from 'lucide-react';
+import metaConfig from '../config/landing-meta.json';
 
 // Get BUCKET_URL from window.ENV or fallback
 const BUCKET_URL = window.ENV?.BUCKET_URL || window.BUCKET_URL || 'http://localhost/xmleditor/';
@@ -30,63 +31,79 @@ const BROWSER_COMPATIBILITY = {
   }
 };
 
-// Client-specific instruction templates (mirroring src/snippets/component/instructions/)
-const INSTRUCTIONS = {
-  medknow: {
-    title: 'Instructions',
-    items: [
-      'Log in to IMPACT in a single browser window at a time (but if you would like your co-authors to review the article as well, please share it with them by selecting the sharing option in IMPACT).',
-      'Review your proof carefully, making any necessary amendments directly into the article.',
-      'Save your changes if you want to pause reviewing and use the logout option before closing the browser window. You may log in again later to resume reviewing using your log-in link.',
-      'Only finish your review in IMPACT when you are sure you have no additional changes to add as the review will be closed and not be accessible after reviewing has been completed.',
-      'Note that the images in IMPACT are low resolution to optimize the performance of the tool.',
-      'Submit the article when you have reviewed the entire article and resolved all author queries.',
-      'You will receive a copy of the proof with your changes tracked via email for your own records.'
-    ],
-    disclaimer: 'These proofs are for checking purposes only. They should not be considered as final publication format and must not be used for any other purpose. Please do not post them on your personal/institutional website, and do not print and distribute copies. Neither excerpts nor the whole article in its entirety should be included in other publications until the final version has been published and citation details are available.',
-    thirdPartyPlugins: {
-      title: 'Third Party Plug-Ins:',
-      text: 'Using any third-party plug-in to translate the content or make any changes in the editor is not recommended as it might affect the content quality and the underlying metadata, which will delay publication.',
-      chineseLabel: 'Chinese Version:',
-      chineseText: '请不要使用任何第三方插件翻译或者修改编辑器中的内容，因为这样可能会影响内容质量和底层元数据，从而导致发表延迟。'
-    }
-  },
-  plos: {
-    title: 'Instructions',
-    items: [
-      'Log in to IMPACT in a single browser window at a time (but if you would like your co-authors to review the article as well, please share it with them by selecting the sharing option in IMPACT).',
-      'Review your proof carefully, making any necessary amendments directly into the article.',
-      'Save your changes if you want to pause reviewing and use the logout option before closing the browser window. You may log in again later to resume reviewing using your log-in link.',
-      'Only finish your review in IMPACT when you are sure you have no additional changes to add as the review will be closed and not be accessible after reviewing has been completed.',
-      'Note that the images in IMPACT are low resolution to optimize the performance of the tool.',
-      'Submit the article when you have reviewed the entire article and resolved all author queries.',
-      'You will receive a copy of the proof with your changes tracked via email for your own records.'
-    ],
-    disclaimer: 'These proofs are for checking purposes only. They should not be considered as final publication format and must not be used for any other purpose. Please do not post them on your personal/institutional website, and do not print and distribute copies. Neither excerpts nor the whole article in its entirety should be included in other publications until the final version has been published and citation details are available.',
-    thirdPartyPlugins: {
-      title: 'Third Party Plug-Ins:',
-      text: 'Using any third-party plug-in to translate the content or make any changes in the editor is not recommended as it might affect the content quality and the underlying metadata, which will delay publication.',
-      chineseLabel: 'Chinese Version:',
-      chineseText: '请不要使用任何第三方插件翻译或者修改编辑器中的内容，因为这样可能会影响内容质量和底层元数据，从而导致发表延迟。'
-    },
-    requiresCaptcha: true
-  },
-  default: {
-    title: 'Instructions',
-    items: [
-      'Take a thorough look at your proof and make any necessary modifications directly within the reports or article.',
-      'It should be noted that the images in IMPACT have a low resolution to enhance the performance of the tool.',
-      'Once you have reviewed the entire report and resolved all author queries, submit the article.',
-      'An email will be sent to you with a copy of the proof containing your tracked changes for your own records.'
-    ],
-    disclaimer: 'The proofs provided are intended solely for checking purposes and should not be regarded as the final publication format, nor should they be utilized for any other reason. It is crucial that they are not posted on personal or institutional websites or printed and distributed. Until the final version has been published and citation details are obtainable, no excerpts or the entire article in its entirety should be included in any other publications.',
-    thirdPartyPlugins: {
-      title: 'Third Party Plug-Ins:',
-      text: 'Using any third-party plug-in to translate the content or make any changes in the editor is not recommended as it might affect the content quality and the underlying metadata, which will delay publication.',
-      chineseLabel: 'Chinese Version:',
-      chineseText: '请不要使用任何第三方插件翻译或者修改编辑器中的内容，因为这样可能会影响内容质量和底层元数据，从而导致发表延迟。'
-    }
+
+const LogoComponent = ({ config }) => (
+  <img
+    {...config}
+    onError={(e) => {
+      e.target.style.display = 'none';
+    }}
+  />
+);
+
+
+
+// Extract instructions, disclaimers, and plugin data dynamically based on the client name
+const getClientLandingConfig = (clientName) => {
+
+  const { instructions, disclaimer, thirdPartyPlugins } = metaConfig.sections;
+  // 1. Get client-specific instructions
+  let items = instructions
+    .filter(item => item.allowedclient.includes(clientName))
+    .map(item => item.content);
+
+  // Fall back to default instructions if none found for clientName
+  if (items.length === 0) {
+    items = instructions
+      .filter(item => item.allowedclient.includes('default'))
+      .map(item => item.content);
   }
+
+  // 2. Get client-specific disclaimer
+  let disclaimerItem = disclaimer.find(item => item.allowedclient.includes(clientName));
+  if (!disclaimerItem) {
+    disclaimerItem = disclaimer.find(item => item.allowedclient.includes('default'));
+  }
+  const disclaimerContent = disclaimerItem ? disclaimerItem.content : '';
+
+  // 3. Get client-specific third party plugins warning
+  let pluginsItem = thirdPartyPlugins.find(item => item.allowedclient.includes(clientName));
+  if (!pluginsItem) {
+    pluginsItem = thirdPartyPlugins.find(item => item.allowedclient.includes('default'));
+  }
+  const thirdPartyPluginsContent = pluginsItem ? pluginsItem.content : null;
+  const logoConfig = metaConfig.logo[clientName] || metaConfig.logo.default;
+
+  const headerLogoSrc = `/images/${logoConfig['header-logo'].name}`;
+  const footerLogoSrc = `/images/${logoConfig['footer-logo'].name}`;
+  const faviconSrc = `/images/${logoConfig.favicon.name}`;
+
+  const logos = {
+    header: {
+      src: headerLogoSrc,
+      alt: logoConfig['header-logo'].alt,
+      width: logoConfig['header-logo'].width,
+      height: logoConfig['header-logo'].height,
+      className: 'object-contain',
+      style: {
+        maxHeight: `${logoConfig['header-logo'].height}px`
+      }
+    },
+    footer: {
+      src: footerLogoSrc,
+      alt: logoConfig['footer-logo'].alt,
+      height: logoConfig['footer-logo'].height,
+      className: 'object-contain'
+    }
+  };
+
+  return {
+    logo: logos,
+    title: 'Instructions',
+    items,
+    disclaimer: disclaimerContent,
+    thirdPartyPlugins: thirdPartyPluginsContent
+  };
 };
 
 export default function ValidateUrlLanding({ docData }) {
@@ -94,19 +111,17 @@ export default function ValidateUrlLanding({ docData }) {
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [coverImageError, setCoverImageError] = useState(false);
 
-  const clientName = (docData?.clientname || 'default').toLowerCase();
-  const instructions = INSTRUCTIONS[clientName] || INSTRUCTIONS.default;
+  const clientName = (docData?.client).toLowerCase();
+
+  const metaInfo = getClientLandingConfig(clientName);
   const isPlos = clientName === 'plos';
   const coverImageUrl = getCoverImageUrl(docData?.cover, clientName);
 
   // Extract branding from response (takes precedence over env file)
   const branding = docData?.branding || {};
-  const logoSrc = branding.LOGO_SRC || branding.logo_src || branding.logoSrc;
-  const logoAlt = branding.LOGO_ALT || branding.logo_alt || branding.logoAlt || 'IMPACT';
-  const logoHeight = branding.LOGO_HEIGHT || branding.logo_height || branding.logoHeight || '32';
-  const logoWidth = branding.LOGO_WIDTH || branding.logo_width || branding.logoWidth || '';
   const welcomeHtml = branding.WELCOME_TEXT || branding.welcome_text || branding.welcomeText;
   const pageTitle = branding.PAGE_TITLE || branding.page_title || branding.pageTitle;
+  const themeColor = metaInfo.theme;
 
   useEffect(() => {
     if (pageTitle) {
@@ -127,31 +142,18 @@ export default function ValidateUrlLanding({ docData }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+    <div className="min-h-screen  flex flex-col"
+      style={{ '--theme-color': themeColor }}
+    >
 
       {/* Header */}
-      <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 shadow-sm">
+      <nav className="bg-white sticky top-0 z-40 shadow-sm"
+        style={{ '--theme-color': themeColor }}
+      >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
-              {logoSrc ? (
-                <img
-                  src={logoSrc}
-                  alt={logoAlt}
-                  height={logoHeight}
-                  width={logoWidth}
-                  className="object-contain"
-                  style={{ maxHeight: `${logoHeight}px` }}
-                  onError={(e) => { e.target.style.display = 'none'; }}
-                />
-              ) : (
-                <div className="text-2xl font-black text-primary-600">IMPACT</div>
-              )}
-              {docData?.client && (
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  {docData.client}
-                </span>
-              )}
+              {LogoComponent({ config: metaInfo.logo.header })}
             </div>
             <div className="flex items-center space-x-6">
               <a href="#" className="text-sm text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center gap-1">
@@ -171,7 +173,7 @@ export default function ValidateUrlLanding({ docData }) {
       <div className="flex-1 container mx-auto px-4 py-8">
 
         {/* Welcome Banner */}
-        <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg p-6 mb-6 shadow-lg">
+        <div className={`bg-gradient-to-r from-${themeColor}-600 to-${themeColor}-700 text-white rounded-lg p-6 mb-6 shadow-lg`}> 
           {welcomeHtml ? (
             <div
               className="prose prose-invert max-w-none branding-welcome"
@@ -196,11 +198,11 @@ export default function ValidateUrlLanding({ docData }) {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <FileText className="w-5 h-5 text-primary-600" />
-              {instructions.title}
+              {metaInfo.title}
             </h2>
 
             <ul className="space-y-2.5 mb-6">
-              {instructions.items.map((item, idx) => (
+              {metaInfo.items.map((item, idx) => (
                 <li key={idx} className="text-sm text-gray-700 dark:text-gray-300 flex gap-2.5 leading-relaxed">
                   <span className="text-primary-600 font-bold mt-0.5">•</span>
                   <span>{item}</span>
@@ -226,23 +228,23 @@ export default function ValidateUrlLanding({ docData }) {
                 Disclaimer
               </h3>
               <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed mb-4">
-                {instructions.disclaimer}
+                {metaInfo.disclaimer}
               </p>
 
               {/* Third Party Plugins - Medknow Chinese translation */}
-              {instructions.thirdPartyPlugins && (
+              {metaInfo.thirdPartyPlugins && (
                 <div className="pt-3 border-t border-amber-200 dark:border-amber-700">
                   <h4 className="text-sm font-bold text-amber-900 dark:text-amber-300 mb-2">
-                    {instructions.thirdPartyPlugins.title}
+                    {metaInfo.thirdPartyPlugins.title}
                   </h4>
                   <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed mb-3">
-                    {instructions.thirdPartyPlugins.text}
+                    {metaInfo.thirdPartyPlugins.text}
                   </p>
                   <div className="text-xs font-semibold text-primary-700 dark:text-primary-400 mb-1">
-                    {instructions.thirdPartyPlugins.chineseLabel}
+                    {metaInfo.thirdPartyPlugins.chineseLabel}
                   </div>
                   <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed" lang="zh-CN">
-                    {instructions.thirdPartyPlugins.chineseText}
+                    {metaInfo.thirdPartyPlugins.chineseText}
                   </p>
                 </div>
               )}
