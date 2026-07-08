@@ -18,6 +18,8 @@ import { BRANDING } from '../config/theme';
 import { apiService, API_ENDPOINTS } from '../services/api/apiService';
 import { useClient } from '../context/ClientContext';
 import { loadClientById } from '../utils/clientLoader';
+import { assertValidateAccess, normalizeValidateResponse } from '../utils/normalizeValidateResponse';
+import { setValidateResponse } from '../services/session/sessionStorage';
 import ValidateUrlLanding from './ValidateUrlLanding';
 
 // ─── Landing page constants ──────────────────────────────────────────────────
@@ -82,8 +84,8 @@ const FEATURE_CARDS = [
 
 // ─── ValidateUrl constants ───────────────────────────────────────────────────
 
-const DEFAULT_TEST_KEY = 'HgnqXDUGGRmt5M585EzdEpXKK6kNtQ688UCY8t-_7P_80rnnHfmyNjiEOm41p5A4apYW3qAffNm436NTgvhJ2JH3FhVCcXE5sV6VLgGjdQJWI-kiInLAO78VX06GrBrXMODt9gupFC0';
 const IS_LOCAL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const DEV_VALIDATE_KEY = import.meta.env.VITE_DEV_VALIDATE_KEY || '';
 
 // ─── ValidateUrl sub-component ───────────────────────────────────────────────
 
@@ -97,7 +99,7 @@ function ValidateUrlView({ accessKey, clientParam }) {
   const [docData, setDocData] = useState(null);
   const [showLanding, setShowLanding] = useState(false);
 
-  const effectiveKey = accessKey || (IS_LOCAL ? DEFAULT_TEST_KEY : null);
+  const effectiveKey = accessKey || (IS_LOCAL && DEV_VALIDATE_KEY ? DEV_VALIDATE_KEY : null);
 
   useEffect(() => {
     if (effectiveKey) {
@@ -128,32 +130,11 @@ function ValidateUrlView({ accessKey, clientParam }) {
       setStatusLabel('Checking access…');
 
       const resData = response.data ?? response;
-      const r = response.r ?? resData.r;
+      assertValidateAccess(response);
 
-      if (r === 0) throw new Error('Access denied. Please contact support.');
-      if (r === 4) throw new Error('Your IP address does not have permission to access this link.');
-      if (resData.status === 'expired' || resData.fdel) throw new Error('This proof link has expired.');
-      if (resData.status === 'deactive') throw new Error('This proof link has been deactivated.');
+      setValidateResponse(response);
 
-      sessionStorage.setItem('xmleditor:validateuserpost', JSON.stringify(response));
-
-      const flatDocData = {
-        client: resData.client,
-        projecttitle: resData.projecttitle,
-        identifier: resData.identifier,
-        dtd: resData.dtd,
-        type: resData.type,
-        cover: resData.titleinfo?.cover,
-        projectname: resData.titleinfo?.projectname,
-        journaltitle: resData.xmltohtmlres?.journaltitle || "",
-        articletitle: resData.xmltohtmlres?.articletitle || "",
-        booktitle: resData.xmltohtmlres?.booktitle || "",
-        authorgroup: resData.xmltohtmlres?.authorgroup || "",
-        figcount: resData.xmltohtmlres?.figcount || 0,
-        tablecount: resData.xmltohtmlres?.tablecount || 0,
-        Query: resData.xmltohtmlres?.Query || 0,
-        Equation: resData.xmltohtmlres?.Equation || 0
-      };
+      const flatDocData = normalizeValidateResponse(response);
       setDocData(flatDocData);
 
       setProgress(100);
@@ -202,7 +183,6 @@ function ValidateUrlView({ accessKey, clientParam }) {
 
   // Show the full landing page after validation succeeds
   if (showLanding && docData) {
-    console.log('docData', docData);
     return <ValidateUrlLanding docData={docData} />;
   }
 
@@ -255,12 +235,12 @@ function ValidateUrlView({ accessKey, clientParam }) {
                 <p className="text-green-800 dark:text-green-300 text-sm">
                   {docData?.title
                     ? <>Document: <strong>{docData.title}</strong></>
-                    : 'Access verified — opening editor…'}
+                    : 'Access verified — continue to the landing page to start your session.'}
                 </p>
               </div>
-              <button onClick={() => navigate('/editor')}
+              <button onClick={() => setShowLanding(true)}
                 className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                <span>Open Editor</span>
+                <span>Continue to Landing</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -653,7 +633,7 @@ function MarketingLanding() {
   );
 }
 
-// ─── Main export: decides which view to render ───────────────────────────────
+
 
 export default function Landing() {
   const location = useLocation();

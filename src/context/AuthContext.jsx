@@ -99,12 +99,13 @@ export const AuthProvider = ({ children }) => {
 
       if (response) {
 
-        const userData = response?.value || response || {};
+        const userData = response || {};
 
         if (!userData.username) {
           setError('Invalid email');
           return false;
         }
+        
         if ((response?.cred ?? userData?.cred) == 0) {
           setError('Invalid password');
           return false;

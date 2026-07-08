@@ -1,13 +1,19 @@
 import { startTransition, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 import { dashboardMenuConfig } from '../config/dashboardMenuConfig';
+import { filterMenuItemsByPermission } from '../utils/menuPermissions';
 
 const useSidebarNavigation = (dashboardType, sidebarOpen, setSidebarOpen) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated, isAdmin } = useAuth();
   const [expandedMenuId, setExpandedMenuId] = useState(null);
 
-  const menuItems = useMemo(() => dashboardMenuConfig[dashboardType] || [], [dashboardType]);
+  const menuItems = useMemo(() => {
+    const items = dashboardMenuConfig[dashboardType] || [];
+    return filterMenuItemsByPermission(items, { isAuthenticated, isAdmin });
+  }, [dashboardType, isAuthenticated, isAdmin]);
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(`${path}/`);
 

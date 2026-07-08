@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FileText, Users, HelpCircle, BookOpen, Monitor } from 'lucide-react';
+import { FileText, Users, HelpCircle, BookOpen, Monitor, Loader2 } from 'lucide-react';
 import metaConfig from '../config/landing-meta.json';
+import useLandingSessionFlow from '../features/landing/useLandingSessionFlow';
+
+const LOGO_BASE_PATH = '/assets/logo/clients';
+
+const THEME_BANNER_CLASS = {
+  oxford: 'bg-gradient-to-r from-oxford-600 to-oxford-700',
+  primary: 'bg-gradient-to-r from-primary-600 to-primary-700'
+};
 
 // Get BUCKET_URL from window.ENV or fallback
 const BUCKET_URL = window.ENV?.BUCKET_URL || window.BUCKET_URL || 'http://localhost/xmleditor/';
@@ -74,9 +81,8 @@ const getClientLandingConfig = (clientName) => {
   const thirdPartyPluginsContent = pluginsItem ? pluginsItem.content : null;
   const logoConfig = metaConfig.logo[clientName] || metaConfig.logo.default;
 
-  const headerLogoSrc = `/images/${logoConfig['header-logo'].name}`;
-  const footerLogoSrc = `/images/${logoConfig['footer-logo'].name}`;
-  const faviconSrc = `/images/${logoConfig.favicon.name}`;
+  const headerLogoSrc = `${LOGO_BASE_PATH}/${logoConfig['header-logo'].name}`;
+  const footerLogoSrc = `${LOGO_BASE_PATH}/${logoConfig['footer-logo'].name}`;
 
   const logos = {
     header: {
@@ -99,6 +105,7 @@ const getClientLandingConfig = (clientName) => {
 
   return {
     logo: logos,
+    theme: logoConfig.theme || 'primary',
     title: 'Instructions',
     items,
     disclaimer: disclaimerContent,
@@ -107,15 +114,16 @@ const getClientLandingConfig = (clientName) => {
 };
 
 export default function ValidateUrlLanding({ docData }) {
-  const navigate = useNavigate();
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [coverImageError, setCoverImageError] = useState(false);
+  const { ui, isBusy, startLogin, confirmSendRequest } = useLandingSessionFlow(docData);
 
-  const clientName = (docData?.client).toLowerCase();
+  const clientName = (docData?.client ?? 'default').toLowerCase();
 
   const metaInfo = getClientLandingConfig(clientName);
   const isPlos = clientName === 'plos';
   const coverImageUrl = getCoverImageUrl(docData?.cover, clientName);
+  const bannerClass = THEME_BANNER_CLASS[metaInfo.theme] || THEME_BANNER_CLASS.primary;
 
   // Extract branding from response (takes precedence over env file)
   const branding = docData?.branding || {};
@@ -124,17 +132,30 @@ export default function ValidateUrlLanding({ docData }) {
   const themeColor = metaInfo.theme;
 
   useEffect(() => {
+    const faviconName = (metaConfig.logo[clientName] || metaConfig.logo.default).favicon?.name;
+    if (faviconName) {
+      let link = document.querySelector("link[rel='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = `${LOGO_BASE_PATH}/${faviconName}`;
+    }
+  }, [clientName]);
+
+  useEffect(() => {
     if (pageTitle) {
       document.title = pageTitle;
     }
   }, [pageTitle]);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (isPlos && !captchaVerified) {
       alert('Please complete the reCAPTCHA verification first.');
       return;
     }
-    navigate('/editor');
+    await startLogin();
   };
 
   const handleCaptchaVerify = () => {
@@ -173,7 +194,7 @@ export default function ValidateUrlLanding({ docData }) {
       <div className="flex-1 container mx-auto px-4 py-8">
 
         {/* Welcome Banner */}
-        <div className={`bg-gradient-to-r from-${themeColor}-600 to-${themeColor}-700 text-white rounded-lg p-6 mb-6 shadow-lg`}> 
+        <div className={`${bannerClass} text-white rounded-lg p-6 mb-6 shadow-lg`}>
           {welcomeHtml ? (
             <div
               className="prose prose-invert max-w-none branding-welcome"
@@ -274,10 +295,44 @@ export default function ValidateUrlLanding({ docData }) {
 
             <button
               onClick={handleContinue}
-              className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3.5 rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              disabled={isBusy}
+              className="w-full bg-primary-600 hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
             >
-              AGREE & CONTINUE
+              {isBusy ? (
+                <span className="inline-flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {ui.message || 'Processing…'}
+                </span>
+              ) : (
+                'AGREE & CONTINUE'
+              )}
             </button>
+
+            {ui.phase === 'blocked' && ui.showSendRequest && (
+              <div className="mt-4 p-4 rounded-lg border border-amber-200 bg-amber-50">
+                <p className="text-sm text-amber-900 mb-3">{ui.message}</p>
+                <button
+                  type="button"
+                  onClick={confirmSendRequest}
+                  disabled={isBusy}
+                  className="w-full bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg"
+                >
+                  Send Request
+                </button>
+              </div>
+            )}
+
+            {ui.showWaiting && (
+              <div className="mt-4 p-4 rounded-lg border border-blue-200 bg-blue-50 text-sm text-blue-900">
+                {ui.message} ({ui.waitingSeconds}s)
+              </div>
+            )}
+
+            {(ui.phase === 'denied' || ui.phase === 'error') && ui.message && (
+              <div className="mt-4 p-4 rounded-lg border border-red-200 bg-red-50 text-sm text-red-800">
+                {ui.message}
+              </div>
+            )}
           </div>
 
           {/* Right: Document Info */}

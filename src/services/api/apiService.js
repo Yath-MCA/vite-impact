@@ -4,8 +4,11 @@
  * Based on existing FetchService with all API endpoints
  */
 
+import axios from 'axios';
+
 // Global configuration variables (injected at build time or from environment)
-const DOMAIN_URL = window.location.href + "";
+const runtimeWindow = typeof window !== 'undefined' ? window : { location: { href: '' }, ENV: {} };
+const DOMAIN_URL = runtimeWindow.location?.href + "";
 const IS_LOCAL_HOST = Boolean(DOMAIN_URL.includes("localhost"));
 const IS_LOCAL_LIVE = Boolean(DOMAIN_URL.includes("web_live"));
 
@@ -16,8 +19,8 @@ const IS_LOCAL_LIVE = Boolean(DOMAIN_URL.includes("web_live"));
  * This lets env/env.local.js → public/env.js drive all config without needing .env files.
  */
 const _runtimeEnv = (windowKey, viteKey, defaultVal) =>
-(window.ENV && window.ENV[windowKey] !== undefined
-  ? window.ENV[windowKey]
+(runtimeWindow.ENV && runtimeWindow.ENV[windowKey] !== undefined
+  ? runtimeWindow.ENV[windowKey]
   : import.meta.env[viteKey] ?? defaultVal);
 
 // Environment variables — read from window.ENV first (runtime), then VITE_ (build-time)
@@ -224,12 +227,12 @@ class FetchService {
    * Creates headers with default values
    */
   createHeaders(additionalHeaders = {}) {
-    return new Headers({
+    return {
       ...this.config.defaultHeaders,
       'appkey': this.config.appKey,
       'apikey': this.config.apiKey,
       ...additionalHeaders
-    });
+    };
   }
 
   /**
@@ -277,32 +280,27 @@ class FetchService {
    * @param {object} options  - { method, headers, apiPath, isPayloadLogic, rawBody }
    */
   async makeRequest(endpoint, data, options = {}) {
-    // Destructure known options so they don't bleed into fetch options
+    // Destructure known options so they don't bleed into axios config
     const {
       method = 'POST',
-      headers: extraHeaders,
+      headers: extraHeaders = {},
       apiPath,
       isPayloadLogic = false,
-      rawBody,       // pass a pre-built body string to skip jsondata serialisation
-      ...fetchExtras // any genuine fetch options (e.g. signal, mode)
+      rawBody,
+      ...axiosConfig
     } = options;
 
-    const fetchOptions = {
+    const requestConfig = {
       method,
+      url: this.buildUrl(endpoint, apiPath),
       headers: this.createHeaders(extraHeaders),
-      body: rawBody ?? this.prepareRequestBody(data, { isPayloadLogic }),
-      ...fetchExtras
+      data: rawBody ?? this.prepareRequestBody(data, { isPayloadLogic }),
+      ...axiosConfig
     };
-    console.log("fetchOptions", fetchOptions);
+
     try {
-      const url = this.buildUrl(endpoint, apiPath);
-      const response = await fetch(url, fetchOptions);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
+      const response = await axios.request(requestConfig);
+      return response.data;
     } catch (error) {
       console.error('Request failed:', error);
       throw error;

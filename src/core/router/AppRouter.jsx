@@ -1,36 +1,15 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 
-
-import { Suspense, lazy } from 'react';
-
 // Global Context Providers
 import { AuthProvider } from '../../context/AuthContext';
 import { ClientProvider } from '../../context/ClientContext';
-import { LayoutProvider } from '../../context/LayoutContext';
-import { ModuleProvider } from '../../context/ModuleContext';
-import { EditorProvider } from '../../context/EditorContext';
-
-// Core Layout
-import AppLayout from '../layout/AppLayout';
 
 // Feature Providers
 import { DashboardProvider } from '../../features/dashboard/context/DashboardContext';
+import ProtectedRoute from './ProtectedRoute';
 
 // Feature Routes
 import DashboardRoutes from '../../features/dashboard/routes/dashboardRoutes';
-// import { ReportsRoutes } from '../../features/reports';
-// import { HistoryRoutes } from '../../features/history';
-// import { ActivityRoutes } from '../../features/activity';
-// import { EditorRoutes } from '../../features/editor';
-
-// Lazy loaded components are now handled using the 'lazy' property in the router config
-// to properly integrate with React Router 6.4's transition management.
-
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-  </div>
-);
 
 // Main router configuration
 const router = createBrowserRouter([
@@ -99,21 +78,31 @@ const router = createBrowserRouter([
     path: '/validateurl/:client',
     lazy: () => import('../../pages/Landing').then(m => ({ Component: m.default }))
   },
-  // {
-  //   path: '/editor/*',
-  //   lazy: () => import('../../features/editor').then(m => ({ Component: m.EditorRoutes }))
-  // },
-  // {
-  //   path: '/history',
-  //   lazy: () => import('../../features/history').then(m => ({ Component: m.HistoryRoutes }))
-  // },
-  // {
-  //   path: '/activity',
-  //   lazy: () => import('../../features/activity').then(m => ({ Component: m.ActivityRoutes }))
-  // },
+  {
+    path: '/editor',
+    lazy: () => import('../../features_old/editor/pages/EditorPage').then(m => ({ Component: m.default }))
+  },
+  {
+    path: '/editor-readyonly',
+    lazy: async () => {
+      const { default: EditorPage } = await import('../../features_old/editor/pages/EditorPage');
+      return {
+        Component: () => <EditorPage readOnly />
+      };
+    }
+  },
   {
     path: '/config-manager/*',
-    lazy: () => import('../../components/ConfigManager/ConfigManagerPage').then(m => ({ Component: m.default }))
+    lazy: async () => {
+      const { default: ConfigManagerPage } = await import('../../components/ConfigManager/ConfigManagerPage');
+      return {
+        Component: () => (
+          <ProtectedRoute requireAdmin>
+            <ConfigManagerPage />
+          </ProtectedRoute>
+        )
+      };
+    }
   },
   {
     path: '*',

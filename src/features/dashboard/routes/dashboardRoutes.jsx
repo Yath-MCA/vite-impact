@@ -7,6 +7,12 @@ import DevDashboard from '../pages/DevDashboard';
 import DocDashboard from '../pages/DocDashboard';
 import ConfigManagerPage from '../../../components/ConfigManager/ConfigManagerPage';
 
+const ProtectedConfigManager = () => (
+  <ProtectedRoute requireAdmin>
+    <ConfigManagerPage />
+  </ProtectedRoute>
+);
+
 const DashboardRoutes = () => {
   const location = useLocation();
   const isDocDashboardBase = location.pathname.startsWith('/doc-dashboard');
@@ -52,7 +58,7 @@ const DashboardRoutes = () => {
         <Route index element={<AdminDashboard />} />
       </Route>
 
-      <Route path="config-manager/*" element={<ConfigManagerPage />} />
+      <Route path="config-manager/*" element={<ProtectedConfigManager />} />
       <Route path="admin-dashboard" element={<Navigate to="/admin" replace />} />
       <Route path="dashboard" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

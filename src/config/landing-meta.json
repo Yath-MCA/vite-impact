@@ -1,14 +1,34 @@
 {
     "logo": {
         "default": {
+            "theme": "primary",
             "header-logo": {
-                "name": "OUP_BLUE.svg",
+                "name": "OUP_WHITE.svg",
+                "alt": "IMPACT Logo",
+                "width": "150px",
+                "height": "30"
+            },
+            "footer-logo": {
+                "name": "OUP_WHITE.svg",
+                "alt": "IMPACT Logo",
+                "height": "50"
+            },
+            "favicon": {
+                "name": "OUP_FAVICON.svg",
+                "alt": "IMPACT Favicon"
+            },
+            "website": "https://global.oup.com"
+        },
+        "oup": {
+            "theme": "oxford",
+            "header-logo": {
+                "name": "OUP_WHITE.svg",
                 "alt": "OUP Logo",
                 "width": "150px",
                 "height": "30"
             },
             "footer-logo": {
-                "name": "OUP_BLUE.svg",
+                "name": "OUP_WHITE.svg",
                 "alt": "OUP Logo",
                 "height": "50"
             },
@@ -18,37 +38,160 @@
             },
             "website": "https://global.oup.com"
         },
-        "oup": {
-            "theme": "oxford",
+        "lww": {
+            "theme": "primary",
             "header-logo": {
-                "name": "OUP_BLUE.svg",
-                "alt": "OUP Logo",
+                "name": "LWW_WHITE_BOTTOM.svg",
+                "alt": "LWW Logo",
+                "width": "150px",
+                "height": "40"
+            },
+            "footer-logo": {
+                "name": "LWW_WHITE_BOTTOM.svg",
+                "alt": "LWW Logo",
+                "height": "50"
+            },
+            "favicon": {
+                "name": "LWW_FAVICON.svg",
+                "alt": "LWW Favicon"
+            }
+        },
+        "medknow": {
+            "theme": "primary",
+            "header-logo": {
+                "name": "MEDKNOW_FAVICON.svg",
+                "alt": "Medknow Logo",
+                "width": "150px",
+                "height": "40"
+            },
+            "footer-logo": {
+                "name": "MEDKNOW_FAVICON.svg",
+                "alt": "Medknow Logo",
+                "height": "50"
+            },
+            "favicon": {
+                "name": "MEDKNOW_FAVICON.svg",
+                "alt": "Medknow Favicon"
+            }
+        },
+        "plos": {
+            "theme": "primary",
+            "header-logo": {
+                "name": "OUP_WHITE.svg",
+                "alt": "PLOS Logo",
                 "width": "150px",
                 "height": "30"
             },
             "footer-logo": {
-                "name": "OUP_BLUE.svg",
-                "alt": "OUP Logo",
+                "name": "OUP_WHITE.svg",
+                "alt": "PLOS Logo",
                 "height": "50"
             },
             "favicon": {
                 "name": "OUP_FAVICON.svg",
-                "alt": "OUP Favicon"
+                "alt": "PLOS Favicon"
+            }
+        },
+        "nihr": {
+            "theme": "primary",
+            "header-logo": {
+                "name": "NIHR.svg",
+                "alt": "NIHR Logo",
+                "width": "150px",
+                "height": "40"
             },
-            "website": "https://global.oup.com"
+            "footer-logo": {
+                "name": "NIHR.svg",
+                "alt": "NIHR Logo",
+                "height": "50"
+            },
+            "favicon": {
+                "name": "NIHR_FAVICON.svg",
+                "alt": "NIHR Favicon"
+            }
+        },
+        "brill": {
+            "theme": "primary",
+            "header-logo": {
+                "name": "BRILL.svg",
+                "alt": "Brill Logo",
+                "width": "150px",
+                "height": "40"
+            },
+            "footer-logo": {
+                "name": "BRILL.svg",
+                "alt": "Brill Logo",
+                "height": "50"
+            },
+            "favicon": {
+                "name": "BRILL.svg",
+                "alt": "Brill Favicon"
+            }
+        },
+        "tnf": {
+            "theme": "primary",
+            "header-logo": {
+                "name": "tfgroup.svg",
+                "alt": "Taylor & Francis Logo",
+                "width": "150px",
+                "height": "40"
+            },
+            "footer-logo": {
+                "name": "tfgroup.svg",
+                "alt": "Taylor & Francis Logo",
+                "height": "50"
+            },
+            "favicon": {
+                "name": "TNF_FAVICON.svg",
+                "alt": "Taylor & Francis Favicon"
+            }
+        },
+        "acs": {
+            "theme": "primary",
+            "header-logo": {
+                "name": "ACS_WHITE.svg",
+                "alt": "ACS Logo",
+                "width": "150px",
+                "height": "40"
+            },
+            "footer-logo": {
+                "name": "ACS_WHITE.svg",
+                "alt": "ACS Logo",
+                "height": "50"
+            },
+            "favicon": {
+                "name": "ACS_WHITE.svg",
+                "alt": "ACS Favicon"
+            }
+        },
+        "oho": {
+            "theme": "primary",
+            "header-logo": {
+                "name": "OHO_WHITE.svg",
+                "alt": "OHO Logo",
+                "width": "150px",
+                "height": "40"
+            },
+            "footer-logo": {
+                "name": "OHO_WHITE.svg",
+                "alt": "OHO Logo",
+                "height": "50"
+            },
+            "favicon": {
+                "name": "OHO_FAVICON.svg",
+                "alt": "OHO Favicon"
+            }
         }
     },
     "sections": {
-
         "header-title": [
             {
                 "name": "default",
                 "header-title": ""
-
             }
-
         ],
-        "instructions": [{
+        "instructions": [
+            {
                 "content": "Log in to IMPACT in a single browser window at a time (but if you would like your co-authors to review the article as well, please share it with them by selecting the sharing option in IMPACT).",
                 "allowedclient": ["medknow", "plos"]
             },
@@ -93,7 +236,8 @@
                 "allowedclient": ["default"]
             }
         ],
-        "disclaimer": [{
+        "disclaimer": [
+            {
                 "content": "These proofs are for checking purposes only. They should not be considered as final publication format and must not be used for any other purpose. Please do not post them on your personal/institutional website, and do not print and distribute copies. Neither excerpts nor the whole article in its entirety should be included in other publications until the final version has been published and citation details are available.",
                 "allowedclient": ["medknow", "plos"]
             },
@@ -102,14 +246,16 @@
                 "allowedclient": ["default"]
             }
         ],
-        "thirdPartyPlugins": [{
-            "content": {
-                "title": "Third Party Plug-Ins:",
-                "text": "Using any third-party plug-in to translate the content or make any changes in the editor is not recommended as it might affect the content quality and the underlying metadata, which will delay publication.",
-                "chineseLabel": "Chinese Version:",
-                "chineseText": "请不要使用任何第三方插件翻译或者修改编辑器中的内容，因为这样可能会影响内容质量和底层元数据，从而导致发表延迟。"
-            },
-            "allowedclient": ["medknow", "plos", "default"]
-        }]
+        "thirdPartyPlugins": [
+            {
+                "content": {
+                    "title": "Third Party Plug-Ins:",
+                    "text": "Using any third-party plug-in to translate the content or make any changes in the editor is not recommended as it might affect the content quality and the underlying metadata, which will delay publication.",
+                    "chineseLabel": "Chinese Version:",
+                    "chineseText": "请不要使用任何第三方插件翻译或者修改编辑器中的内容，因为这样可能会影响内容质量和底层元数据，从而导致发表延迟。"
+                },
+                "allowedclient": ["medknow", "plos", "default"]
+            }
+        ]
     }
 }

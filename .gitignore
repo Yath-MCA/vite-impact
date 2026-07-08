@@ -45,3 +45,22 @@ public/snapshots/*
 src/snippets/*
 _vanilaProject/*
 
+# Keep the main application tree and config files visible to IDEs and file watchers
+!src/
+!src/**
+!public/
+!public/**
+!tests/
+!tests/**
+!scripts/
+!scripts/**
+!package.json
+!package-lock.json
+!index.html
+!vite.config.js
+!postcss.config.js
+!tailwind.config.js
+!playwright.config.ts
+!setup-ckeditor4.js
+!validate-tests.js
+
