@@ -13,3 +13,11 @@ export * from './sessionPayloads.js';
 export * from './sessionStorage.js';
 export * from './sessionGateway.js';
 export * from './tabPresence.js';
+export { isLocalHost } from './runtimeFlags.js';
+export * from './sessionSource.js';
+export {
+  clearUserInfo,
+  getUserInfo,
+  setUserInfo,
+  toLegacyUserInfo
+} from './userInfoBridge.js';

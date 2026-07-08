@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FileText, Users, HelpCircle, BookOpen, Monitor, Loader2 } from 'lucide-react';
 import metaConfig from '../../../config/landing-meta.json';
 import useLandingSessionFlow from '../hooks/useLandingSessionFlow';
+import PlosAuthPanel from '../plos/PlosAuthPanel.jsx';
 import { sanitizeHtml } from '../../../utils/sanitizeHtml';
 
 const LOGO_BASE_PATH = '/assets/logo/clients';
@@ -114,9 +115,22 @@ const getClientLandingConfig = (clientName) => {
   };
 };
 
-export default function LandingUI({ docData }) {
+export default function LandingUI({
+  docData,
+  showAcceptButton = true,
+  showValidateEmailButton = false,
+  retryButtonLabel = 'VALIDATE EMAIL',
+  onValidateEmail,
+  plosAuthStatus = 'idle',
+  ui: sessionUi,
+  isBusy: sessionIsBusy,
+  startLogin: sessionStartLogin
+}) {
   const [coverImageError, setCoverImageError] = useState(false);
-  const { ui, isBusy, startLogin } = useLandingSessionFlow(docData);
+  const internalFlow = useLandingSessionFlow(docData);
+  const ui = sessionUi ?? internalFlow.ui;
+  const isBusy = sessionIsBusy ?? internalFlow.isBusy;
+  const startLogin = sessionStartLogin ?? internalFlow.startLogin;
 
   const clientName = (docData?.client ?? 'default').toLowerCase();
 
@@ -153,6 +167,14 @@ export default function LandingUI({ docData }) {
 
   const handleContinue = async () => {
     await startLogin();
+  };
+
+  const handleValidateEmail = () => {
+    if (onValidateEmail) {
+      onValidateEmail();
+      return;
+    }
+    window.location.reload();
   };
 
   return (
@@ -264,30 +286,47 @@ export default function LandingUI({ docData }) {
               )}
             </div>
 
-            {/* PLOS: client-side captcha stub removed — urlvalidity is the access gate.
-                Server-side CAPTCHA can be added behind SESSION_REQUIRE_CAPTCHA when available. */}
-            {isPlos && (
-              <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                <p className="text-xs text-blue-700 dark:text-blue-400">
-                  Access for this client is controlled by the validated proof link.
-                </p>
-              </div>
+            {/* PLOS: extra verification (OTP / reCAPTCHA) before accept */}
+            {isPlos && <PlosAuthPanel status={plosAuthStatus} />}
+
+            {showAcceptButton && !isBusy && (
+              <button
+                onClick={handleContinue}
+                disabled={isBusy}
+                className="w-full bg-primary-600 hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                {isBusy ? (
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {ui.message || 'Processing…'}
+                  </span>
+                ) : (
+                  'AGREE & CONTINUE'
+                )}
+              </button>
             )}
 
-            <button
-              onClick={handleContinue}
-              disabled={isBusy}
-              className="w-full bg-primary-600 hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              {isBusy ? (
+            {showAcceptButton && isBusy && (
+              <button
+                disabled
+                className="w-full bg-primary-600 opacity-60 cursor-not-allowed text-white font-bold py-3.5 rounded-lg shadow-md"
+              >
                 <span className="inline-flex items-center justify-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   {ui.message || 'Processing…'}
                 </span>
-              ) : (
-                'AGREE & CONTINUE'
-              )}
-            </button>
+              </button>
+            )}
+
+            {showValidateEmailButton && (
+              <button
+                type="button"
+                onClick={handleValidateEmail}
+                className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 rounded-lg transition-all shadow-md hover:shadow-lg"
+              >
+                {retryButtonLabel}
+              </button>
+            )}
           </div>
 
           {/* Right: Document Info */}

@@ -3,6 +3,7 @@
  * Landing is outside editor ModuleContext — use Swal + landing message catalog.
  */
 import { close, Swal } from '../../plugins/sweetalert/index.js';
+import { validateEmailInput } from '../../services/session/sessionSource.js';
 import {
   LandingMessageKey,
   showLandingMessage
@@ -87,4 +88,22 @@ export function showSessionTryAgainLater() {
 
 export function showSessionError() {
   return showLandingMessage(LandingMessageKey.TRY_AGAIN_LATER);
+}
+
+/** Multi-user collab: prompt user to enter configured email (legacy validateUserEmail). */
+export async function promptValidateUserEmail(emailto) {
+  const result = await Swal.fire({
+    title: 'Validate user',
+    input: 'email',
+    inputPlaceholder: 'Enter your email address',
+    showCancelButton: true,
+    allowOutsideClick: false,
+    inputValidator: (value) => validateEmailInput(value, emailto)
+  });
+
+  if (result.isDismissed || !result.value) {
+    return null;
+  }
+
+  return String(result.value).trim();
 }

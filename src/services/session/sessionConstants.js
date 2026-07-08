@@ -6,13 +6,14 @@ export const SESSION_PROCESS = {
   CLOSE: 'close',
   UPDATE_REQSTATUS_TIME: 'update_reqstatus_time',
   UPDATE_DOCSTATUS_REQSTATUS_INSERT_TIME: 'update_docstatus_reqstatus_insert_time',
-  GET_REQUESTSTATUS_PROCESS: 'GETREQUESTSTATUS_PROCESS'
+  GET_REQUESTSTATUS_PROCESS: 'getrequeststatus_process'
 };
 
 /** Close-session remarks used by editor manual logout */
 export const SESSION_REMARKS = {
   USER_MANUAL_LOGOUT: 'user_manual_logout',
-  USER_ACCEPT_OPEN_DOC: 'user_accept_access_btn'
+  USER_ACCEPT_OPEN_DOC: 'user_accept_access_btn',
+  USER_ENTER_VALID_EMAIL: 'user_enter_valid_email'
 };
 
 
@@ -49,6 +50,7 @@ export const LOCAL_STORAGE_KEYS = {
   API_KEY: 'xmleditor:apikey',
   SHARED_PREFIX: 'xmleditor:shared:',
   USERNAME_PREFIX: 'xmleditor:username:',
+  USER_ID_PREFIX: 'xmleditor:userid:',
   USER_ROLE_PREFIX: 'xmleditor:userRole:',
   USER_COLOR_PREFIX: 'xmleditor:usercolor:',
   COLLAB_ENABLED_PREFIX: 'xmleditor:collabEnabled:',

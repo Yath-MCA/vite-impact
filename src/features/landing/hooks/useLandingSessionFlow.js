@@ -203,12 +203,12 @@ export default function useLandingSessionFlow(docData) {
     }
   }, [goToEditor, resetIdle]);
 
-  const startLogin = useCallback(async () => {
+  const startLogin = useCallback(async ({ remarks, username } = {}) => {
     closeSessionDialogs();
     setUi({ ...INITIAL_UI, phase: 'checking', message: 'Starting session…' });
 
     try {
-      const result = await loginFromLanding(docData, { buildContext });
+      const result = await loginFromLanding(docData, { buildContext, remarks, username });
       if (!mountedRef.current) return;
 
       if (result.status === 'granted') {

@@ -185,6 +185,14 @@ export default function EditorPage({ readOnly = false }) {
     }, 120);
   }, [setIsDirty, updateContent]);
 
+  const handleEditorReady = useCallback(({ editor }) => {
+    editorRef.current = { editor };
+  }, [editorRef]);
+
+  const handleEditorDestroyed = useCallback(() => {
+    editorRef.current = null;
+  }, [editorRef]);
+
   useEffect(() => () => {
     if (syncTimerRef.current) {
       window.clearTimeout(syncTimerRef.current);
@@ -233,9 +241,10 @@ export default function EditorPage({ readOnly = false }) {
           <div className="flex min-w-0 flex-1 justify-center overflow-y-auto bg-[#ece7de] px-3 py-4 md:px-6 md:py-6">
             <div className="w-full max-w-5xl rounded-sm border border-gray-200 bg-white shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
               <CKEditor
-                ref={editorRef}
                 initData={editorData}
                 onChange={handleEditorChange}
+                onInstanceReady={handleEditorReady}
+                onInstanceDestroyed={handleEditorDestroyed}
                 config={editorConfig}
               />
             </div>

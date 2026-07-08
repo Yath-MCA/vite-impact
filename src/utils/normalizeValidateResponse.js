@@ -43,6 +43,10 @@ export function normalizeValidateResponse(response) {
     collaborative: resData.collaborative,
     apikey: resData.apikey || '',
     emailto: resData.emailto,
+    status: resData.status || '',
+    r: resData.r,
+    enable: resData.enable,
+    temporaryAccess: resData.temporaryAccess,
     raw: resData
   };
 }

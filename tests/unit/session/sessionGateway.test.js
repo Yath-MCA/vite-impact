@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { installBrowserStorageMocks } from '../helpers/mockBrowserStorage.js';
-import { SESSION_STORAGE_KEYS } from '../../../src/services/session/sessionConstants.js';
+import { SESSION_STORAGE_KEYS, SESSION_REMARKS } from '../../../src/services/session/sessionConstants.js';
 
 vi.mock('../../../src/services/api/apiService.js', () => ({
   apiService: {
@@ -31,11 +31,12 @@ const baseCtx = {
   sessionStartTime: '1700000000000'
 };
 
-const buildContext = (data) => ({
+const buildContext = (data, overrides = {}) => ({
   docId: data.docid,
   client: data.client,
   rolename: data.rolename,
-  username: data.username,
+  username: overrides.username || data.username,
+  remarks: overrides.remarks,
   sessionId: '48291037',
   sessionStartTime: '1700000000000'
 });
@@ -123,6 +124,31 @@ describe('sessionGateway loginFromLanding', () => {
     expect(apiService.makeRequest).toHaveBeenCalledTimes(2);
     expect(sessionStorage.getItem(`${SESSION_STORAGE_KEYS.SESSION_ID_PREFIX}DOC123`)).toBe('48291037');
     expect(sessionStorage.getItem(SESSION_STORAGE_KEYS.DOC_ID)).toBe('DOC123');
+  });
+
+  it('passes user_enter_valid_email remarks on check when provided', async () => {
+    apiService.makeRequest
+      .mockResolvedValueOnce({ r: 1 })
+      .mockResolvedValueOnce({
+        data: [{
+          docid: 'DOC123',
+          session_id: '48291037',
+          session_start_time: '1700000000000',
+          session_end_time: '0',
+          docstatus: '1'
+        }]
+      });
+
+    const docData = { docid: 'DOC123', client: 'oup', rolename: 'Author', username: 'c@d.com' };
+    await loginFromLanding(docData, {
+      buildContext,
+      remarks: SESSION_REMARKS.USER_ENTER_VALID_EMAIL,
+      username: 'c@d.com'
+    });
+
+    const checkCall = apiService.makeRequest.mock.calls[0][1];
+    expect(checkCall.remarks).toBe('user_enter_valid_email');
+    expect(checkCall.username).toBe('c@d.com');
   });
 
   it('returns verify_failed when grant verify does not match', async () => {

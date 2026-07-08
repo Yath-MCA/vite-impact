@@ -1,8 +1,11 @@
+import { SESSION_STORAGE_KEYS } from './sessionConstants.js';
 import {
-  DEFAULT_EDITOR_ROLE,
-  LOCAL_STORAGE_KEYS,
-  SESSION_STORAGE_KEYS
-} from './sessionConstants.js';
+  applyLegacyLocalStorage,
+  normalizeSessionSource,
+  toLegacyLocalStorageWrites,
+  toSessionContext
+} from './sessionSource.js';
+import { clearUserInfo, setUserInfo, toLegacyUserInfo } from './userInfoBridge.js';
 
 /** In-memory validate payload until grant+verify succeeds (legacy pendingCommitResData). */
 let pendingValidateResponse = null;
@@ -46,6 +49,7 @@ export function clearEditorSessionHandshake({ clearValidateKey = false } = {}) {
   }
   sessionStorage.removeItem(SESSION_STORAGE_KEYS.DOC_ID);
   sessionStorage.removeItem(SESSION_STORAGE_KEYS.REDIRECT);
+  clearUserInfo();
   if (clearValidateKey) {
     clearValidateAccessKey();
   }
@@ -80,72 +84,21 @@ export function setValidateResponse(response, { persist = false } = {}) {
   sessionStorage.setItem(SESSION_STORAGE_KEYS.VALIDATE_RESPONSE, JSON.stringify(response));
 }
 
-function resolveEmailId(resData) {
-  const emailto = resData?.emailto;
-  if (Array.isArray(emailto)) {
-    if (emailto.length === 1) return emailto[0];
-    return resData.username || resData.mail_id || resData.MAIL_ID || emailto[0] || '';
-  }
-  return emailto || resData?.username || resData?.mail_id || resData?.MAIL_ID || '';
-}
-
-function isCollabEnabled(resData) {
-  const client = String(resData?.client || '').toLowerCase();
-  const collaborative = String(resData?.collaborative || '').toLowerCase();
-  return client === 'oso' && collaborative === 'yes';
-}
-
-function resolveUserColor(resData, emailId, isCollab) {
-  const status = String(resData?.status || '').toLowerCase();
-  const isActive = !status || status === 'active' || status === '1';
-  if (!isActive) return 0;
-
-  if (isCollab && Array.isArray(resData?.emailto)) {
-    const index = resData.emailto.indexOf(emailId);
-    return index >= 0 ? index + 1 : 55;
-  }
-  return resData?.sharedcolor || 99;
-}
-
 /**
  * Legacy-compatible localStorage commit used by editor SharedKeyService / StorageService.
  */
 export function saveLegacyLocalStorageData(resData) {
-  console.log("saveLegacyLocalStorageData");
-  if (window.location.href.includes("local")) debugger;
   if (!resData) return { ok: false, reason: 'missing_res_data' };
 
-  const docid = resData.docid || resData.docId;
-  const apikey = resData.apikey;
-  const emailto = resData.emailto;
+  const src = normalizeSessionSource(resData);
+  const emailto = src.raw.emailto;
 
-  if (!(apikey || (docid && emailto))) {
+  if (!(src.apikey || (src.docId && emailto))) {
     return { ok: false, reason: 'missing_apikey_or_email' };
   }
 
-  const emailId = resolveEmailId(resData);
-  const isCollab = isCollabEnabled(resData);
-  const userColor = resolveUserColor(resData, emailId, isCollab);
-
-  localStorage.setItem(LOCAL_STORAGE_KEYS.APP_KEY, 'xmleditor');
-  if (apikey) {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.API_KEY, String(apikey));
-  }
-  if (docid) {
-    localStorage.setItem(`${LOCAL_STORAGE_KEYS.SHARED_PREFIX}${docid}`, JSON.stringify(resData));
-    localStorage.setItem(`${LOCAL_STORAGE_KEYS.USERNAME_PREFIX}${docid}`, String(emailId || ''));
-    localStorage.setItem(
-      `${LOCAL_STORAGE_KEYS.USER_ROLE_PREFIX}${docid}`,
-      String(resData.role || DEFAULT_EDITOR_ROLE)
-    );
-    localStorage.setItem(`${LOCAL_STORAGE_KEYS.USER_COLOR_PREFIX}${docid}`, String(userColor));
-    localStorage.setItem(
-      `${LOCAL_STORAGE_KEYS.COLLAB_ENABLED_PREFIX}${docid}`,
-      isCollab ? 'true' : 'false'
-    );
-  }
-
-  return { ok: true, docid };
+  applyLegacyLocalStorage(toLegacyLocalStorageWrites(src));
+  return { ok: true, docid: src.docId };
 }
 
 export function commitSessionForEditor({
@@ -164,10 +117,12 @@ export function commitSessionForEditor({
   }
 
   if (resData) {
-    saveLegacyLocalStorageData({
-      ...resData,
-      docid: docId || resData.docid
-    });
+    const payload = { ...resData, docid: docId || resData.docid };
+    const legacyResult = saveLegacyLocalStorageData(payload);
+    if (legacyResult.ok) {
+      const src = normalizeSessionSource(payload, response);
+      setUserInfo(toLegacyUserInfo(src));
+    }
   }
 
   const resolvedDocId = docId || resData?.docid || resData?.identifier;
@@ -191,26 +146,6 @@ export function commitSessionForEditor({
 }
 
 export function buildSessionContextFromDocData(docData, overrides = {}) {
-  console.log("---buildSessionContextFromDocData----");
-  const validateResponse = getValidateResponse();
-  const resData = validateResponse?.data ?? validateResponse ?? {};
-  const username = resolveEmailId(resData);
-
-  return {
-    docId: docData?.docid || docData?.identifier || resData.docid || resData.identifier || '',
-    client: docData?.client || resData.client || '',
-    username: username || '',
-    role: docData?.role || resData.role || resData.roleid || resData.ROLE_ID || '',
-    rolename: docData?.rolename || resData.rolename || resData.ROLENAME || '',
-    roleid: docData?.roleid || resData.roleid || resData.ROLE_ID || '',
-    identifier: docData?.identifier || resData.identifier || '',
-    dtd: docData?.dtd || resData.dtd || '',
-    linkinfo: docData?.linkinfo || resData.linkinfo || '',
-    type: docData?.type || resData.type || '',
-    projecttitle: docData?.projecttitle || resData.projecttitle || '',
-    vendor: docData?.vendor || resData.vendor || '',
-    shorttitle: docData?.shorttitle || resData.shorttitle || '',
-    collaborative: docData?.collaborative || resData.collaborative,
-    ...overrides
-  };
+  const src = normalizeSessionSource(docData, getValidateResponse());
+  return toSessionContext(src, overrides);
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { Link, useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowRight,
@@ -23,6 +23,11 @@ import {
   setPendingValidateResponse,
   setValidateAccessKey
 } from '../../../services/session/sessionStorage';
+import { isLocalHost } from '../../../services/session/runtimeFlags.js';
+import { checkBrowserCompatibility } from '../../../services/landing/browserCompatibility.js';
+import useAcceptButtonVisibility from '../hooks/useAcceptButtonVisibility.js';
+import useLandingSessionFlow from '../hooks/useLandingSessionFlow.js';
+import useLandingUserValidation from '../hooks/useLandingUserValidation.js';
 import {
   claimValidateTab,
   pauseTabPresence,
@@ -96,7 +101,7 @@ const FEATURE_CARDS = [
 
 // ─── ValidateUrl constants ───────────────────────────────────────────────────
 
-const IS_LOCAL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const IS_LOCAL = typeof window !== 'undefined' && isLocalHost();
 const DEV_VALIDATE_KEY = import.meta.env.VITE_DEV_VALIDATE_KEY || '';
 
 /** Shared across StrictMode remounts so urlvalidity is requested once per key. */
@@ -127,11 +132,114 @@ function ValidateUrlView({ accessKey, clientParam }) {
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
   const [docData, setDocData] = useState(null);
+  const [validateResponse, setValidateResponse] = useState(null);
   const [showLanding, setShowLanding] = useState(false);
+  const [userGate, setUserGate] = useState({
+    ready: false,
+    showValidateEmailButton: false,
+    retryButtonLabel: 'VALIDATE EMAIL',
+    autoLogin: false
+  });
+  const userValidationDoneRef = useRef(false);
+  const runUserValidationRef = useRef(null);
   const loadClientConfigRef = useRef(loadClientConfig);
   loadClientConfigRef.current = loadClientConfig;
 
   const effectiveKey = accessKey || (IS_LOCAL && DEV_VALIDATE_KEY ? DEV_VALIDATE_KEY : null);
+
+  const { ui, isBusy, startLogin } = useLandingSessionFlow(docData);
+  const { runUserValidation, plosAuthStatus } = useLandingUserValidation({
+    docData,
+    validateResponse,
+    startLogin
+  });
+  runUserValidationRef.current = runUserValidation;
+
+  const applyUserValidationResult = useCallback((result) => {
+    if (result.autoLogin) {
+      setUserGate({
+        ready: false,
+        showValidateEmailButton: false,
+        retryButtonLabel: 'VALIDATE EMAIL',
+        autoLogin: true
+      });
+      return;
+    }
+
+    if (result.reason === 'plos_auth_failed') {
+      setUserGate({
+        ready: false,
+        showValidateEmailButton: true,
+        retryButtonLabel: 'RETRY VERIFICATION',
+        autoLogin: false
+      });
+      return;
+    }
+
+    setUserGate({
+      ready: Boolean(result.ok && !result.showValidateEmailButton),
+      showValidateEmailButton: Boolean(result.showValidateEmailButton),
+      retryButtonLabel: 'VALIDATE EMAIL',
+      autoLogin: false
+    });
+  }, []);
+
+  const revalidateByKey = useCallback(async (key) => {
+    if (!key) return false;
+    try {
+      const response = await apiService.makeRequest(API_ENDPOINTS.URL_VALIDITY, {
+        key: String(key)
+      });
+      assertValidateAccess(response);
+      setPendingValidateResponse(response);
+      const flatDocData = normalizeValidateResponse(response);
+      setValidateResponse(response);
+      setDocData(flatDocData);
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const landingActive =
+    showLanding &&
+    Boolean(docData) &&
+    userGate.ready &&
+    !userGate.autoLogin &&
+    !userGate.showValidateEmailButton;
+
+  const { showAcceptButton } = useAcceptButtonVisibility({
+    landingActive,
+    onRevalidate: useCallback(
+      () => revalidateByKey(effectiveKey),
+      [effectiveKey, revalidateByKey]
+    )
+  });
+
+  const handleValidateEmail = useCallback(async () => {
+    const result = await runUserValidationRef.current?.();
+    if (!result) return;
+    userValidationDoneRef.current = true;
+    applyUserValidationResult(result);
+  }, [applyUserValidationResult]);
+
+  useEffect(() => {
+    if (!showLanding || !docData || userValidationDoneRef.current) return undefined;
+
+    let cancelled = false;
+
+    (async () => {
+      const result = await runUserValidationRef.current?.();
+      if (cancelled || !result) return;
+
+      userValidationDoneRef.current = true;
+      applyUserValidationResult(result);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [showLanding, docData?.docid, applyUserValidationResult]);
 
   useEffect(() => {
     let cancelled = false;
@@ -141,6 +249,17 @@ function ValidateUrlView({ accessKey, clientParam }) {
 
     async function validateByKey(key) {
       try {
+        const browserInfo = checkBrowserCompatibility();
+        if (typeof window !== 'undefined') {
+          window.browserInfo = browserInfo;
+        }
+        if (!browserInfo.isAllowed || !browserInfo.isCompatible) {
+          setStatus('error');
+          setError('Your browser is not supported for IMPACT.');
+          await showLandingMessage(LandingMessageKey.UNSUPPORTED_BROWSER);
+          return;
+        }
+
         setStatus('loading');
         setProgress(10);
         setStatusLabel('Connecting to server…');
@@ -156,8 +275,8 @@ function ValidateUrlView({ accessKey, clientParam }) {
 
         assertValidateAccess(response);
 
-        // Keep validate payload in memory until session grant+verify commits storage.
         setPendingValidateResponse(response);
+        setValidateResponse(response);
 
         const flatDocData = normalizeValidateResponse(response);
         if (cancelled) return;
@@ -258,17 +377,26 @@ function ValidateUrlView({ accessKey, clientParam }) {
     };
   }, [effectiveKey, clientParam, navigate]);
 
-  // Pause presence when leaving validate/landing; same-tab editor reclaims before TTL.
-  // pagehide inside tabPresence still releases on full tab close.
   useEffect(() => {
     return () => {
       pauseTabPresence();
     };
   }, [docData?.docid]);
 
-  // Show the full landing page after validation succeeds
   if (showLanding && docData) {
-    return <LandingUI docData={docData} />;
+    return (
+      <LandingUI
+        docData={docData}
+        showAcceptButton={showAcceptButton}
+        showValidateEmailButton={userGate.showValidateEmailButton}
+        retryButtonLabel={userGate.retryButtonLabel}
+        onValidateEmail={handleValidateEmail}
+        plosAuthStatus={plosAuthStatus}
+        ui={ui}
+        isBusy={isBusy}
+        startLogin={startLogin}
+      />
+    );
   }
 
   // Progress / validation card

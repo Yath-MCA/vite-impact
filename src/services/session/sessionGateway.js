@@ -63,7 +63,7 @@ export async function checkSession(ctx) {
     ...ctx,
     sessionId,
     sessionStartTime,
-    remarks: SESSION_REMARKS.USER_ACCEPT_OPEN_DOC
+    remarks: ctx.remarks || SESSION_REMARKS.USER_ACCEPT_OPEN_DOC
   });
 
   const response = await postLinkShare(payload, ctx);
@@ -169,7 +169,10 @@ export async function completeGrant(ctx, options = {}) {
 }
 
 export async function loginFromLanding(docData, options = {}) {
-  const baseCtx = options.buildContext(docData);
+  const overrides = {};
+  if (options.username) overrides.username = options.username;
+  if (options.remarks) overrides.remarks = options.remarks;
+  const baseCtx = options.buildContext(docData, overrides);
   const { response, sessionId, sessionStartTime } = await checkSession(baseCtx);
   const ctx = { ...baseCtx, sessionId, sessionStartTime };
   const r = response?.r;

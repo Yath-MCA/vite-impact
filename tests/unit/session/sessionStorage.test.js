@@ -11,11 +11,15 @@ import {
   saveLegacyLocalStorageData,
   clearPendingValidateResponse
 } from '../../../src/services/session/sessionStorage.js';
+import { clearUserInfo, getUserInfo } from '../../../src/services/session/userInfoBridge.js';
+
+const AUTHOR_ROLE_ID = '5b53536b4c4a803e9a5abf70';
 
 describe('sessionStorage commit', () => {
   beforeEach(() => {
     installBrowserStorageMocks();
     clearPendingValidateResponse();
+    clearUserInfo();
   });
 
   it('keeps validate payload in memory until commit persists it', () => {
@@ -35,7 +39,7 @@ describe('sessionStorage commit', () => {
         docid: 'DOC123',
         apikey: 'api-key-1',
         emailto: 'author@example.com',
-        role: 'role-1',
+        role: AUTHOR_ROLE_ID,
         client: 'oup',
         collaborative: 'no',
         status: 'active',
@@ -56,6 +60,9 @@ describe('sessionStorage commit', () => {
     expect(localStorage.getItem(LOCAL_STORAGE_KEYS.API_KEY)).toBe('api-key-1');
     expect(localStorage.getItem(`${LOCAL_STORAGE_KEYS.SHARED_PREFIX}DOC123`)).toContain('DOC123');
     expect(localStorage.getItem(`${LOCAL_STORAGE_KEYS.USERNAME_PREFIX}DOC123`)).toBe('author@example.com');
+    expect(getUserInfo()?.MAIL_ID).toBe('author@example.com');
+    expect(getUserInfo()?.TRACK_ROLE_NAME).toBe('Co Author');
+    expect(window.USER_INFO.TRACK_ROLE_NAME).toBe('Co Author');
   });
 
   it('rejects legacy save when apikey and email are missing', () => {

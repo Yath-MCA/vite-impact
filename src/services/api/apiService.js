@@ -5,11 +5,12 @@
  */
 
 import axios from 'axios';
+import { isLocalHost } from '../session/runtimeFlags.js';
 
 // Global configuration variables (injected at build time or from environment)
 const runtimeWindow = typeof window !== 'undefined' ? window : { location: { href: '' }, ENV: {} };
 const DOMAIN_URL = runtimeWindow.location?.href + "";
-const IS_LOCAL_HOST = Boolean(DOMAIN_URL.includes("localhost"));
+const IS_LOCAL_HOST = isLocalHost(DOMAIN_URL);
 const IS_LOCAL_LIVE = Boolean(DOMAIN_URL.includes("web_live"));
 
 /**
@@ -77,7 +78,10 @@ export const API_ENDPOINTS = {
   ANYSTYLE_CROSS_REF_API: API_PATH + "anystylecrossrefplaintext",
   PUBKIT_STATUS: API_PATH + "pubkitapistatus",
   PUBKIT_CLOSE: API_PATH + "pubkitapistatusclose",
-  CHATBOT_AI: API_PATH + "chatbotai"
+  CHATBOT_AI: API_PATH + "chatbotai",
+  VERIFY_CAPTCHA: API_PATH + "verifycaptcha",
+  GENERATE_OTP: API_PATH + "generatetokenotpandsendemail",
+  VERIFY_ACCESS_CODE: API_PATH + "verifyaccesscode"
 };
 
 // Role definitions
