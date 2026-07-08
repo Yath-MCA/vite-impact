@@ -1,12 +1,23 @@
 import { describe, it, expect } from 'vitest';
 import {
   computeAcceptButtonVisible,
-  ACCEPT_BUTTON_TTL_MS
+  ACCEPT_BUTTON_TTL_MS,
+  getAcceptButtonTtlMs
 } from '../../../src/features/landing/hooks/acceptButtonVisibility.js';
 
 describe('acceptButtonVisibility', () => {
-  it('exports 5-minute TTL', () => {
+  it('exports 5-minute TTL default', () => {
     expect(ACCEPT_BUTTON_TTL_MS).toBe(5 * 60 * 1000);
+  });
+
+  it('getAcceptButtonTtlMs reads acceptTtlMs query param', () => {
+    const original = global.window;
+    global.window = {
+      location: { search: '?acceptTtlMs=2000' },
+      ENV: {}
+    };
+    expect(getAcceptButtonTtlMs()).toBe(2000);
+    global.window = original;
   });
 
   it('shows accept when landing active and timer not expired', () => {

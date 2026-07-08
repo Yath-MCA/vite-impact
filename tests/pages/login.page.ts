@@ -1,4 +1,5 @@
 import { type Page, type Locator, expect } from '@playwright/test';
+import { parseLinkSharePayload } from '../helpers/landing-api-mocks';
 
 export class LoginPage {
   readonly page: Page;
@@ -17,7 +18,16 @@ export class LoginPage {
 
   async goto() {
     await this.page.goto('/login');
+    await this.assertOnLoginPage();
+  }
+
+  async assertOnLoginPage() {
+    await expect(this.page).toHaveURL(/\/login/);
     await expect(this.page.getByRole('heading', { name: 'Login' })).toBeVisible();
+  }
+
+  async assertError(text: string | RegExp) {
+    await expect(this.errorBanner).toContainText(text);
   }
 
   async login(email: string, password: string) {

@@ -38,6 +38,8 @@
     "test:e2e:module": "playwright test tests/modules/",
     "test:e2e:error": "playwright test tests/error/",
     "test:e2e:accessibility": "playwright test tests/accessibility/",
+    "test:e2e:landing": "playwright test tests/landing/ tests/auth/ --project=chromium",
+    "test:e2e:landing:ui": "playwright test tests/landing/ tests/auth/ --project=chromium --ui",
     "test:report": "playwright show-report",
     "test:codegen": "playwright codegen",
     "sync:doc": "node scripts/sync-doc.js",

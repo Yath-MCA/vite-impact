@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ACCEPT_BUTTON_TTL_MS, computeAcceptButtonVisible } from './acceptButtonVisibility.js';
+import { getAcceptButtonTtlMs, computeAcceptButtonVisible } from './acceptButtonVisibility.js';
 
 /**
  * Controls AGREE & CONTINUE visibility: 5-minute window + hide when tab hidden.
@@ -22,7 +22,7 @@ export default function useAcceptButtonVisibility({
     if (!landingActive) return;
     timerRef.current = setTimeout(() => {
       setTimerExpired(true);
-    }, ACCEPT_BUTTON_TTL_MS);
+    }, getAcceptButtonTtlMs());
   }, [landingActive]);
 
   useEffect(() => {
