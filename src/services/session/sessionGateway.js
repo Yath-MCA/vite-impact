@@ -135,6 +135,12 @@ export async function pollAccessRequest(ctx) {
   return { response, sessionStartTime };
 }
 
+function isCollabBypassEligible(ctx) {
+  if (!sessionConfig.enableCollabBypass) return false;
+  const collaborative = ctx?.collaborative;
+  return collaborative === '1' || collaborative === true || String(collaborative).toLowerCase() === 'yes';
+}
+
 export async function completeGrant(ctx, options = {}) {
   const skipVerify = options.skipVerify === true;
 
@@ -154,7 +160,8 @@ export async function completeGrant(ctx, options = {}) {
   commitSessionForEditor({
     docId: ctx.docId,
     sessionId: ctx.sessionId,
-    redirectUrl: typeof window !== 'undefined' ? window.location.href : ''
+    redirectUrl: typeof window !== 'undefined' ? window.location.href : '',
+    validateResponse: options.validateResponse
   });
 
   return { ok: true };
@@ -166,7 +173,7 @@ export async function loginFromLanding(docData, options = {}) {
   const ctx = { ...baseCtx, sessionId, sessionStartTime };
   const r = response?.r;
 
-  if (r == 1) {
+  if (r == 1 || (r == 0 && isCollabBypassEligible(ctx))) {
     const grant = await completeGrant(ctx, { skipVerify: false });
     if (grant.ok) return { status: 'granted', ctx };
     return { status: 'verify_failed', ctx, verify: grant.verify, checkResponse: response };

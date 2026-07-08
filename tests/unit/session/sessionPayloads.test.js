@@ -64,4 +64,10 @@ describe('sessionPayloads', () => {
     const thirtyOneMinutesAgo = Date.now() - (31 * 60 * 1000);
     expect(minutesSince(String(thirtyOneMinutesAgo))).toBeGreaterThan(30);
   });
+
+  it('treats missing timestamps as older than throttle window', () => {
+    expect(minutesSince(null)).toBe(Number.POSITIVE_INFINITY);
+    expect(minutesSince('bad')).toBe(Number.POSITIVE_INFINITY);
+    expect(minutesSince(0)).toBe(Number.POSITIVE_INFINITY);
+  });
 });

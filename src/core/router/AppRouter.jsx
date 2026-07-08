@@ -1,25 +1,37 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 
-// Global Context Providers
 import { AuthProvider } from '../../context/AuthContext';
 import { ClientProvider } from '../../context/ClientContext';
+import { EditorProvider } from '../../context/EditorContext';
+import { LayoutProvider } from '../../context/LayoutContext';
+import { ModuleProvider } from '../../context/ModuleContext';
 
-// Feature Providers
 import { DashboardProvider } from '../../features/dashboard/context/DashboardContext';
 import ProtectedRoute from './ProtectedRoute';
-
-// Feature Routes
 import DashboardRoutes from '../../features/dashboard/routes/dashboardRoutes';
 
-// Main router configuration
+function withEditorProviders(Component, readOnly = false) {
+  return function EditorRoute() {
+    return (
+      <EditorProvider>
+        <LayoutProvider>
+          <ModuleProvider>
+            <Component readOnly={readOnly} />
+          </ModuleProvider>
+        </LayoutProvider>
+      </EditorProvider>
+    );
+  };
+}
+
 const router = createBrowserRouter([
   {
     path: '/',
-    lazy: () => import('../../pages/Landing').then(m => ({ Component: m.default }))
+    lazy: () => import('../../features/landing/pages/ValidateUrlPage').then(m => ({ Component: m.default }))
   },
   {
     path: '/login',
-    lazy: () => import('../../pages/Login').then(m => ({ Component: m.default }))
+    lazy: () => import('../../features/auth/pages/Login').then(m => ({ Component: m.default }))
   },
   {
     path: '/dashboard/*',
@@ -49,52 +61,36 @@ const router = createBrowserRouter([
     path: '/admindashboard',
     element: <Navigate to="/dashboard/admin" replace />
   },
-
   {
     path: '/client',
     lazy: () => import('../../features/extras/ClientDashboard').then(m => ({ Component: m.default }))
   },
-  // {
-  //   path: '/reports',
-  //   lazy: () => import('../../pages/ReportsPage').then(m => ({ Component: m.default }))
-  // },
-  // {
-  //   path: '/reports/*',
-  //   lazy: () => import('../../features/reports').then(m => ({ Component: m.ReportsRoutes }))
-  // },
-  // {
-  //   path: '/settings',
-  //   lazy: () => import('../../pages/SettingsPage').then(m => ({ Component: m.default }))
-  // },
-  // {
-  //   path: '/supabase',
-  //   lazy: () => import('../../pages/SupabasePage').then(m => ({ Component: m.default }))
-  // },
   {
     path: '/validateurl',
-    lazy: () => import('../../pages/Landing').then(m => ({ Component: m.default }))
+    lazy: () => import('../../features/landing/pages/ValidateUrlPage').then(m => ({ Component: m.default }))
   },
   {
     path: '/validateurl/:client',
-    lazy: () => import('../../pages/Landing').then(m => ({ Component: m.default }))
+    lazy: () => import('../../features/landing/pages/ValidateUrlPage').then(m => ({ Component: m.default }))
   },
   {
     path: '/editor',
-    lazy: () => import('../../features_old/editor/pages/EditorPage').then(m => ({ Component: m.default }))
+    lazy: () =>
+      import('../../features/editor/pages/EditorPage').then((m) => ({
+        Component: withEditorProviders(m.default, false)
+      }))
   },
   {
     path: '/editor-readyonly',
-    lazy: async () => {
-      const { default: EditorPage } = await import('../../features_old/editor/pages/EditorPage');
-      return {
-        Component: () => <EditorPage readOnly />
-      };
-    }
+    lazy: () =>
+      import('../../features/editor/pages/EditorPage').then((m) => ({
+        Component: withEditorProviders(m.default, true)
+      }))
   },
   {
     path: '/config-manager/*',
     lazy: async () => {
-      const { default: ConfigManagerPage } = await import('../../components/ConfigManager/ConfigManagerPage');
+      const { default: ConfigManagerPage } = await import('../../features/config-manager/ConfigManagerPage');
       return {
         Component: () => (
           <ProtectedRoute requireAdmin>

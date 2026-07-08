@@ -5,7 +5,7 @@ import DashboardSidebar from './DashboardSidebar';
 import DashboardContext from '../context/DashboardContext';
 import './DashboardLayout.css';
 import DashboardHeader from './DashboardHeader';
-import DocsGrid from '../../../components/DocFinder/DocsGrid';
+import DocsGrid from '../../doc-finder/DocsGrid';
 
 const DashboardLayout = () => {
   const { dashboardType, sidebarOpen, rowData, fetchLoading } = useContext(DashboardContext);

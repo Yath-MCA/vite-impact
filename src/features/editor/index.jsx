@@ -1,5 +1,2 @@
-// Editor Feature Module
 export { default as EditorPage } from './pages/EditorPage.jsx';
-
-// Routes
-export { default as EditorRoutes } from './routes/editorRoutes.jsx';
+export { default } from './pages/EditorPage.jsx';

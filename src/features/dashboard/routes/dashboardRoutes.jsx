@@ -5,7 +5,7 @@ import ProtectedRoute from '../../../core/router/ProtectedRoute';
 import AdminDashboard from '../pages/AdminDashboard';
 import DevDashboard from '../pages/DevDashboard';
 import DocDashboard from '../pages/DocDashboard';
-import ConfigManagerPage from '../../../components/ConfigManager/ConfigManagerPage';
+import ConfigManagerPage from '../../config-manager/ConfigManagerPage';
 
 const ProtectedConfigManager = () => (
   <ProtectedRoute requireAdmin>

@@ -1,5 +1,5 @@
 import React from 'react';
-import DocsGrid from '../../../components/DocFinder/DocsGrid';
+import DocsGrid from '../../doc-finder/DocsGrid';
 
 const DocDashboard = () => {
   return (

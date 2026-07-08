@@ -118,7 +118,11 @@ export function isActiveSessionRecord(record, expected) {
 }
 
 export function minutesSince(timestamp) {
+  if (timestamp == null || timestamp === '' || timestamp === 0 || timestamp === '0') {
+    // Treat missing/corrupt timestamps as older than any throttle window.
+    return Number.POSITIVE_INFINITY;
+  }
   const value = parseInt(timestamp, 10);
-  if (!Number.isFinite(value)) return 0;
+  if (!Number.isFinite(value)) return Number.POSITIVE_INFINITY;
   return (Date.now() - value) / 60000;
 }

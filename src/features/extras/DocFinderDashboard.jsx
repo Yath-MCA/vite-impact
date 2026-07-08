@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import QueryBuilder from '../components/DocFinder/QueryBuilder';
-import DocsGrid from '../components/DocFinder/DocsGrid';
-import FetchToolbar from '../components/DocFinder/FetchToolbar';
-import { fetchDocs } from '../services/docsApi';
+import QueryBuilder from '../doc-finder/QueryBuilder';
+import DocsGrid from '../doc-finder/DocsGrid';
+import FetchToolbar from '../doc-finder/FetchToolbar';
+import { fetchDocs } from '../../services/docsApi';
 import { useQuery } from '@tanstack/react-query';
-import AppLayout from '../components/layout/AppLayout';
+import AppLayout from '../../components/layout/AppLayout';
 
 const DEFAULT_FIND = { "key": { "$exists": true } };
 

@@ -28,7 +28,7 @@ import {
   continueBlockedSession,
   pollAndResolve
 } from '../../../src/services/session/sessionGateway.js';
-import useLandingSessionFlow from '../../../src/features/landing/useLandingSessionFlow.js';
+import useLandingSessionFlow from '../../../src/features/landing/hooks/useLandingSessionFlow.js';
 
 function renderHook(hook, props) {
   const container = document.createElement('div');
@@ -100,6 +100,24 @@ describe('useLandingSessionFlow CTA orchestration', () => {
     expect(navigateMock).not.toHaveBeenCalled();
     expect(hook.current.ui.phase).toBe('blocked');
     expect(hook.current.ui.showSendRequest).toBe(true);
+    hook.unmount();
+  });
+
+  it('surfaces verify_failed separately from blocked', async () => {
+    loginFromLanding.mockResolvedValueOnce({
+      status: 'verify_failed',
+      ctx: { docId: 'DOC123', sessionId: '1', sessionStartTime: '1' },
+      checkResponse: { r: 1 }
+    });
+
+    const hook = renderHook(useLandingSessionFlow, docData);
+
+    await act(async () => {
+      await hook.current.startLogin();
+    });
+
+    expect(navigateMock).not.toHaveBeenCalled();
+    expect(hook.current.ui.phase).toBe('verify_failed');
     hook.unmount();
   });
 

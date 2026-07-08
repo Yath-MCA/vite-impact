@@ -1,5 +1,8 @@
 # IMPACT Vite Project Folder Structure
 
+> **Current target (feature-MVC hybrid):** see [`FEATURE_MVC_STRUCTURE.md`](./FEATURE_MVC_STRUCTURE.md).
+> Prefer `src/features/<name>/{pages,hooks,routes}` over adding new domain UI under `src/components/`.
+
 This document provides a comprehensive overview of the folder structure for the IMPACT React Vite application.
 
 ## 📁 Root Directory Structure

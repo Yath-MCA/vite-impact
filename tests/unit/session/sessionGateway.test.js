@@ -266,3 +266,28 @@ describe('sessionGateway blocked continuation', () => {
     expect(result.message).toBe('Rejected by collator');
   });
 });
+
+describe('sessionGateway loginFromLanding collab flag', () => {
+  beforeEach(() => {
+    apiService.makeRequest.mockReset();
+    installBrowserStorageMocks();
+  });
+
+  it('blocks on r:0 when collab bypass is disabled (default)', async () => {
+    apiService.makeRequest.mockResolvedValueOnce({ r: 0, requeststatus: 0 });
+
+    const result = await loginFromLanding(
+      { docid: 'DOC123', collaborative: 'yes' },
+      {
+        buildContext: (data) => ({
+          docId: data.docid,
+          collaborative: data.collaborative,
+          sessionId: '48291037',
+          sessionStartTime: '1700000000000'
+        })
+      }
+    );
+
+    expect(result.status).toBe('blocked');
+  });
+});

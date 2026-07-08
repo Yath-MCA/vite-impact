@@ -19,6 +19,7 @@ const toBoolean = (value, fallback = false) => {
 };
 
 export const sessionConfig = {
+  pollIntervalMs: toNumber(env('SESSION_POLL_INTERVAL_MS', 'VITE_SESSION_POLL_INTERVAL_MS', 1000), 1000),
   pollTimeoutMs: toNumber(env('SESSION_POLL_TIMEOUT_MS', 'VITE_SESSION_POLL_TIMEOUT_MS', 45000), 45000),
   requestThrottleMinutes: toNumber(env('SESSION_REQUEST_THROTTLE_MINUTES', 'VITE_SESSION_REQUEST_THROTTLE_MINUTES', 30), 30),
   enableCollabBypass: toBoolean(env('SESSION_ENABLE_COLLAB_BYPASS', 'VITE_SESSION_ENABLE_COLLAB_BYPASS', false), false),

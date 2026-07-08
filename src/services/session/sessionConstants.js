@@ -19,6 +19,7 @@ export const REQUEST_STATUS = {
   STALE: '7'
 };
 
+/** sessionStorage keys used by landing/editor handshake */
 export const SESSION_STORAGE_KEYS = {
   VALIDATE_RESPONSE: 'xmleditor:validateuserpost',
   REDIRECT: 'redirect',
@@ -26,3 +27,19 @@ export const SESSION_STORAGE_KEYS = {
   DOC_ID: 'docid',
   LANDING_TAB_ID: 'xmleditor:landing:tabid'
 };
+
+/**
+ * localStorage keys aligned with legacy saveLocalStorageData / StorageService.
+ * SHARED_PREFIX + docId stores the full shared payload JSON.
+ */
+export const LOCAL_STORAGE_KEYS = {
+  APP_KEY: 'xmleditor:appkey',
+  API_KEY: 'xmleditor:apikey',
+  SHARED_PREFIX: 'xmleditor:shared:',
+  USERNAME_PREFIX: 'xmleditor:username:',
+  USER_ROLE_PREFIX: 'xmleditor:userRole:',
+  USER_COLOR_PREFIX: 'xmleditor:usercolor:',
+  COLLAB_ENABLED_PREFIX: 'xmleditor:collabEnabled:'
+};
+
+export const DEFAULT_EDITOR_ROLE = 'Author';
