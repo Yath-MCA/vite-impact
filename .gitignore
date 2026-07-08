@@ -47,6 +47,7 @@ _vanilaProject/*
 
 test-results/*
 playwright-report/*
+test-results/results.json
 
 # Keep the main application tree and config files visible to IDEs and file watchers
 !src/
