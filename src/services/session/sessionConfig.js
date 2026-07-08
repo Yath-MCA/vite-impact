@@ -24,7 +24,8 @@ export const sessionConfig = {
   requestThrottleMinutes: toNumber(env('SESSION_REQUEST_THROTTLE_MINUTES', 'VITE_SESSION_REQUEST_THROTTLE_MINUTES', 30), 30),
   enableCollabBypass: toBoolean(env('SESSION_ENABLE_COLLAB_BYPASS', 'VITE_SESSION_ENABLE_COLLAB_BYPASS', false), false),
   skipVerifyOnPollGrant: toBoolean(env('SESSION_SKIP_VERIFY_ON_POLL_GRANT', 'VITE_SESSION_SKIP_VERIFY_ON_POLL_GRANT', true), true),
-  editorPath: env('SESSION_EDITOR_PATH', 'VITE_SESSION_EDITOR_PATH', '/editor')
+  editorPath: env('SESSION_EDITOR_PATH', 'VITE_SESSION_EDITOR_PATH', '/editor'),
+  validateUrlPath: env('SESSION_VALIDATE_URL_PATH', 'VITE_SESSION_VALIDATE_URL_PATH', '/validateurl')
 };
 
 export default sessionConfig;

@@ -18,7 +18,8 @@ import {
   verifySession,
   sendAccessRequest,
   continueBlockedSession,
-  pollAndResolve
+  pollAndResolve,
+  closeSessionFromEditor
 } from '../../../src/services/session/sessionGateway.js';
 
 const baseCtx = {
@@ -289,5 +290,41 @@ describe('sessionGateway loginFromLanding collab flag', () => {
     );
 
     expect(result.status).toBe('blocked');
+  });
+});
+
+describe('sessionGateway closeSessionFromEditor', () => {
+  beforeEach(() => {
+    apiService.makeRequest.mockReset();
+  });
+
+  it('posts linksharing close with user_manual_logout remarks', async () => {
+    apiService.makeRequest.mockResolvedValueOnce({ r: 1 });
+
+    const result = await closeSessionFromEditor({
+      docId: 'DOC123',
+      sessionId: '48291037'
+    });
+
+    expect(result.ok).toBe(true);
+    expect(apiService.makeRequest).toHaveBeenCalledWith(
+      '/api/linksharing',
+      expect.objectContaining({
+        tbl: 'linksharing',
+        process: 'close',
+        docid: 'DOC123',
+        session_id: '48291037',
+        remarks: 'user_manual_logout'
+      })
+    );
+  });
+
+  it('returns failure when r is not 1', async () => {
+    apiService.makeRequest.mockResolvedValueOnce({ r: 0, remarks: 'denied' });
+    const result = await closeSessionFromEditor({
+      docId: 'DOC123',
+      sessionId: '1'
+    });
+    expect(result.ok).toBe(false);
   });
 });

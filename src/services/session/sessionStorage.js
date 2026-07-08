@@ -37,6 +37,32 @@ export function clearValidateAccessKey() {
   sessionStorage.removeItem(SESSION_STORAGE_KEYS.VALIDATE_KEY);
 }
 
+/** Clear handshake keys so a fresh validateurl can start after logout. */
+export function clearEditorSessionHandshake({ clearValidateKey = false } = {}) {
+  if (typeof sessionStorage === 'undefined') return;
+  const docId = sessionStorage.getItem(SESSION_STORAGE_KEYS.DOC_ID);
+  if (docId) {
+    sessionStorage.removeItem(`${SESSION_STORAGE_KEYS.SESSION_ID_PREFIX}${docId}`);
+  }
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.DOC_ID);
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.REDIRECT);
+  if (clearValidateKey) {
+    clearValidateAccessKey();
+  }
+}
+
+export function getEditorSessionContextFromStorage() {
+  if (typeof sessionStorage === 'undefined') {
+    return { docId: '', sessionId: '', accessKey: '' };
+  }
+  const docId = sessionStorage.getItem(SESSION_STORAGE_KEYS.DOC_ID) || '';
+  const sessionId = docId
+    ? sessionStorage.getItem(`${SESSION_STORAGE_KEYS.SESSION_ID_PREFIX}${docId}`) || ''
+    : '';
+  const accessKey = getValidateAccessKey();
+  return { docId, sessionId, accessKey };
+}
+
 export function getValidateResponse() {
   if (pendingValidateResponse) return pendingValidateResponse;
   try {
@@ -85,9 +111,11 @@ function resolveUserColor(resData, emailId, isCollab) {
  * Legacy-compatible localStorage commit used by editor SharedKeyService / StorageService.
  */
 export function saveLegacyLocalStorageData(resData) {
+  console.log("saveLegacyLocalStorageData");
+  if (window.location.href.includes("local")) debugger;
   if (!resData) return { ok: false, reason: 'missing_res_data' };
 
-  const docid = resData.docid || resData.identifier || resData.docId;
+  const docid = resData.docid || resData.docId;
   const apikey = resData.apikey;
   const emailto = resData.emailto;
 
@@ -108,7 +136,7 @@ export function saveLegacyLocalStorageData(resData) {
     localStorage.setItem(`${LOCAL_STORAGE_KEYS.USERNAME_PREFIX}${docid}`, String(emailId || ''));
     localStorage.setItem(
       `${LOCAL_STORAGE_KEYS.USER_ROLE_PREFIX}${docid}`,
-      String(resData.role || resData.roleid || DEFAULT_EDITOR_ROLE)
+      String(resData.role || DEFAULT_EDITOR_ROLE)
     );
     localStorage.setItem(`${LOCAL_STORAGE_KEYS.USER_COLOR_PREFIX}${docid}`, String(userColor));
     localStorage.setItem(
@@ -163,13 +191,15 @@ export function commitSessionForEditor({
 }
 
 export function buildSessionContextFromDocData(docData, overrides = {}) {
+  console.log("---buildSessionContextFromDocData----");
   const validateResponse = getValidateResponse();
   const resData = validateResponse?.data ?? validateResponse ?? {};
+  const username = resolveEmailId(resData);
 
   return {
     docId: docData?.docid || docData?.identifier || resData.docid || resData.identifier || '',
     client: docData?.client || resData.client || '',
-    username: docData?.username || resData.username || resData.mail_id || resData.MAIL_ID || '',
+    username: username || '',
     role: docData?.role || resData.role || resData.roleid || resData.ROLE_ID || '',
     rolename: docData?.rolename || resData.rolename || resData.ROLENAME || '',
     roleid: docData?.roleid || resData.roleid || resData.ROLE_ID || '',

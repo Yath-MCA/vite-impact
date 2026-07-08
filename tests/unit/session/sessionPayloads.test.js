@@ -1,11 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import {
   buildCheckPayload,
+  buildClosePayload,
   isActiveSessionRecord,
   minutesSince,
   buildUpdateReqStatusTimePayload
 } from '../../../src/services/session/sessionPayloads.js';
-import { REQUEST_STATUS } from '../../../src/services/session/sessionConstants.js';
+import {
+  REQUEST_STATUS,
+  SESSION_REMARKS,
+  SESSION_PROCESS
+} from '../../../src/services/session/sessionConstants.js';
 
 describe('sessionPayloads', () => {
   it('builds landing check payload with doc and session fields', () => {
@@ -26,6 +31,23 @@ describe('sessionPayloads', () => {
       session_id: '48291037',
       remarks: 'login',
       username: 'author@example.com'
+    });
+  });
+
+  it('builds close payload for manual editor logout', () => {
+    const payload = buildClosePayload({
+      docId: 'DOC123',
+      sessionId: '48291037',
+      sessionEndTime: '1700000005000'
+    });
+
+    expect(payload).toMatchObject({
+      tbl: 'linksharing',
+      process: SESSION_PROCESS.CLOSE,
+      docid: 'DOC123',
+      session_id: '48291037',
+      session_end_time: '1700000005000',
+      remarks: SESSION_REMARKS.USER_MANUAL_LOGOUT
     });
   });
 

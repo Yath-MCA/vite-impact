@@ -1,12 +1,13 @@
 import { apiService, API_ENDPOINTS } from '../api/apiService.js';
 import { sessionConfig } from './sessionConfig.js';
-import { REQUEST_STATUS } from './sessionConstants.js';
+import { REQUEST_STATUS,SESSION_REMARKS } from './sessionConstants.js';
 import {
   buildCheckPayload,
   buildVerifyQuery,
   buildUpdateReqStatusTimePayload,
   buildStaleCleanupPayload,
   buildPollPayload,
+  buildClosePayload,
   isActiveSessionRecord,
   minutesSince,
   generateSessionId,
@@ -62,7 +63,7 @@ export async function checkSession(ctx) {
     ...ctx,
     sessionId,
     sessionStartTime,
-    remarks: 'login'
+    remarks: SESSION_REMARKS.USER_ACCEPT_OPEN_DOC
   });
 
   const response = await postLinkShare(payload, ctx);
@@ -240,4 +241,31 @@ export async function pollAndResolve(ctx) {
   }
 
   return { status: 'try_again' };
+}
+
+/**
+ * Editor manual logout — POST linksharing process=close.
+ * @returns {Promise<{ ok: boolean, response?: object, message?: string }>}
+ */
+export async function closeSessionFromEditor(ctx = {}) {
+  if (!ctx.docId) {
+    return { ok: false, message: 'Missing document id for logout.' };
+  }
+
+  try {
+    const response = await postLinkShare(buildClosePayload(ctx), ctx);
+    if (response?.r == 1) {
+      return { ok: true, response };
+    }
+    return {
+      ok: false,
+      response,
+      message: response?.remarks || 'Unable to close session.'
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      message: err?.message || 'Unable to close session.'
+    };
+  }
 }

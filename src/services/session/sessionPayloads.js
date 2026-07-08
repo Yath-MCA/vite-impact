@@ -1,4 +1,9 @@
-import { DOC_STATUS, REQUEST_STATUS, SESSION_PROCESS } from './sessionConstants.js';
+import {
+  DOC_STATUS,
+  REQUEST_STATUS,
+  SESSION_REMARKS,
+  SESSION_PROCESS
+} from './sessionConstants.js';
 
 export function generateSessionId() {
   return String(Math.floor(10000000 + Math.random() * 90000000));
@@ -25,19 +30,19 @@ export function buildCheckPayload(ctx) {
     ...basePayload(SESSION_PROCESS.CHECK, ctx),
     session_id: String(ctx.sessionId),
     session_start_time: String(ctx.sessionStartTime || getSessionStartTime()),
-    remarks: ctx.remarks || 'login',
+    remarks: ctx.remarks || SESSION_REMARKS.USER_ACCEPT_OPEN_DOC,
     client: ctx.client,
     username: ctx.username,
     role: ctx.role,
     rolename: ctx.rolename,
-    roleid: ctx.roleid,
-    identifier: ctx.identifier,
-    dtd: ctx.dtd,
     linkinfo: ctx.linkinfo,
     type: ctx.type,
-    projecttitle: ctx.projecttitle,
-    vendor: ctx.vendor,
-    shorttitle: ctx.shorttitle
+    // roleid: ctx.roleid,
+    // identifier: ctx.identifier,
+    // dtd: ctx.dtd,
+    // projecttitle: ctx.projecttitle,
+    // vendor: ctx.vendor,
+    // shorttitle: ctx.shorttitle
   };
 }
 
@@ -87,11 +92,24 @@ export function buildStaleCleanupPayload(ctx) {
 
 export function buildPollPayload(ctx) {
   return {
-    ...basePayload(SESSION_PROCESS.GETREQUESTSTATUS_PROCESS, ctx),
+    ...basePayload(SESSION_PROCESS.GET_REQUESTSTATUS_PROCESS, ctx),
     session_id: String(ctx.sessionId),
     requestid: String(ctx.requestId),
     session_start_time: String(ctx.sessionStartTime || getSessionStartTime())
   };
+}
+
+/** Editor manual logout — closes active linksharing session. */
+export function buildClosePayload(ctx = {}) {
+  const payload = {
+    ...basePayload(SESSION_PROCESS.CLOSE, ctx),
+    session_end_time: String(ctx.sessionEndTime || Date.now()),
+    remarks: ctx.remarks || SESSION_REMARKS.USER_MANUAL_LOGOUT
+  };
+  if (ctx.sessionId) {
+    payload.session_id = String(ctx.sessionId);
+  }
+  return payload;
 }
 
 export function isActiveSessionRecord(record, expected) {

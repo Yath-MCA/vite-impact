@@ -10,6 +10,7 @@ import {
 import { hasPermission } from '../../config/permissions';
 import { config } from '../../config/permissions';
 import SharedMiddleColumn from './SharedMiddleColumn';
+import useEditorLogout from '../../features/editor/hooks/useEditorLogout';
 
 // ─── Dropdown hook ────────────────────────────────────────────────────────────
 function useDropdown() {
@@ -84,7 +85,7 @@ function ViewOptionsDropdown() {
 }
 
 // ─── Profile Dropdown ─────────────────────────────────────────────────────────
-function ProfileDropdown() {
+function ProfileDropdown({ onLogout, logoutDisabled = false }) {
   const name = "Jane Smith";
   const role = config.userRole.charAt(0).toUpperCase() + config.userRole.slice(1);
   return (
@@ -105,7 +106,12 @@ function ProfileDropdown() {
       <MenuItem icon={User} label={name} />
       <MenuItem icon={ShieldCheck} label={role} />
       <Divider />
-      <MenuItem icon={LogOut} label="Logout" danger />
+      <MenuItem
+        icon={LogOut}
+        label="Logout"
+        danger
+        onClick={logoutDisabled ? undefined : onLogout}
+      />
     </Dropdown>
   );
 }
@@ -145,6 +151,7 @@ export default function Navbar1() {
   const permCETrack = hasPermission('ceTrack');
   const permGenerateTrack = hasPermission('generateTrack');
   const permFinalize = hasPermission('finalize');
+  const { logout, isLoggingOut } = useEditorLogout();
 
   const pdfBtn = (hasPerm, icon, label) => {
     const base = "flex items-center gap-1 px-2 py-1.5 rounded-md text-sm font-medium transition-colors hover:bg-orange-100";
@@ -205,9 +212,23 @@ export default function Navbar1() {
         <HelpDropdown />
 
         {/* Profile */}
-        <ProfileDropdown />
+        <ProfileDropdown onLogout={logout} logoutDisabled={isLoggingOut} />
 
         <div className="w-px h-5 bg-gray-200 mx-0.5" />
+
+        {/* Logout — before Finalize */}
+        <button
+          id="navbar-btn-logout"
+          data-id="navbar-btn-logout"
+          type="button"
+          onClick={logout}
+          disabled={isLoggingOut}
+          title="Logout"
+          className="flex items-center gap-1 px-2 py-1.5 rounded-md text-sm font-medium border border-gray-300 text-gray-700 hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 disabled:opacity-50 disabled:pointer-events-none transition-colors"
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="hidden lg:inline">{isLoggingOut ? 'Logging out…' : 'Logout'}</span>
+        </button>
 
         {/* Finalize */}
         <button

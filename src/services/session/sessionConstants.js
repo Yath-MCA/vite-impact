@@ -1,9 +1,20 @@
+
+
+
 export const SESSION_PROCESS = {
   CHECK: 'check',
+  CLOSE: 'close',
   UPDATE_REQSTATUS_TIME: 'update_reqstatus_time',
   UPDATE_DOCSTATUS_REQSTATUS_INSERT_TIME: 'update_docstatus_reqstatus_insert_time',
-  GETREQUESTSTATUS_PROCESS: 'getrequeststatus_process'
+  GET_REQUESTSTATUS_PROCESS: 'GETREQUESTSTATUS_PROCESS'
 };
+
+/** Close-session remarks used by editor manual logout */
+export const SESSION_REMARKS = {
+  USER_MANUAL_LOGOUT: 'user_manual_logout',
+  USER_ACCEPT_OPEN_DOC: 'user_accept_access_btn'
+};
+
 
 export const DOC_STATUS = {
   ACTIVE: '1',

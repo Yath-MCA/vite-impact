@@ -62,7 +62,7 @@ describe('LinkSessionCore buildPayload', () => {
     });
   });
 
-  it('builds getrequeststatus_process poll payload', () => {
+  it('builds GET_REQUESTSTATUS_PROCESS poll payload', () => {
     const payload = core.buildGetRequestStatusPayload({
       docId: 'DOC123',
       sessionId: '48291037',
@@ -73,7 +73,7 @@ describe('LinkSessionCore buildPayload', () => {
     expect(payload).toMatchObject({
       tbl: 'linksharing',
       docid: 'DOC123',
-      process: 'getrequeststatus_process',
+      process: 'GET_REQUESTSTATUS_PROCESS',
       session_id: '48291037',
       requestid: '384729184',
       session_start_time: '1700000001000'
