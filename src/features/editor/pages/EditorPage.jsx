@@ -18,7 +18,7 @@ import {
 } from '../../../services/session/tabPresence.js';
 import { SESSION_STORAGE_KEYS } from '../../../services/session/sessionConstants.js';
 import { getValidateAccessKey } from '../../../services/session/sessionStorage.js';
-import { showEditorMessage } from '../messages/editorMessages.js';
+import { showEditorMessage, EditorMessageKey } from '../messages/editorMessages.js';
 
 const NavigationPanel = lazy(() => import('../../../components/editor/NavigationPanel'));
 const ThumbnailPanel = lazy(() => import('../../../components/editor/ThumbnailPanel'));
@@ -126,7 +126,7 @@ export default function EditorPage({ readOnly = false }) {
       });
       if (!active) return;
       if (!claim.ok) {
-        await showEditorMessage('Link_Opened');
+        await showEditorMessage(EditorMessageKey.LINK_OPENED);
         return;
       }
       startTabPresenceListener({

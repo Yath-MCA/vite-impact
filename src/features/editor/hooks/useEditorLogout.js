@@ -10,7 +10,7 @@ import {
   releaseValidateTab,
   stopTabPresence
 } from '../../../services/session/tabPresence.js';
-import { showEditorMessage } from '../messages/editorMessages.js';
+import { showEditorMessage, EditorMessageKey } from '../messages/editorMessages.js';
 
 function buildValidateUrlPath(accessKey) {
   const base = sessionConfig.validateUrlPath || '/validateurl';
@@ -28,7 +28,7 @@ export default function useEditorLogout() {
   const logout = useCallback(async () => {
     if (isLoggingOut) return;
 
-    const confirm = await showEditorMessage('LogOutShow');
+    const confirm = await showEditorMessage(EditorMessageKey.LOG_OUT_SHOW);
     if (!confirm?.isConfirmed) return;
 
     const { docId, sessionId, accessKey } = getEditorSessionContextFromStorage();
@@ -41,7 +41,7 @@ export default function useEditorLogout() {
       });
 
       if (!result.ok) {
-        await showEditorMessage('ErrorImpact');
+        await showEditorMessage(EditorMessageKey.ERROR_IMPACT);
         return;
       }
 
@@ -53,7 +53,7 @@ export default function useEditorLogout() {
 
       navigate(buildValidateUrlPath(accessKey));
     } catch {
-      await showEditorMessage('ErrorImpact');
+      await showEditorMessage(EditorMessageKey.ERROR_IMPACT);
     } finally {
       setIsLoggingOut(false);
     }
