@@ -463,3 +463,7 @@ See `examples/usageExamples.js` for comprehensive usage examples including:
 ## License
 
 This configuration system is part of your application codebase.
+
+## Skills / workflows
+
+Agent and folder workflow notes: [skills.md](./skills.md). Global index: [docs/SKILLS_AND_WORKFLOWS.md](../../docs/SKILLS_AND_WORKFLOWS.md).

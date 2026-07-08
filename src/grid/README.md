@@ -277,3 +277,7 @@ Custom CSS variables available:
 ## License
 
 AG-Grid Community Edition is used in this project.
+
+## Skills / workflows
+
+For app grids prefer [`src/components/grid`](../components/grid/). Agent notes for this top-level package: [skills.md](./skills.md). Index: [docs/SKILLS_AND_WORKFLOWS.md](../../docs/SKILLS_AND_WORKFLOWS.md).

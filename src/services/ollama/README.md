@@ -175,3 +175,7 @@ src/
 **Model not found**: Run `ollama pull qwen3-vl:2b`
 
 **CORS errors**: Configure Ollama CORS or use a proxy in development
+
+## Skills / workflows
+
+Folder agent notes: [skills.md](./skills.md). Parent services map: [../README.md](../README.md).

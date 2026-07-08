@@ -2,6 +2,7 @@
 
 > **Current target (feature-MVC hybrid):** see [`FEATURE_MVC_STRUCTURE.md`](./FEATURE_MVC_STRUCTURE.md).
 > Prefer `src/features/<name>/{pages,hooks,routes}` over adding new domain UI under `src/components/`.
+> **Skills & folder workflows:** see [`SKILLS_AND_WORKFLOWS.md`](./SKILLS_AND_WORKFLOWS.md) (global skill + per-folder `README.md` / `skills.md` under `src/components` and `src/modules`).
 
 This document provides a comprehensive overview of the folder structure for the IMPACT React Vite application.
 
