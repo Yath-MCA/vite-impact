@@ -124,7 +124,7 @@ function getOrCreateValidateRequest(key) {
 
 // ─── ValidateUrl sub-component ───────────────────────────────────────────────
 
-function ValidateUrlView({ accessKey, clientParam }) {
+function ValidateUrlView({ accessKey, clientParam, alertParam }) {
   const navigate = useNavigate();
   const { loadClientConfig } = useClient();
   const [status, setStatus] = useState('loading');
@@ -260,6 +260,10 @@ function ValidateUrlView({ accessKey, clientParam }) {
           return;
         }
 
+        if (alertParam === 'idle_session_log_out') {
+          await showLandingMessage(LandingMessageKey.SESSION_OUT);
+        }
+
         setStatus('loading');
         setProgress(10);
         setStatusLabel('Connecting to server…');
@@ -375,7 +379,7 @@ function ValidateUrlView({ accessKey, clientParam }) {
       if (redirectTimer) clearTimeout(redirectTimer);
       if (progressInterval) clearInterval(progressInterval);
     };
-  }, [effectiveKey, clientParam, navigate]);
+  }, [effectiveKey, clientParam, alertParam, navigate]);
 
   useEffect(() => {
     return () => {
@@ -855,6 +859,7 @@ export default function Landing() {
   const { client } = useParams();
 
   const key = searchParams.get('key');
+  const alertParam = searchParams.get('alert');
 
   // Determine if we are in validation/proof-link mode:
   // 1. If there's an explicit key in query params (e.g., ?key=...)
@@ -864,7 +869,7 @@ export default function Landing() {
   const isValidateMode = Boolean(key) || Boolean(client) || isValidateRoute;
 
   if (isValidateMode) {
-    return <ValidateUrlView accessKey={key} clientParam={client} />;
+    return <ValidateUrlView accessKey={key} clientParam={client} alertParam={alertParam} />;
   }
 
   // Otherwise → marketing landing page

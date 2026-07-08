@@ -14,7 +14,7 @@ import {
   generateRequestId,
   getSessionStartTime
 } from './sessionPayloads.js';
-import { commitSessionForEditor } from './sessionStorage.js';
+import { commitSessionForEditor, stripIdleSessionSignOffAlert } from './sessionStorage.js';
 
 function enrichLinkSharePayload(payload, ctx) {
   const next = { ...payload };
@@ -161,7 +161,10 @@ export async function completeGrant(ctx, options = {}) {
   commitSessionForEditor({
     docId: ctx.docId,
     sessionId: ctx.sessionId,
-    redirectUrl: typeof window !== 'undefined' ? window.location.href : '',
+    redirectUrl:
+      typeof window !== 'undefined'
+        ? stripIdleSessionSignOffAlert(window.location.href)
+        : '',
     validateResponse: options.validateResponse
   });
 

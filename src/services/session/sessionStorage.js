@@ -40,6 +40,12 @@ export function clearValidateAccessKey() {
   sessionStorage.removeItem(SESSION_STORAGE_KEYS.VALIDATE_KEY);
 }
 
+/** Remove idle-session alert from stored redirect URL (legacy LandingPage parity). */
+export function stripIdleSessionSignOffAlert(url) {
+  if (!url || url.indexOf('idle_session_log_out') === -1) return url;
+  return url.replace('&alert=idle_session_log_out', '');
+}
+
 /** Clear handshake keys so a fresh validateurl can start after logout. */
 export function clearEditorSessionHandshake({ clearValidateKey = false } = {}) {
   if (typeof sessionStorage === 'undefined') return;

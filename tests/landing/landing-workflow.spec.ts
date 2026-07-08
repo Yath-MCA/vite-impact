@@ -40,6 +40,23 @@ test.describe('ValidateUrl and landing workflows', () => {
     await landingPage.assertAgreeVisible();
   });
 
+  test('idle_session_log_out alert shows session ended dialog then validates', async ({
+    landingPage,
+    page
+  }) => {
+    await mockUrlValiditySuccess(page);
+
+    await landingPage.gotoValidateUrl(TEST_VALIDATE_KEY, { alert: 'idle_session_log_out' });
+    await landingPage.waitForSwal(/session ended/i);
+    await expect(landingPage.swalPopup).toContainText(/inactivity/i);
+    await expect(landingPage.swalPopup).toContainText(/AGREE & CONTINUE/i);
+    await landingPage.confirmSwal();
+    await landingPage.waitForLandingPanel();
+
+    await expect(page.getByText('E2E Test Article')).toBeVisible();
+    await landingPage.assertAgreeVisible();
+  });
+
   test('expired link shows validation failed', async ({ page }) => {
     await mockUrlValidityFailure(page, { status: 'expired' });
 
