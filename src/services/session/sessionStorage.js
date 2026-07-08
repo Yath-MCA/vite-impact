@@ -19,6 +19,24 @@ export function clearPendingValidateResponse() {
   pendingValidateResponse = null;
 }
 
+/** Persist validate URL access key so editor can renew tab lock with key match. */
+export function setValidateAccessKey(accessKey) {
+  if (typeof sessionStorage === 'undefined') return;
+  if (accessKey) {
+    sessionStorage.setItem(SESSION_STORAGE_KEYS.VALIDATE_KEY, String(accessKey));
+  }
+}
+
+export function getValidateAccessKey() {
+  if (typeof sessionStorage === 'undefined') return '';
+  return sessionStorage.getItem(SESSION_STORAGE_KEYS.VALIDATE_KEY) || '';
+}
+
+export function clearValidateAccessKey() {
+  if (typeof sessionStorage === 'undefined') return;
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.VALIDATE_KEY);
+}
+
 export function getValidateResponse() {
   if (pendingValidateResponse) return pendingValidateResponse;
   try {
@@ -106,7 +124,8 @@ export function commitSessionForEditor({
   docId,
   sessionId,
   redirectUrl,
-  validateResponse
+  validateResponse,
+  accessKey
 } = {}) {
   const response = validateResponse || getValidateResponse();
   const resData = response?.data ?? response ?? null;
@@ -119,7 +138,7 @@ export function commitSessionForEditor({
   if (resData) {
     saveLegacyLocalStorageData({
       ...resData,
-      docid: docId || resData.docid || resData.identifier
+      docid: docId || resData.docid
     });
   }
 
@@ -130,6 +149,10 @@ export function commitSessionForEditor({
       String(sessionId)
     );
     sessionStorage.setItem(SESSION_STORAGE_KEYS.DOC_ID, String(resolvedDocId));
+  }
+
+  if (accessKey) {
+    setValidateAccessKey(accessKey);
   }
 
   if (redirectUrl) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 // Font Awesome Icons
 import { FaBuilding, FaIndent, FaRocket } from 'react-icons/fa';
 import {
@@ -13,6 +13,7 @@ import {
   FiDownload,
   FiChevronDown
 } from 'react-icons/fi';
+import { fetchConfigXml } from './fetchConfigXml';
 
 const ConfigList = ({ type }) => {
   const [loading, setLoading] = useState(false);
@@ -21,6 +22,7 @@ const ConfigList = ({ type }) => {
   const [selectedClient, setSelectedClient] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const cancelledRef = useRef(false);
 
   // Configuration paths
   const CONFIG_PATHS = {
@@ -59,17 +61,25 @@ const ConfigList = ({ type }) => {
   };
 
   useEffect(() => {
+    cancelledRef.current = false;
     if (type === 'clients') {
       loadClientList();
     } else if (type === 'journals') {
       loadClients();
     }
+    return () => {
+      cancelledRef.current = true;
+    };
   }, [type]);
 
   useEffect(() => {
+    cancelledRef.current = false;
     if (type === 'journals' && selectedClient) {
       loadJournalsByClient(selectedClient);
     }
+    return () => {
+      cancelledRef.current = true;
+    };
   }, [selectedClient, type]);
 
   const loadClientList = async () => {
@@ -79,10 +89,11 @@ const ConfigList = ({ type }) => {
 
       // Process journal clients
       for (const [clientId, path] of Object.entries(CONFIG_PATHS.journals)) {
+        if (cancelledRef.current) return;
         try {
-          const response = await fetch(path);
+          const response = await fetchConfigXml(path);
           if (response.ok) {
-            const xmlText = await response.text();
+            const xmlText = response.text;
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
 
@@ -105,10 +116,11 @@ const ConfigList = ({ type }) => {
 
       // Process book clients
       for (const [clientId, path] of Object.entries(CONFIG_PATHS.books)) {
+        if (cancelledRef.current) return;
         try {
-          const response = await fetch(path);
+          const response = await fetchConfigXml(path);
           if (response.ok) {
-            const xmlText = await response.text();
+            const xmlText = response.text;
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
 
@@ -129,11 +141,12 @@ const ConfigList = ({ type }) => {
         }
       }
 
+      if (cancelledRef.current) return;
       setClients(clientsData);
     } catch (error) {
       console.error('Error loading client list:', error);
     } finally {
-      setLoading(false);
+      if (!cancelledRef.current) setLoading(false);
     }
   };
 
@@ -161,19 +174,21 @@ const ConfigList = ({ type }) => {
         return;
       }
 
-      const response = await fetch(configPath);
+      const response = await fetchConfigXml(configPath);
+      if (cancelledRef.current) return;
       if (!response.ok) {
         throw new Error(`Failed to fetch configuration for ${clientId}`);
       }
 
-      const xmlText = await response.text();
+      const xmlText = response.text;
+      if (cancelledRef.current) return;
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
 
       const parseError = xmlDoc.querySelector('parsererror');
       if (parseError) {
         console.error('XML parsing error:', parseError.textContent);
-        setJournals([]);
+        if (!cancelledRef.current) setJournals([]);
         return;
       }
 
@@ -199,12 +214,13 @@ const ConfigList = ({ type }) => {
         });
       });
 
+      if (cancelledRef.current) return;
       setJournals(journalsData);
     } catch (error) {
       console.error(`Error fetching journals for ${clientId}:`, error);
-      setJournals([]);
+      if (!cancelledRef.current) setJournals([]);
     } finally {
-      setLoading(false);
+      if (!cancelledRef.current) setLoading(false);
     }
   };
 

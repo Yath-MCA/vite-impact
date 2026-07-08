@@ -116,7 +116,7 @@ const getClientLandingConfig = (clientName) => {
 
 export default function LandingUI({ docData }) {
   const [coverImageError, setCoverImageError] = useState(false);
-  const { ui, isBusy, startLogin, confirmSendRequest } = useLandingSessionFlow(docData);
+  const { ui, isBusy, startLogin } = useLandingSessionFlow(docData);
 
   const clientName = (docData?.client ?? 'default').toLowerCase();
 
@@ -288,38 +288,6 @@ export default function LandingUI({ docData }) {
                 'AGREE & CONTINUE'
               )}
             </button>
-
-            {(ui.phase === 'blocked' || ui.phase === 'verify_failed') && ui.showSendRequest && (
-              <div className={`mt-4 p-4 rounded-lg border ${ui.phase === 'verify_failed' ? 'border-orange-200 bg-orange-50' : 'border-amber-200 bg-amber-50'}`}>
-                <p className={`text-sm mb-3 ${ui.phase === 'verify_failed' ? 'text-orange-900' : 'text-amber-900'}`}>{ui.message}</p>
-                <button
-                  type="button"
-                  onClick={confirmSendRequest}
-                  disabled={isBusy}
-                  className="w-full bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg"
-                >
-                  Send Request
-                </button>
-              </div>
-            )}
-
-            {ui.phase === 'verify_failed' && !ui.showSendRequest && (
-              <div className="mt-4 p-4 rounded-lg border border-orange-200 bg-orange-50 text-sm text-orange-900">
-                {ui.message}
-              </div>
-            )}
-
-            {ui.showWaiting && (
-              <div className="mt-4 p-4 rounded-lg border border-blue-200 bg-blue-50 text-sm text-blue-900">
-                {ui.message} ({ui.waitingSeconds}s)
-              </div>
-            )}
-
-            {(ui.phase === 'denied' || ui.phase === 'error') && ui.message && (
-              <div className="mt-4 p-4 rounded-lg border border-red-200 bg-red-50 text-sm text-red-800">
-                {ui.message}
-              </div>
-            )}
           </div>
 
           {/* Right: Document Info */}

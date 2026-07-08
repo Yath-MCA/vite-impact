@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaRocket } from 'react-icons/fa';
 import {
   FiRefreshCw,
@@ -14,6 +14,7 @@ import {
   FiDatabase,
   FiPlusCircle
 } from 'react-icons/fi';
+import { fetchConfigXml } from './fetchConfigXml';
 
 const ConfigHistory = () => {
   const [loading, setLoading] = useState(false);
@@ -24,6 +25,7 @@ const ConfigHistory = () => {
   const [filterBatch, setFilterBatch] = useState('');
   const [filterAction, setFilterAction] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const cancelledRef = useRef(false);
 
   // Configuration paths
   const CONFIG_PATHS = {
@@ -61,7 +63,11 @@ const ConfigHistory = () => {
   };
 
   useEffect(() => {
+    cancelledRef.current = false;
     loadChangeHistory();
+    return () => {
+      cancelledRef.current = true;
+    };
   }, []);
 
   const loadChangeHistory = async () => {
@@ -125,11 +131,12 @@ const ConfigHistory = () => {
 
       // Process journal configurations
       for (const [clientId, path] of Object.entries(CONFIG_PATHS.journals)) {
+        if (cancelledRef.current) return;
         try {
-          const response = await fetch(path);
+          const response = await fetchConfigXml(path);
           if (!response.ok) continue;
 
-          const xmlText = await response.text();
+          const xmlText = response.text;
           const parser = new DOMParser();
           const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
 
@@ -141,11 +148,12 @@ const ConfigHistory = () => {
 
       // Process book configurations
       for (const [clientId, path] of Object.entries(CONFIG_PATHS.books)) {
+        if (cancelledRef.current) return;
         try {
-          const response = await fetch(path);
+          const response = await fetchConfigXml(path);
           if (!response.ok) continue;
 
-          const xmlText = await response.text();
+          const xmlText = response.text;
           const parser = new DOMParser();
           const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
 
@@ -155,16 +163,20 @@ const ConfigHistory = () => {
         }
       }
 
+      if (cancelledRef.current) return;
+
       // Sort by date in descending order
       historyData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       setHistory(historyData);
 
     } catch (error) {
       console.error('Error loading change history:', error);
-      // Set mock data if loading fails
-      setHistory(getMockHistoryData());
+      if (!cancelledRef.current) {
+        // Set mock data if loading fails
+        setHistory(getMockHistoryData());
+      }
     } finally {
-      setLoading(false);
+      if (!cancelledRef.current) setLoading(false);
     }
   };
 

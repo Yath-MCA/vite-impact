@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }) => {
           setError('Invalid email');
           return false;
         }
-        
+
         if ((response?.cred ?? userData?.cred) == 0) {
           setError('Invalid password');
           return false;
@@ -117,20 +117,15 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('xmleditor:appkey', 'xmleditor');
         localStorage.setItem('xmleditor:apikey', userData.apikey ? userData.apikey : User_API_KEY);
 
-        localStorage.setItem('xmleditor:user', JSON.stringify(userData));
+        // localStorage.setItem('xmleditor:login_user', JSON.stringify(userData));
         // localStorage.setItem('xmleditor:token', userData.token || '');
-        
-        localStorage.setItem('xmleditor:username', userData.username || '');
-        localStorage.setItem('xmleditor:userid', userData.userId || '');
+
+        localStorage.setItem('xmleditor:login_username', userData.username || '');
+        localStorage.setItem('xmleditor:login_userid', userData.userId || '');
 
         // Check admin status
         // Check admin status (include pos === 10 as admin)
-        if (
-          userData.isAdmin ||
-          ADMIN_CONFIG.checkIsSuperAdmin(userData.userId) ||
-          userData.pos === 10 ||
-          (userData?._workflow_role || '').toString().toLowerCase() === 'superadmin'
-        ) {
+        if (userData.isAdmin || ADMIN_CONFIG.checkIsSuperAdmin(userData.userId) || userData.pos === 10 || (userData?._workflow_role || '').toString().toLowerCase() === 'superadmin') {
           localStorage.setItem('xmleditor:admin', 'superadmin');
         }
 
@@ -157,10 +152,10 @@ export const AuthProvider = ({ children }) => {
    */
   const logout = useCallback(() => {
     // Clear localStorage
-    localStorage.removeItem('xmleditor:user');
-    localStorage.removeItem('xmleditor:token');
-    localStorage.removeItem('xmleditor:username');
-    localStorage.removeItem('xmleditor:userid');
+    // localStorage.removeItem('xmleditor:user');
+    // localStorage.removeItem('xmleditor:token');
+    localStorage.removeItem('xmleditor:login_username');
+    localStorage.removeItem('xmleditor:login_userid');
     localStorage.removeItem('xmleditor:admin');
 
     // Clear state

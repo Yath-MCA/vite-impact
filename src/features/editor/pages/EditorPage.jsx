@@ -9,6 +9,16 @@ import Navbar2 from '../../../components/editor/Navbar2';
 import SharedMiddleColumn from '../../../components/editor/SharedMiddleColumn';
 import EditorFooter from '../../../components/editor/EditorFooter';
 import ModuleManager from '../../../modules/ModuleManager';
+import { registerEditorAlertBridge } from '../messages/registerEditorAlertBridge.js';
+import {
+  claimValidateTab,
+  releaseValidateTab,
+  startTabPresenceListener,
+  stopTabPresence
+} from '../../../services/session/tabPresence.js';
+import { SESSION_STORAGE_KEYS } from '../../../services/session/sessionConstants.js';
+import { getValidateAccessKey } from '../../../services/session/sessionStorage.js';
+import { showEditorMessage } from '../messages/editorMessages.js';
 
 const NavigationPanel = lazy(() => import('../../../components/editor/NavigationPanel'));
 const ThumbnailPanel = lazy(() => import('../../../components/editor/ThumbnailPanel'));
@@ -95,7 +105,42 @@ export default function EditorPage({ readOnly = false }) {
   const [editorData, setEditorData] = useState(INITIAL_CONTENT);
   const syncTimerRef = useRef(null);
   const sessionDocId =
-    typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('docid') : null;
+    typeof sessionStorage !== 'undefined'
+      ? sessionStorage.getItem(SESSION_STORAGE_KEYS.DOC_ID)
+      : null;
+  const validateKey =
+    typeof sessionStorage !== 'undefined' ? getValidateAccessKey() : '';
+
+  useEffect(() => {
+    registerEditorAlertBridge();
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    if (!sessionDocId) return undefined;
+
+    (async () => {
+      const claim = await claimValidateTab({
+        docId: sessionDocId,
+        key: validateKey || ''
+      });
+      if (!active) return;
+      if (!claim.ok) {
+        await showEditorMessage('Link_Opened');
+        return;
+      }
+      startTabPresenceListener({
+        getDocId: () => sessionDocId,
+        getKey: () => validateKey || ''
+      });
+    })();
+
+    return () => {
+      active = false;
+      releaseValidateTab({ docId: sessionDocId });
+      stopTabPresence();
+    };
+  }, [sessionDocId, validateKey]);
 
   useEffect(() => {
     updateContent(INITIAL_CONTENT);
@@ -104,6 +149,9 @@ export default function EditorPage({ readOnly = false }) {
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
+      if (sessionDocId) {
+        releaseValidateTab({ docId: sessionDocId });
+      }
       if (!isDirty) return;
       event.preventDefault();
       event.returnValue = '';
@@ -111,7 +159,7 @@ export default function EditorPage({ readOnly = false }) {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isDirty]);
+  }, [isDirty, sessionDocId]);
 
   useEffect(() => {
     registerModule('settings', SettingsModule, MODULE_TYPES.RIGHT_SIDEBAR, { title: 'Editor Settings' });

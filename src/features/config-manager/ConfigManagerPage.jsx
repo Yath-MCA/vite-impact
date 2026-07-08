@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 // Font Awesome Icons
 import { FaBuilding, FaIndent } from 'react-icons/fa';
 import {
@@ -24,10 +24,12 @@ import { LuGitCompare } from 'react-icons/lu';
 import ConfigList from './ConfigList';
 import ConfigEditor from './ConfigEditor';
 import ConfigHistory from './ConfigHistory';
+import { fetchConfigXml } from './fetchConfigXml';
 import './ConfigManager.css';
 
 const ConfigManagerPage = () => {
   const [activeView, setActiveView] = useState('dashboard');
+  const cancelledRef = useRef(false);
   const [sidebarMode, setSidebarMode] = useState('full');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -75,8 +77,12 @@ const ConfigManagerPage = () => {
   ];
 
   useEffect(() => {
+    cancelledRef.current = false;
     loadDashboardData();
     loadUserProfile();
+    return () => {
+      cancelledRef.current = true;
+    };
   }, []);
 
   const loadDashboardData = async () => {
@@ -88,10 +94,11 @@ const ConfigManagerPage = () => {
       // Fetch journal counts from each client's XML
       let totalJournals = 0;
       for (const [clientId, path] of Object.entries(CONFIG_PATHS.journals)) {
+        if (cancelledRef.current) return;
         try {
-          const response = await fetch(path);
+          const response = await fetchConfigXml(path);
           if (response.ok) {
-            const xmlText = await response.text();
+            const xmlText = response.text;
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
             const journals = xmlDoc.querySelectorAll('listofjournals > journal');
@@ -101,6 +108,8 @@ const ConfigManagerPage = () => {
           console.warn(`Error fetching ${clientId}:`, error);
         }
       }
+
+      if (cancelledRef.current) return;
 
       setStats({
         totalClients,
@@ -132,7 +141,7 @@ const ConfigManagerPage = () => {
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
-      setLoading(false);
+      if (!cancelledRef.current) setLoading(false);
     }
   };
 

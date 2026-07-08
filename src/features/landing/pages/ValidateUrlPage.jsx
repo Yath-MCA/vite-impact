@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowRight,
@@ -19,7 +19,19 @@ import { apiService, API_ENDPOINTS } from '../../../services/api/apiService';
 import { useClient } from '../../../context/ClientContext';
 import { loadClientById } from '../../../utils/clientLoader';
 import { assertValidateAccess, normalizeValidateResponse } from '../../../utils/normalizeValidateResponse';
-import { setPendingValidateResponse } from '../../../services/session/sessionStorage';
+import {
+  setPendingValidateResponse,
+  setValidateAccessKey
+} from '../../../services/session/sessionStorage';
+import {
+  claimValidateTab,
+  pauseTabPresence,
+  startTabPresenceListener
+} from '../../../services/session/tabPresence.js';
+import {
+  LandingMessageKey,
+  showLandingMessage
+} from '../messages/index.js';
 import LandingUI from './LandingUI';
 
 // ─── Landing page constants ──────────────────────────────────────────────────
@@ -87,6 +99,24 @@ const FEATURE_CARDS = [
 const IS_LOCAL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 const DEV_VALIDATE_KEY = import.meta.env.VITE_DEV_VALIDATE_KEY || '';
 
+/** Shared across StrictMode remounts so urlvalidity is requested once per key. */
+const validateKeyInflight = new Map();
+
+function getOrCreateValidateRequest(key) {
+  const cacheKey = String(key);
+  const existing = validateKeyInflight.get(cacheKey);
+  if (existing) return existing;
+
+  const request = apiService
+    .makeRequest(API_ENDPOINTS.URL_VALIDITY, { key: cacheKey })
+    .finally(() => {
+      validateKeyInflight.delete(cacheKey);
+    });
+
+  validateKeyInflight.set(cacheKey, request);
+  return request;
+}
+
 // ─── ValidateUrl sub-component ───────────────────────────────────────────────
 
 function ValidateUrlView({ accessKey, clientParam }) {
@@ -98,10 +128,119 @@ function ValidateUrlView({ accessKey, clientParam }) {
   const [progress, setProgress] = useState(0);
   const [docData, setDocData] = useState(null);
   const [showLanding, setShowLanding] = useState(false);
+  const loadClientConfigRef = useRef(loadClientConfig);
+  loadClientConfigRef.current = loadClientConfig;
 
   const effectiveKey = accessKey || (IS_LOCAL && DEV_VALIDATE_KEY ? DEV_VALIDATE_KEY : null);
 
   useEffect(() => {
+    let cancelled = false;
+    let landingTimer;
+    let redirectTimer;
+    let progressInterval;
+
+    async function validateByKey(key) {
+      try {
+        setStatus('loading');
+        setProgress(10);
+        setStatusLabel('Connecting to server…');
+
+        setProgress(30);
+        setStatusLabel('Validating link…');
+
+        const response = await getOrCreateValidateRequest(key);
+        if (cancelled) return;
+
+        setProgress(70);
+        setStatusLabel('Checking access…');
+
+        assertValidateAccess(response);
+
+        // Keep validate payload in memory until session grant+verify commits storage.
+        setPendingValidateResponse(response);
+
+        const flatDocData = normalizeValidateResponse(response);
+        if (cancelled) return;
+
+        const claim = await claimValidateTab({
+          docId: flatDocData.docid,
+          key
+        });
+        if (cancelled) return;
+
+        if (!claim.ok) {
+          setStatus('error');
+          setError('Link has been already opened in another tab. Please check');
+          await showLandingMessage(LandingMessageKey.LINK_OPENED);
+          return;
+        }
+
+        setValidateAccessKey(key);
+
+        startTabPresenceListener({
+          getDocId: () => flatDocData.docid,
+          getKey: () => key
+        });
+
+        setDocData(flatDocData);
+        setProgress(100);
+        setStatus('success');
+        setStatusLabel('Link validated!');
+
+        landingTimer = setTimeout(() => {
+          if (!cancelled) setShowLanding(true);
+        }, 800);
+      } catch (err) {
+        if (cancelled) return;
+        setError(err.message || 'Unable to validate your proof link.');
+        setStatus('error');
+      }
+    }
+
+    async function validateByClient(clientId) {
+      try {
+        setStatus('loading');
+        setProgress(0);
+        setStatusLabel(`Loading configuration for "${clientId}"…`);
+
+        await new Promise((resolve) => {
+          progressInterval = setInterval(() => {
+            setProgress((prev) => {
+              if (prev >= 90) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+                resolve();
+                return 90;
+              }
+              return prev + 10;
+            });
+          }, 100);
+        });
+
+        if (cancelled) return;
+
+        const config = await loadClientById(clientId);
+        if (cancelled) return;
+
+        loadClientConfigRef.current(clientId);
+
+        setProgress(100);
+        setStatus('success');
+        setStatusLabel('Redirecting…');
+
+        redirectTimer = setTimeout(() => {
+          if (cancelled) return;
+          if (config.features?.dashboard) navigate('/dashboard');
+          else if (config.features?.editor) navigate('/editor');
+          else navigate('/');
+        }, 1500);
+      } catch (err) {
+        if (cancelled) return;
+        setError(err.message);
+        setStatus('error');
+      }
+    }
+
     if (effectiveKey) {
       validateByKey(effectiveKey);
     } else if (clientParam) {
@@ -110,77 +249,22 @@ function ValidateUrlView({ accessKey, clientParam }) {
       setStatus('error');
       setError('No validation key or client ID was provided. Please use the complete link provided in your email.');
     }
-  }, [effectiveKey, clientParam]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function validateByKey(key) {
-    try {
-      setStatus('loading');
-      setProgress(10);
-      setStatusLabel('Connecting to server…');
+    return () => {
+      cancelled = true;
+      if (landingTimer) clearTimeout(landingTimer);
+      if (redirectTimer) clearTimeout(redirectTimer);
+      if (progressInterval) clearInterval(progressInterval);
+    };
+  }, [effectiveKey, clientParam, navigate]);
 
-      setProgress(30);
-      setStatusLabel('Validating link…');
-
-      const response = await apiService.makeRequest(
-        API_ENDPOINTS.URL_VALIDITY,
-        { key: String(key) }
-      );
-
-      setProgress(70);
-      setStatusLabel('Checking access…');
-
-      const resData = response.data ?? response;
-      assertValidateAccess(response);
-
-      // Keep validate payload in memory until session grant+verify commits storage.
-      setPendingValidateResponse(response);
-
-      const flatDocData = normalizeValidateResponse(response);
-      setDocData(flatDocData);
-
-      setProgress(100);
-      setStatus('success');
-      setStatusLabel('Link validated!');
-
-      setTimeout(() => setShowLanding(true), 800);
-    } catch (err) {
-      setError(err.message || 'Unable to validate your proof link.');
-      setStatus('error');
-    }
-  }
-
-  async function validateByClient(clientId) {
-    try {
-      setStatus('loading');
-      setProgress(0);
-      setStatusLabel(`Loading configuration for "${clientId}"…`);
-
-      await new Promise(resolve => {
-        const interval = setInterval(() => {
-          setProgress(prev => {
-            if (prev >= 90) { clearInterval(interval); resolve(); return 90; }
-            return prev + 10;
-          });
-        }, 100);
-      });
-
-      const config = await loadClientById(clientId);
-      loadClientConfig(clientId);
-
-      setProgress(100);
-      setStatus('success');
-      setStatusLabel('Redirecting…');
-
-      setTimeout(() => {
-        if (config.features?.dashboard) navigate('/dashboard');
-        else if (config.features?.editor) navigate('/editor');
-        else navigate('/');
-      }, 1500);
-    } catch (err) {
-      setError(err.message);
-      setStatus('error');
-    }
-  }
+  // Pause presence when leaving validate/landing; same-tab editor reclaims before TTL.
+  // pagehide inside tabPresence still releases on full tab close.
+  useEffect(() => {
+    return () => {
+      pauseTabPresence();
+    };
+  }, [docData?.docid]);
 
   // Show the full landing page after validation succeeds
   if (showLanding && docData) {

@@ -7,6 +7,16 @@ import {
   pollAndResolve
 } from '../../../services/session/sessionGateway.js';
 import { buildSessionContextFromDocData } from '../../../services/session/sessionStorage.js';
+import {
+  closeSessionDialogs,
+  promptSendAccessRequest,
+  promptVerifyFailed,
+  showSessionWaiting,
+  showSessionDenied,
+  showSessionError,
+  showSessionTryAgain,
+  showSessionTryAgainLater
+} from '../sessionDialogs.js';
 
 const INITIAL_UI = {
   phase: 'idle',
@@ -16,44 +26,6 @@ const INITIAL_UI = {
   waitingSeconds: 0
 };
 
-function applyResultStatus(setUi, setSessionCtx, setLastCheckResponse, result) {
-  if (result.status === 'blocked') {
-    setSessionCtx(result.ctx);
-    setLastCheckResponse(result.checkResponse || null);
-    setUi({
-      phase: 'blocked',
-      message: 'Another active session is using this document. You can send an access request.',
-      showSendRequest: true,
-      showWaiting: false,
-      waitingSeconds: 0
-    });
-    return;
-  }
-
-  if (result.status === 'verify_failed') {
-    setSessionCtx(result.ctx || null);
-    setLastCheckResponse(result.checkResponse || null);
-    setUi({
-      phase: 'verify_failed',
-      message: 'Session verification failed. Please try again or request access if another user holds the document.',
-      showSendRequest: Boolean(result.checkResponse),
-      showWaiting: false,
-      waitingSeconds: 0
-    });
-    return;
-  }
-
-  if (result.status === 'denied') {
-    setUi({
-      phase: 'denied',
-      message: result.message || 'Access denied.',
-      showSendRequest: false,
-      showWaiting: false,
-      waitingSeconds: 0
-    });
-  }
-}
-
 export default function useLandingSessionFlow(docData) {
   const navigate = useNavigate();
   const [ui, setUi] = useState(INITIAL_UI);
@@ -62,6 +34,12 @@ export default function useLandingSessionFlow(docData) {
   const mountedRef = useRef(true);
   const waitTimerRef = useRef(null);
   const countdownRef = useRef(null);
+  const waitingDialogRef = useRef(null);
+  const sessionCtxRef = useRef(null);
+  const lastCheckResponseRef = useRef(null);
+
+  sessionCtxRef.current = sessionCtx;
+  lastCheckResponseRef.current = lastCheckResponse;
 
   useEffect(() => {
     mountedRef.current = true;
@@ -69,6 +47,9 @@ export default function useLandingSessionFlow(docData) {
       mountedRef.current = false;
       if (waitTimerRef.current) clearTimeout(waitTimerRef.current);
       if (countdownRef.current) clearInterval(countdownRef.current);
+      waitingDialogRef.current?.close();
+      waitingDialogRef.current = null;
+      closeSessionDialogs();
     };
   }, []);
 
@@ -77,63 +58,29 @@ export default function useLandingSessionFlow(docData) {
   }, []);
 
   const goToEditor = useCallback(() => {
+    closeSessionDialogs();
     navigate(sessionConfig.editorPath);
   }, [navigate]);
 
-  const startLogin = useCallback(async () => {
-    setUi({ ...INITIAL_UI, phase: 'checking', message: 'Starting session…' });
-
-    try {
-      const result = await loginFromLanding(docData, { buildContext });
-      if (!mountedRef.current) return;
-
-      if (result.status === 'granted') {
-        setUi({ ...INITIAL_UI, phase: 'redirecting', message: 'Opening editor…' });
-        goToEditor();
-        return;
-      }
-
-      if (result.status === 'blocked' || result.status === 'verify_failed' || result.status === 'denied') {
-        applyResultStatus(setUi, setSessionCtx, setLastCheckResponse, result);
-        return;
-      }
-
-      setUi({
-        phase: 'error',
-        message: 'Unexpected session response. Please try again.',
-        showSendRequest: false,
-        showWaiting: false,
-        waitingSeconds: 0
-      });
-    } catch (err) {
-      if (!mountedRef.current) return;
-      setUi({
-        phase: 'error',
-        message: err.message || 'Session check failed.',
-        showSendRequest: false,
-        showWaiting: false,
-        waitingSeconds: 0
-      });
-    }
-  }, [buildContext, docData, goToEditor]);
+  const resetIdle = useCallback(() => {
+    setUi({ ...INITIAL_UI });
+  }, []);
 
   const confirmSendRequest = useCallback(async () => {
-    if (!sessionCtx || !lastCheckResponse) return;
+    const ctx = sessionCtxRef.current;
+    const checkResponse = lastCheckResponseRef.current;
+    if (!ctx || !checkResponse) return;
 
     setUi((prev) => ({ ...prev, phase: 'requesting', message: 'Sending access request…' }));
 
     try {
-      const result = await continueBlockedSession(sessionCtx, lastCheckResponse);
+      const result = await continueBlockedSession(ctx, checkResponse);
       if (!mountedRef.current) return;
 
       if (result.status === 'try_again') {
-        setUi({
-          phase: 'blocked',
-          message: 'A request was already sent recently. Please try again later.',
-          showSendRequest: true,
-          showWaiting: false,
-          waitingSeconds: 0
-        });
+        setUi({ ...INITIAL_UI, phase: 'idle', message: '' });
+        await showSessionTryAgain();
+        if (mountedRef.current) resetIdle();
         return;
       }
 
@@ -144,28 +91,51 @@ export default function useLandingSessionFlow(docData) {
       }
 
       if (result.status === 'verify_failed') {
-        applyResultStatus(setUi, setSessionCtx, setLastCheckResponse, result);
+        const nextCtx = result.ctx || ctx;
+        const nextCheck = result.checkResponse || checkResponse;
+        setSessionCtx(nextCtx);
+        sessionCtxRef.current = nextCtx;
+        setLastCheckResponse(nextCheck);
+        lastCheckResponseRef.current = nextCheck;
+        const send = await promptVerifyFailed(
+          result.message || 'Session verification failed. You can send an access request.',
+          { allowSendRequest: true }
+        );
+        if (!mountedRef.current) return;
+        if (send) {
+          await confirmSendRequest();
+          return;
+        }
+        resetIdle();
         return;
       }
 
       if (result.status === 'waiting') {
         setSessionCtx(result.ctx);
+        sessionCtxRef.current = result.ctx;
         const totalSeconds = Math.ceil(result.waitMs / 1000);
         setUi({
           phase: 'waiting',
           message: 'Waiting for approval…',
           showSendRequest: false,
-          showWaiting: true,
+          showWaiting: false,
           waitingSeconds: totalSeconds
+        });
+
+        waitingDialogRef.current?.close();
+        waitingDialogRef.current = showSessionWaiting({
+          seconds: totalSeconds,
+          message: 'Waiting for approval…'
         });
 
         if (countdownRef.current) clearInterval(countdownRef.current);
         countdownRef.current = setInterval(() => {
           if (!mountedRef.current) return;
-          setUi((prev) => ({
-            ...prev,
-            waitingSeconds: Math.max(0, (prev.waitingSeconds || 0) - 1)
-          }));
+          setUi((prev) => {
+            const next = Math.max(0, (prev.waitingSeconds || 0) - 1);
+            waitingDialogRef.current?.updateSeconds(next);
+            return { ...prev, waitingSeconds: next };
+          });
         }, 1000);
 
         await new Promise((resolve) => {
@@ -175,6 +145,8 @@ export default function useLandingSessionFlow(docData) {
           clearInterval(countdownRef.current);
           countdownRef.current = null;
         }
+        waitingDialogRef.current?.close();
+        waitingDialogRef.current = null;
         if (!mountedRef.current) return;
 
         const pollResult = await pollAndResolve(result.ctx);
@@ -187,49 +159,131 @@ export default function useLandingSessionFlow(docData) {
         }
 
         if (pollResult.status === 'denied') {
-          setUi({
-            phase: 'denied',
-            message: pollResult.message || 'Access denied.',
-            showSendRequest: false,
-            showWaiting: false,
-            waitingSeconds: 0
-          });
+          setUi({ ...INITIAL_UI });
+          await showSessionDenied(pollResult.message || 'Access denied.');
+          if (mountedRef.current) resetIdle();
           return;
         }
 
         if (pollResult.status === 'verify_failed') {
-          applyResultStatus(setUi, setSessionCtx, setLastCheckResponse, pollResult);
+          const nextCtx = pollResult.ctx || result.ctx;
+          setSessionCtx(nextCtx);
+          sessionCtxRef.current = nextCtx;
+          const send = await promptVerifyFailed(
+            'Session verification failed after approval. You can send another request.',
+            { allowSendRequest: true }
+          );
+          if (!mountedRef.current) return;
+          if (send) {
+            await confirmSendRequest();
+            return;
+          }
+          resetIdle();
           return;
         }
 
-        setUi({
-          phase: 'blocked',
-          message: 'Request is still pending. Please try again shortly.',
-          showSendRequest: true,
-          showWaiting: false,
-          waitingSeconds: 0
-        });
+        const retry = await promptSendAccessRequest();
+        if (!mountedRef.current) return;
+        if (retry) {
+          await confirmSendRequest();
+          return;
+        }
+        resetIdle();
         return;
       }
 
-      setUi({
-        phase: 'error',
-        message: result.message || 'Unable to process access request.',
-        showSendRequest: true,
-        showWaiting: false,
-        waitingSeconds: 0
-      });
+      setUi({ ...INITIAL_UI });
+      await showSessionTryAgainLater();
+      if (mountedRef.current) resetIdle();
     } catch (err) {
       if (!mountedRef.current) return;
-      setUi({
-        phase: 'error',
-        message: err.message || 'Access request failed.',
-        showSendRequest: true,
-        showWaiting: false,
-        waitingSeconds: 0
-      });
+      setUi({ ...INITIAL_UI });
+      await showSessionTryAgainLater();
+      if (mountedRef.current) resetIdle();
     }
-  }, [goToEditor, lastCheckResponse, sessionCtx]);
+  }, [goToEditor, resetIdle]);
+
+  const startLogin = useCallback(async () => {
+    closeSessionDialogs();
+    setUi({ ...INITIAL_UI, phase: 'checking', message: 'Starting session…' });
+
+    try {
+      const result = await loginFromLanding(docData, { buildContext });
+      if (!mountedRef.current) return;
+
+      if (result.status === 'granted') {
+        setUi({ ...INITIAL_UI, phase: 'redirecting', message: 'Opening editor…' });
+        goToEditor();
+        return;
+      }
+
+      if (result.status === 'blocked') {
+        setSessionCtx(result.ctx);
+        sessionCtxRef.current = result.ctx;
+        setLastCheckResponse(result.checkResponse || null);
+        lastCheckResponseRef.current = result.checkResponse || null;
+        setUi({
+          phase: 'blocked',
+          message: 'Another active session is using this document.',
+          showSendRequest: false,
+          showWaiting: false,
+          waitingSeconds: 0
+        });
+
+        const send = await promptSendAccessRequest();
+        if (!mountedRef.current) return;
+        if (send) {
+          await confirmSendRequest();
+          return;
+        }
+        resetIdle();
+        return;
+      }
+
+      if (result.status === 'verify_failed') {
+        setSessionCtx(result.ctx || null);
+        sessionCtxRef.current = result.ctx || null;
+        setLastCheckResponse(result.checkResponse || null);
+        lastCheckResponseRef.current = result.checkResponse || null;
+        const allowSend = Boolean(result.checkResponse);
+        setUi({
+          phase: 'verify_failed',
+          message: 'Session verification failed.',
+          showSendRequest: false,
+          showWaiting: false,
+          waitingSeconds: 0
+        });
+
+        const send = await promptVerifyFailed(
+          'Session verification failed. Please try again or request access if another user holds the document.',
+          { allowSendRequest: allowSend }
+        );
+        if (!mountedRef.current) return;
+        if (send && allowSend) {
+          await confirmSendRequest();
+          return;
+        }
+        resetIdle();
+        return;
+      }
+
+      if (result.status === 'denied') {
+        setUi({ ...INITIAL_UI });
+        await showSessionDenied(result.message || 'Access denied.');
+        if (mountedRef.current) resetIdle();
+        return;
+      }
+
+      setUi({ ...INITIAL_UI });
+      await showSessionError();
+      if (mountedRef.current) resetIdle();
+    } catch (err) {
+      if (!mountedRef.current) return;
+      setUi({ ...INITIAL_UI });
+      await showSessionError();
+      if (mountedRef.current) resetIdle();
+    }
+  }, [buildContext, confirmSendRequest, docData, goToEditor, resetIdle]);
 
   const isBusy = useMemo(
     () => ['checking', 'requesting', 'waiting', 'redirecting'].includes(ui.phase),

@@ -23,11 +23,21 @@ vi.mock('../../../src/services/session/sessionStorage.js', () => ({
   })
 }));
 
+vi.mock('../../../src/features/landing/sessionDialogs.js', () => ({
+  closeSessionDialogs: vi.fn(),
+  promptSendAccessRequest: vi.fn(),
+  promptVerifyFailed: vi.fn(),
+  showSessionWaiting: vi.fn(),
+  showSessionDenied: vi.fn(),
+  showSessionError: vi.fn()
+}));
+
 import {
   loginFromLanding,
   continueBlockedSession,
   pollAndResolve
 } from '../../../src/services/session/sessionGateway.js';
+import * as sessionDialogs from '../../../src/features/landing/sessionDialogs.js';
 import useLandingSessionFlow from '../../../src/features/landing/hooks/useLandingSessionFlow.js';
 
 function renderHook(hook, props) {
@@ -65,6 +75,14 @@ describe('useLandingSessionFlow CTA orchestration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     navigateMock.mockReset();
+    sessionDialogs.promptSendAccessRequest.mockResolvedValue(false);
+    sessionDialogs.promptVerifyFailed.mockResolvedValue(false);
+    sessionDialogs.showSessionDenied.mockResolvedValue(undefined);
+    sessionDialogs.showSessionError.mockResolvedValue(undefined);
+    sessionDialogs.showSessionWaiting.mockReturnValue({
+      updateSeconds: vi.fn(),
+      close: vi.fn()
+    });
   });
 
   it('calls gateway check before navigating to editor on grant', async () => {
@@ -81,15 +99,17 @@ describe('useLandingSessionFlow CTA orchestration', () => {
     }));
     expect(navigateMock).toHaveBeenCalledWith('/editor');
     expect(hook.current.ui.phase).toBe('redirecting');
+    expect(sessionDialogs.promptSendAccessRequest).not.toHaveBeenCalled();
     hook.unmount();
   });
 
-  it('does not navigate when session is blocked', async () => {
+  it('prompts Send Request on blocked and does not rely on inline showSendRequest', async () => {
     loginFromLanding.mockResolvedValueOnce({
       status: 'blocked',
       ctx: { docId: 'DOC123', sessionId: '1', sessionStartTime: '1' },
       checkResponse: { r: 0, requeststatus: 0 }
     });
+    sessionDialogs.promptSendAccessRequest.mockResolvedValueOnce(false);
 
     const hook = renderHook(useLandingSessionFlow, docData);
 
@@ -98,17 +118,19 @@ describe('useLandingSessionFlow CTA orchestration', () => {
     });
 
     expect(navigateMock).not.toHaveBeenCalled();
-    expect(hook.current.ui.phase).toBe('blocked');
-    expect(hook.current.ui.showSendRequest).toBe(true);
+    expect(sessionDialogs.promptSendAccessRequest).toHaveBeenCalled();
+    expect(hook.current.ui.showSendRequest).toBe(false);
+    expect(hook.current.ui.phase).toBe('idle');
     hook.unmount();
   });
 
-  it('surfaces verify_failed separately from blocked', async () => {
+  it('surfaces verify_failed via dialog instead of inline panel', async () => {
     loginFromLanding.mockResolvedValueOnce({
       status: 'verify_failed',
       ctx: { docId: 'DOC123', sessionId: '1', sessionStartTime: '1' },
       checkResponse: { r: 1 }
     });
+    sessionDialogs.promptVerifyFailed.mockResolvedValueOnce(false);
 
     const hook = renderHook(useLandingSessionFlow, docData);
 
@@ -117,20 +139,30 @@ describe('useLandingSessionFlow CTA orchestration', () => {
     });
 
     expect(navigateMock).not.toHaveBeenCalled();
-    expect(hook.current.ui.phase).toBe('verify_failed');
+    expect(sessionDialogs.promptVerifyFailed).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ allowSendRequest: true })
+    );
+    expect(hook.current.ui.phase).toBe('idle');
     hook.unmount();
   });
 
-  it('runs request and poll flow before editor navigation', async () => {
+  it('closes waiting dialog before navigating after grant', async () => {
+    const waitingClose = vi.fn();
     loginFromLanding.mockResolvedValueOnce({
       status: 'blocked',
       ctx: { docId: 'DOC123', sessionId: '1', sessionStartTime: '1' },
       checkResponse: { r: 0, requeststatus: 0 }
     });
+    sessionDialogs.promptSendAccessRequest.mockResolvedValueOnce(true);
     continueBlockedSession.mockResolvedValueOnce({
       status: 'waiting',
       ctx: { docId: 'DOC123', sessionId: '1', sessionStartTime: '1', requestId: '999' },
       waitMs: 0
+    });
+    sessionDialogs.showSessionWaiting.mockReturnValueOnce({
+      updateSeconds: vi.fn(),
+      close: waitingClose
     });
     pollAndResolve.mockResolvedValueOnce({ status: 'granted', ctx: { docId: 'DOC123' } });
 
@@ -140,11 +172,9 @@ describe('useLandingSessionFlow CTA orchestration', () => {
       await hook.current.startLogin();
     });
 
-    await act(async () => {
-      await hook.current.confirmSendRequest();
-    });
-
     expect(continueBlockedSession).toHaveBeenCalled();
+    expect(sessionDialogs.showSessionWaiting).toHaveBeenCalled();
+    expect(waitingClose).toHaveBeenCalled();
     expect(pollAndResolve).toHaveBeenCalled();
     expect(navigateMock).toHaveBeenCalledWith('/editor');
     hook.unmount();

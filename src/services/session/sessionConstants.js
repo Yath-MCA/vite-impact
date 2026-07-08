@@ -22,6 +22,7 @@ export const REQUEST_STATUS = {
 /** sessionStorage keys used by landing/editor handshake */
 export const SESSION_STORAGE_KEYS = {
   VALIDATE_RESPONSE: 'xmleditor:validateuserpost',
+  VALIDATE_KEY: 'xmleditor:validatekey',
   REDIRECT: 'redirect',
   SESSION_ID_PREFIX: 'xmleditor:sessionid:',
   DOC_ID: 'docid',
@@ -39,7 +40,20 @@ export const LOCAL_STORAGE_KEYS = {
   USERNAME_PREFIX: 'xmleditor:username:',
   USER_ROLE_PREFIX: 'xmleditor:userRole:',
   USER_COLOR_PREFIX: 'xmleditor:usercolor:',
-  COLLAB_ENABLED_PREFIX: 'xmleditor:collabEnabled:'
+  COLLAB_ENABLED_PREFIX: 'xmleditor:collabEnabled:',
+  /** Heartbeat ownership lock for same-browser validateurl tabs */
+  TAB_LOCK_PREFIX: 'xmleditor:tablock:',
+  /** Legacy LandingPage probe / reply keys (interop) */
+  OPEN_PAGES: 'openpages',
+  PAGE_AVAILABLE: 'page_available'
+};
+
+/** Same-browser tab presence timing / channel */
+export const TAB_PRESENCE = {
+  CHANNEL: 'impact:validateurl-tab',
+  HEARTBEAT_MS: 2000,
+  STALE_TTL_MS: 5000,
+  PROBE_WAIT_MS: 400
 };
 
 export const DEFAULT_EDITOR_ROLE = 'Author';
