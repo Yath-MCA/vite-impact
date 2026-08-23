@@ -144,11 +144,11 @@
         {
           "title": "ValidateUrl and landing workflows",
           "file": "landing/landing-workflow.spec.ts",
-          "line": 17,
+          "line": 18,
           "column": 6,
           "specs": [
             {
-              "title": "idle_session_sign_off alert shows session ended dialog then validates",
+              "title": "oup proof loads only oup logos, not other client marks",
               "ok": true,
               "tags": [],
               "tests": [
@@ -163,12 +163,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3658,
+                      "duration": 5806,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-07-08T19:01:05.781Z",
+                      "startTime": "2026-08-23T11:24:28.287Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -176,9 +176,9 @@
                   "status": "expected"
                 }
               ],
-              "id": "ca4190fb54bf32adc322-48fd86e909ff488d108b",
+              "id": "ca4190fb54bf32adc322-38d5647c55ffc4a865ec",
               "file": "landing/landing-workflow.spec.ts",
-              "line": 43,
+              "line": 52,
               "column": 3
             }
           ]
@@ -188,8 +188,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-07-08T19:01:03.515Z",
-    "duration": 6330.062,
+    "startTime": "2026-08-23T11:24:21.624Z",
+    "duration": 13334.904000000002,
     "expected": 1,
     "skipped": 0,
     "unexpected": 0,
