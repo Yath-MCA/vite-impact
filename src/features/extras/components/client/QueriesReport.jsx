@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import AreaChart from '../charts/AreaChart';
+import AreaChart from '../../../../components/charts/AreaChart';
 
 function QueriesReport({ data }) {
   return (

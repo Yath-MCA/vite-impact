@@ -12,9 +12,9 @@ Use when editing `src/features/config-manager/`.
 - Break stable routes (`/validateurl`, `/editor`, `/login`, `/config-manager`).
 
 ## Workflows
-1. Edit files here — not under components/ConfigManager.
+1. Edit files here.
 2. Keep `/config-manager/*` admin-gated.
-3. Preserve re-exports for old imports.
+3. Import Config Manager code from `src/features/config-manager`.
 
 ## Related
 - Parent: [../README.md](../README.md) · [../skills.md](../skills.md)

@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
-import ClientManagementGrid from '../components/admin/ClientManagementGrid';
-import ProjectGrid from '../components/admin/ProjectGrid';
-import SystemMetrics from '../components/admin/SystemMetrics';
-import UserManagementGrid from '../components/admin/UserManagementGrid';
-import DashboardTopBar from '../components/layout/DashboardTopBar';
-import AppLayout from '../components/layout/AppLayout';
+import ClientManagementGrid from './components/admin/ClientManagementGrid';
+import ProjectGrid from './components/admin/ProjectGrid';
+import SystemMetrics from './components/admin/SystemMetrics';
+import UserManagementGrid from './components/admin/UserManagementGrid';
+import DashboardTopBar from '../../components/layout/DashboardTopBar';
+import AppLayout from '../../components/layout/AppLayout';
 
 export default function AdminDashboard() {
   const systemMetrics = useMemo(() => [
@@ -65,7 +65,7 @@ export default function AdminDashboard() {
 
         <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
           <h3 className="text-sm font-semibold text-gray-800">Role Permission Manager</h3>
-          <p className="mt-1 text-sm text-gray-600">Use `src/hooks/usePermissions.js` and `src/config/clientConfig.js` to tune role/client privileges.</p>
+          <p className="mt-1 text-sm text-gray-600">Use feature hooks and `src/config/clientConfig.js` to tune role/client privileges.</p>
         </section>
       </div>
     </AppLayout>

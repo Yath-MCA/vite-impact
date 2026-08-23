@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
-import ReportCharts from '../components/reports/ReportCharts';
-import ReportFilters from '../components/reports/ReportFilters';
-import ReportGrid from '../components/reports/ReportGrid';
-import DashboardTopBar from '../components/layout/DashboardTopBar';
+import ReportCharts from '../components/ReportCharts';
+import ReportFilters from '../components/ReportFilters';
+import ReportGrid from '../components/ReportGrid';
+import DashboardTopBar from '../../../components/layout/DashboardTopBar';
 
 export default function ReportsPage() {
   const [filters, setFilters] = useState({

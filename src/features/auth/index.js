@@ -1,3 +1,3 @@
-import Login from '../pages/Login.jsx';
+import Login from './pages/Login.jsx';
 
 export default Login;

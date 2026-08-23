@@ -11,8 +11,8 @@ This document summarizes the main application routes and the pages or components
 
 | Route | Destination | Notes |
 | --- | --- | --- |
-| `/` | Landing page | Loads [src/pages/Landing.jsx](../src/pages/Landing.jsx) |
-| `/login` | Login page | Loads [src/pages/Login.jsx](../src/pages/Login.jsx) |
+| `/` | Landing page | Loads [src/features/landing/pages/ValidateUrlPage.jsx](../src/features/landing/pages/ValidateUrlPage.jsx) |
+| `/login` | Login page | Loads [src/features/auth/pages/Login.jsx](../src/features/auth/pages/Login.jsx) |
 | `/dashboard/*` | Dashboard router | Renders the dashboard feature with provider context |
 | `/doc-dashboard/*` | Dashboard router (doc dashboard mode) | Uses the same dashboard router but shows the doc dashboard experience |
 | `/docdashboard` | Redirect to `/doc-dashboard` | Alias redirect |
@@ -21,9 +21,9 @@ This document summarizes the main application routes and the pages or components
 | `/client` | Client dashboard | Loads [src/features/extras/ClientDashboard.jsx](../src/features/extras/ClientDashboard.jsx) |
 | `/validateurl` | Landing page | Same component as `/` |
 | `/validateurl/:client` | Landing page with client param | Same component as `/` |
-| `/editor` | Editor page | Loads [src/features_old/editor/pages/EditorPage.jsx](../src/features_old/editor/pages/EditorPage.jsx) |
+| `/editor` | Editor page | Loads [src/features/editor/pages/EditorPage.jsx](../src/features/editor/pages/EditorPage.jsx) |
 | `/editor-readyonly` | Editor page in read-only mode | Same editor page with `readOnly` enabled |
-| `/config-manager/*` | Config manager page | Protected admin route via [src/components/ConfigManager/ConfigManagerPage.jsx](../src/components/ConfigManager/ConfigManagerPage.jsx) |
+| `/config-manager/*` | Config manager page | Protected admin route via [src/features/config-manager/ConfigManagerPage.jsx](../src/features/config-manager/ConfigManagerPage.jsx) |
 | `*` | Redirect to `/` | Fallback route |
 
 ## Dashboard nested routes

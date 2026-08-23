@@ -5,7 +5,7 @@ React does not use classic Rails-style `models/views/controllers` trees. This pr
 | MVC role | Location inside a feature |
 |----------|---------------------------|
 | Model | `services/` (shared) or `features/<name>/services/` |
-| View | `features/<name>/pages/` + `components/` |
+| View | `features/<name>/pages/` + `features/<name>/components/` + reusable `components/` |
 | Controller | `features/<name>/hooks/` + `routes/` + thin page containers |
 
 ## Current feature layout
@@ -25,7 +25,7 @@ src/
     auth/pages/Login.jsx
     config-manager/
     doc-finder/
-  components/           # shared View primitives + deprecated re-exports
+  components/           # shared View primitives only
   services/             # shared Model (api, session, supabase)
 ```
 
@@ -38,6 +38,6 @@ src/
 
 ## Migration notes
 
-- `src/pages/*` and some `src/components/ConfigManager|DocFinder` files are thin re-exports.
+- Top-level `src/pages/` and feature-owned top-level component folders are retired.
 - `src/features_old` is retired for routing; see `src/features_old/README.md`.
 - Preferred shared providers entry: `src/core/providers`.

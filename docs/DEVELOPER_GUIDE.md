@@ -11,11 +11,11 @@ This document is the practical developer reference for the current CMS platform 
   - `ModuleProvider`
   - `EditorProvider`
   - `AuthProvider` is mounted inside router (`AppRouter`)
-- Primary router: `src/routes/AppRouter.jsx`
+- Primary router: `src/core/router/AppRouter.jsx`
 
 ## 2) Editor architecture
 
-Main page: `src/pages/EditorPage.jsx`
+Main page: `src/features/editor/pages/EditorPage.jsx`
 
 Key sections:
 
@@ -41,7 +41,7 @@ Key sections:
 Core:
 
 - Context/types: `src/context/ModuleContext.jsx`
-- Runtime renderer: `src/modules/ModuleManager.jsx`
+- Runtime renderer: `src/features/editor/modules/ModuleManager.jsx`
 - Popout UI: `src/components/overlay/PopoutOverlay.jsx`
 
 Supported types:
@@ -60,9 +60,7 @@ openModule('myModule', { anyProp: 'value' });
 
 ## 4) Routing and layouts
 
-Current route host: `src/routes/AppRouter.jsx` (used by `App.jsx`).
-
-`src/routes/AppRoutes.jsx` also exists as a route-map layout variant (`MainLayout`) for future consolidation.
+Current route host: `src/core/router/AppRouter.jsx` (used by `App.jsx`).
 
 If you are adding new pages, keep `AppRouter.jsx` updated first.
 
@@ -104,17 +102,17 @@ Capabilities:
 
 Pages:
 
-- `src/pages/DashboardPage.jsx`
-- `src/pages/AdminDashboard.jsx`
-- `src/pages/ClientDashboard.jsx`
-- `src/pages/ReportsPage.jsx`
+- `src/features/dashboard/pages/DevDashboard.jsx`
+- `src/features/dashboard/pages/AdminDashboard.jsx`
+- `src/features/extras/ClientDashboard.jsx`
+- `src/features/reports/pages/ReportsPage.jsx`
 
 UI modules:
 
 - `src/components/dashboard/*`
-- `src/components/admin/*`
-- `src/components/client/*`
-- `src/components/reports/*`
+- `src/features/extras/components/admin/*`
+- `src/features/extras/components/client/*`
+- `src/features/reports/components/*`
 - `src/components/charts/*`
 
 ## 8) Performance notes

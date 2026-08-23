@@ -1,7 +1,7 @@
 # doc-finder
 
 ## Purpose / ownership
-Doc Finder grids/query/toolbar (canonical). `components/DocFinder` re-exports.
+Doc Finder grids/query/toolbar (canonical). The old `components/DocFinder` facade has been retired.
 
 ## Key files
 - `DocsGrid.jsx`

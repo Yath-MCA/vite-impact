@@ -1,7 +1,7 @@
 # config-manager
 
 ## Purpose / ownership
-Config Manager feature (canonical). `components/ConfigManager` is thin re-export.
+Config Manager feature (canonical). The old `components/ConfigManager` facade has been retired.
 
 ## Key files
 - `ConfigManagerPage.jsx`

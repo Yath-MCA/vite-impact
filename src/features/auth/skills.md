@@ -14,7 +14,7 @@ Use when editing `src/features/auth/`.
 ## Workflows
 1. Edit `pages/Login.jsx` for UI/auth form.
 2. Keep token/user persistence in AuthContext/services.
-3. Do not add new login pages under `src/pages/` (re-export only).
+3. Do not add new login pages under top-level `src/pages/`.
 
 ## Related
 - Parent: [../README.md](../README.md) · [../skills.md](../skills.md)

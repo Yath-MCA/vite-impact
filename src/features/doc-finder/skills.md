@@ -14,7 +14,7 @@ Use when editing `src/features/doc-finder/`.
 ## Workflows
 1. Edit components here.
 2. Import from `features/doc-finder` in dashboard.
-3. Keep components/DocFinder as re-export only.
+3. Import Doc Finder code from `src/features/doc-finder`.
 
 ## Related
 - Parent: [../README.md](../README.md) · [../skills.md](../skills.md)

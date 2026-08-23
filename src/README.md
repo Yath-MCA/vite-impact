@@ -6,7 +6,7 @@ Skills/workflows index: [docs/SKILLS_AND_WORKFLOWS.md](../docs/SKILLS_AND_WORKFL
 | Path | Role | Docs |
 |------|------|------|
 | `core/` | App shell — router, layout, providers facade | [README](./core/README.md) |
-| `features/` | Product modules — `pages/`, `hooks/`, `routes/`, local context | [README](./features/README.md) |
+| `features/` | Product modules — pages, local components, hooks, routes, context | [README](./features/README.md) |
 | `shared/` | Common providers, hooks, utilities, constants, and plugin wrappers | [README](./shared/README.md) |
 | `components/` | Shared View kit | [README](./components/README.md) |
 | `services/` | Shared Model — API, session, editor init, supabase | [README](./services/README.md) |
@@ -15,6 +15,6 @@ Skills/workflows index: [docs/SKILLS_AND_WORKFLOWS.md](../docs/SKILLS_AND_WORKFL
 | `config/` | Theme, landing meta, permissions | [README](./config/README.md) |
 | `styles/` | Cross-cutting styles | see [SKILLS_AND_WORKFLOWS](../docs/SKILLS_AND_WORKFLOWS.md) |
 
-**Rule:** New domain UI goes under `features/<name>/`, not a new top-level domain folder under `components/`.
+**Rule:** New pages/workflows go under `features/<name>/`; reusable UI/helpers/providers/hooks go under `shared/`; app shell composition stays under `core/`.
 
 **Structure debt (docs-first; refactor later):** `features/extras` quarantine, layout dedupe, and deprecated component re-export facades.

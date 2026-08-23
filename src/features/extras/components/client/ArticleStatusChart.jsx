@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import BarChart from '../charts/BarChart';
+import BarChart from '../../../../components/charts/BarChart';
 
 function ArticleStatusChart({ data }) {
   return (

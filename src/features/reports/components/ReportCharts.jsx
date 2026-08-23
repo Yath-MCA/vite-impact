@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import AreaChart from '../charts/AreaChart';
-import BarChart from '../charts/BarChart';
+import AreaChart from '../../../components/charts/AreaChart';
+import BarChart from '../../../components/charts/BarChart';
 
 function ReportCharts({ processingData, activityData }) {
   return (

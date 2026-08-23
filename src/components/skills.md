@@ -12,7 +12,7 @@ Use when editing or adding shared UI under `src/components/`.
 ## Do not
 
 - Put new route pages or session orchestration here.
-- Implement new ConfigManager / DocFinder logic under the re-export folders.
+- Implement feature-specific logic here instead of in `src/features/<name>/`.
 - Duplicate layouts that already exist under `core/layout` without consolidating.
 
 ## Workflow: add a shared component
@@ -26,9 +26,8 @@ Use when editing or adding shared UI under `src/components/`.
 ## Workflow: promote UI to a feature
 
 1. Move ownership to `src/features/<name>/`.
-2. Leave a thin re-export under `components/` only if old imports must stay.
-3. Update router / dashboard imports to the feature path.
-4. Mark status `thin re-export` in README.
+2. Update router / dashboard imports to the feature path.
+3. Remove obsolete top-level component ownership notes.
 
 ## Related
 

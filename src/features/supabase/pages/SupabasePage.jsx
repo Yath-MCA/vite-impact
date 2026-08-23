@@ -5,10 +5,10 @@
  */
 
 import React, { useState } from 'react';
-import SupabaseAuth from '../components/supabase/SupabaseAuth';
-import FileDashboard from '../components/supabase/FileDashboard';
-import ContentMetadataRpc from '../components/supabase/ContentMetadataRpc';
-import DocumentSearch from '../components/supabase/DocumentSearch';
+import SupabaseAuth from '../../../components/supabase/SupabaseAuth';
+import FileDashboard from '../../../components/supabase/FileDashboard';
+import ContentMetadataRpc from '../../../components/supabase/ContentMetadataRpc';
+import DocumentSearch from '../../../components/supabase/DocumentSearch';
 
 const TABS = [
   { id: 'auth', label: '🔐 Auth' },

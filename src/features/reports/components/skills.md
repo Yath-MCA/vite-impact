@@ -1,6 +1,6 @@
 # reports skills
 
-Use when editing `src/components/reports/` (or related imports).
+Use when editing `src/features/reports/components/` (or related imports).
 
 ## Do
 - Keep changes scoped to this folder's responsibility.
@@ -17,5 +17,6 @@ Use when editing `src/components/reports/` (or related imports).
 3. Do not confuse with feature report screens.
 
 ## Related
-- Parent: [../README.md](../README.md) · [../skills.md](../skills.md)
-- Index: [docs/SKILLS_AND_WORKFLOWS.md](../../../docs/SKILLS_AND_WORKFLOWS.md)
+- Folder: [README.md](./README.md)
+- Feature: [reports](../README.md) · [skills](../skills.md)
+- Index: [docs/SKILLS_AND_WORKFLOWS.md](../../../../docs/SKILLS_AND_WORKFLOWS.md)

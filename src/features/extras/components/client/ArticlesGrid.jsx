@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import AgGridWrapper from '../grid/AgGridWrapper';
+import AgGridWrapper from '../../../../components/grid/AgGridWrapper';
 
 function ArticlesGrid({ rowData }) {
   const columnDefs = useMemo(() => [
