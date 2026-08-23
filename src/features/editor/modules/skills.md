@@ -1,6 +1,6 @@
 # Modules skills
 
-Use when working on overlay modules, ModuleManager/Registry, or activity/history/reports screens under `src/modules/`.
+Use when working on the editor overlay module host under `src/features/editor/modules/`.
 
 ## Do
 
@@ -11,12 +11,12 @@ Use when working on overlay modules, ModuleManager/Registry, or activity/history
 ## Do not
 
 - Bypass the registry with one-off global window modules unless matching legacy bridge contracts.
-- Confuse these with `src/features/` route modules — `modules/` here means overlay/CMS modules.
-- Add new product routes under `modules/` without also wiring `features/*/routes` if the screen becomes a nav destination.
+- Confuse these with routed feature screens under `src/features/`.
+- Add new product route screens here.
 
 ## Workflow: register an overlay module
 
-1. Implement the screen under `src/modules/<area>/`.
+1. Keep the editor module host and registry here.
 2. Register with ModuleRegistry (id, component, title/type metadata).
 3. Ensure ModuleManager can mount it from the editor shell / ModuleContext.
 4. Smoke-test open/close and any required permissions.

@@ -8,7 +8,7 @@ import Navbar1 from '../../../components/editor/Navbar1';
 import Navbar2 from '../../../components/editor/Navbar2';
 import SharedMiddleColumn from '../../../components/editor/SharedMiddleColumn';
 import EditorFooter from '../../../components/editor/EditorFooter';
-import ModuleManager from '../../../modules/ModuleManager';
+import ModuleManager from '../modules/ModuleManager';
 import { registerEditorAlertBridge } from '../messages/registerEditorAlertBridge.js';
 import {
   claimValidateTab,

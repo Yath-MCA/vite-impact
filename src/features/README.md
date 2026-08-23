@@ -10,10 +10,13 @@ Product modules (feature-MVC). Gold standard: `dashboard/` (`pages`, `layout`, `
 - `auth/`
 - `config-manager/`
 - `doc-finder/`
+- `activity/`
+- `history/`
+- `reports/`
 - `extras/ (quarantine)`
 
 ## Dependencies
-Consumes `services/`, shared `components/`, and `core/router`. Overlay screens still mainly in `modules/`.
+Consumes `services/`, shared `components/`, and `core/router`.
 
 ## Status
 **active (partial migration complete)**

@@ -9,7 +9,7 @@ Barrel/facade that re-exports overlay + module-registry + error-tracker pieces f
 | Path | Role |
 |------|------|
 | `src/components/overlay/` | Presentational popout overlay UI (`PopoutOverlay.jsx`) |
-| `src/modules/` | ModuleManager / ModuleRegistry + activity/history/reports screens |
+| `src/features/editor/modules/` | ModuleManager / ModuleRegistry |
 | `src/context/ModuleContext.jsx` | Editor module host used by `features/editor` |
 
 ## Key files
@@ -18,7 +18,7 @@ Barrel/facade that re-exports overlay + module-registry + error-tracker pieces f
 
 ## Dependencies
 
-Intended consumers import providers/UI that live under `../overlay`, `../modules/ModuleRegistry`, `../error/*`. Some of those targets may still be incomplete/empty (see `src/error` placeholder status). Prefer confirming paths before expanding this facade.
+Intended consumers import providers/UI that live under `../overlay`, `../features/editor/modules/ModuleRegistry`, `../error/*`. Some of those targets may still be incomplete/empty (see `src/error` placeholder status). Prefer confirming paths before expanding this facade.
 
 ## Status
 

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { useModule, MODULE_TYPES } from '../context/ModuleContext';
+import { useModule, MODULE_TYPES } from '../../../context/ModuleContext';
 import { X, Maximize2, Minimize2 } from 'lucide-react';
-import PopoutOverlay from '../components/overlay/PopoutOverlay';
+import PopoutOverlay from '../../../components/overlay/PopoutOverlay';
 
 export default function ModuleManager() {
   const {

@@ -1,6 +1,6 @@
 # history skills
 
-Use when editing `src/modules/history/`.
+Use when editing `src/features/history/`.
 
 ## Do
 - Keep screens focused; reuse `src/components` widgets.

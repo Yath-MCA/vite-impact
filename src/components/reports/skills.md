@@ -12,9 +12,9 @@ Use when editing `src/components/reports/` (or related imports).
 - Introduce new session/API orchestration — use `src/services/`.
 
 ## Workflows
-1. Prefer shared widgets here; full report pages in modules (for now).
+1. Prefer shared widgets here; full report pages live in `features/reports`.
 2. When migrating, move pages to features/reports and keep widgets shared.
-3. Do not confuse with modules/reports screens.
+3. Do not confuse with feature report screens.
 
 ## Related
 - Parent: [../README.md](../README.md) · [../skills.md](../skills.md)

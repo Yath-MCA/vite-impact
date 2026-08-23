@@ -5,7 +5,7 @@ Use when changing the overlay-system barrel or deciding which overlay API to use
 ## Do
 
 - Keep `index.js` as a thin re-export surface.
-- Prefer `modules/` + `ModuleContext` for editor overlay modules.
+- Prefer `features/editor/modules` + `ModuleContext` for editor overlay modules.
 - Prefer `components/overlay` for simple popout chrome.
 - Document which export maps to which underlying file.
 
@@ -24,6 +24,6 @@ Use when changing the overlay-system barrel or deciding which overlay API to use
 ## Related
 
 - [README.md](./README.md)
-- [../modules/README.md](../modules/README.md)
+- [../features/editor/modules/README.md](../features/editor/modules/README.md)
 - [../components/overlay/README.md](../components/overlay/README.md)
 - Index: [docs/SKILLS_AND_WORKFLOWS.md](../../docs/SKILLS_AND_WORKFLOWS.md)

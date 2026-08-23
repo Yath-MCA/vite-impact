@@ -2,7 +2,7 @@
 
 // Contexts
 export { OverlayProvider, useOverlay, OVERLAY_TYPES } from '../overlay/OverlayProvider';
-export { ModuleRegistryProvider, useModuleRegistry, FOOTER_TYPES } from '../modules/ModuleRegistry';
+export { ModuleRegistryProvider, useModuleRegistry, FOOTER_TYPES } from '../features/editor/modules/ModuleRegistry';
 export { ErrorTrackerProvider, useErrorTracker } from '../error/ErrorTrackerProvider';
 
 // Components

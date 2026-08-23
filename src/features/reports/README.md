@@ -11,7 +11,7 @@ Report module screens (XML failure, compare, corrections, package/save failures)
 - `SaveFailureItems.jsx`
 
 ## Dependencies
-May use components/reports widgets and services/API; future `features/reports`.
+May use components/reports widgets and services/API.
 
 ## Status
 **active · migrate-to-feature later**

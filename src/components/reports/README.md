@@ -1,7 +1,7 @@
 # reports
 
 ## Purpose / ownership
-Shared report UI building blocks (filters, charts, grid). Screen-level reports also exist under `src/modules/reports`.
+Shared report UI building blocks (filters, charts, grid). Screen-level reports live under `src/features/reports`.
 
 ## Key files
 - `ReportFilters.jsx`
