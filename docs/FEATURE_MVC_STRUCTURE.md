@@ -18,13 +18,17 @@ src/
       pages/            # ValidateUrlPage (controller+routing), LandingUI (view)
       hooks/            # useLandingSessionFlow
       routes/
-    dashboard/          # reference module (pages, layout, routes, context)
+    dashboard/          # reference module plus dashboard-owned workflows
+      activity/
+      config-manager/
+      doc-finder/
+      reports/
     editor/
       pages/EditorPage.jsx
+      components/
+      history/
       routes/
     auth/pages/Login.jsx
-    config-manager/
-    doc-finder/
   components/           # shared View primitives only
   services/             # shared Model (api, session, supabase)
 ```
@@ -34,7 +38,7 @@ src/
 - `/` and `/validateurl`, `/validateurl/:client` → landing feature
 - `/editor` → `features/editor` (not `features_old`)
 - `/login` → `features/auth`
-- `/config-manager/*` → `features/config-manager`
+- `/config-manager/*` → `features/dashboard/config-manager`
 
 ## Migration notes
 

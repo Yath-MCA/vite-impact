@@ -1,10 +1,16 @@
 # dashboard
 
 ## Purpose / ownership
-Canonical feature module: dashboard pages, layout, context, routes, menu config.
+Canonical feature module: dashboard pages, layout, context, routes, menu config, dashboard widgets, grid wrapper, and dashboard-related workflows.
 
 ## Key files
 - `pages/`
+- `components/`
+- `components/grid/`
+- `activity/`
+- `config-manager/`
+- `doc-finder/`
+- `reports/`
 - `layout/`
 - `context/`
 - `routes/dashboardRoutes.jsx`
@@ -13,7 +19,7 @@ Canonical feature module: dashboard pages, layout, context, routes, menu config.
 - `utils/`
 
 ## Dependencies
-DocFinder/ConfigManager features; Auth; menu permissions utils.
+Auth, menu permissions utils, shared charts/layout, services/API.
 
 ## Status
 **active · gold standard**

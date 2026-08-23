@@ -23,7 +23,7 @@ This document summarizes the main application routes and the pages or components
 | `/validateurl/:client` | Landing page with client param | Same component as `/` |
 | `/editor` | Editor page | Loads [src/features/editor/pages/EditorPage.jsx](../src/features/editor/pages/EditorPage.jsx) |
 | `/editor-readyonly` | Editor page in read-only mode | Same editor page with `readOnly` enabled |
-| `/config-manager/*` | Config manager page | Protected admin route via [src/features/config-manager/ConfigManagerPage.jsx](../src/features/config-manager/ConfigManagerPage.jsx) |
+| `/config-manager/*` | Config manager page | Protected admin route via [src/features/dashboard/config-manager/ConfigManagerPage.jsx](../src/features/dashboard/config-manager/ConfigManagerPage.jsx) |
 | `*` | Redirect to `/` | Fallback route |
 
 ## Dashboard nested routes

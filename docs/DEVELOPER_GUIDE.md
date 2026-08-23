@@ -88,7 +88,7 @@ const { can, canAccess } = usePermissions({ userRole, clientId });
 
 ## 6) Grid system
 
-Reusable wrapper: `src/components/grid/AgGridWrapper.jsx`
+Reusable wrapper: `src/features/dashboard/components/grid/AgGridWrapper.jsx`
 
 Capabilities:
 
@@ -105,14 +105,14 @@ Pages:
 - `src/features/dashboard/pages/DevDashboard.jsx`
 - `src/features/dashboard/pages/AdminDashboard.jsx`
 - `src/features/extras/ClientDashboard.jsx`
-- `src/features/reports/pages/ReportsPage.jsx`
+- `src/features/dashboard/reports/pages/ReportsPage.jsx`
 
 UI modules:
 
-- `src/components/dashboard/*`
+- `src/features/dashboard/components/*`
 - `src/features/extras/components/admin/*`
 - `src/features/extras/components/client/*`
-- `src/features/reports/components/*`
+- `src/features/dashboard/reports/components/*`
 - `src/components/charts/*`
 
 ## 8) Performance notes

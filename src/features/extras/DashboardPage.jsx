@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
-import ActivityChart from '../components/dashboard/ActivityChart';
-import Notifications from '../components/dashboard/Notifications';
-import QueryChart from '../components/dashboard/QueryChart';
-import RecentDocumentsGrid from '../components/dashboard/RecentDocumentsGrid';
-import StatsCards from '../components/dashboard/StatsCards';
+import ActivityChart from '../dashboard/components/ActivityChart';
+import Notifications from '../dashboard/components/Notifications';
+import QueryChart from '../dashboard/components/QueryChart';
+import RecentDocumentsGrid from '../dashboard/components/RecentDocumentsGrid';
+import StatsCards from '../dashboard/components/StatsCards';
 import DashboardTopBar from '../components/layout/DashboardTopBar';
 import DashboardHeader from '../components/common/DashboardHeader';
 import ResultTable from '../components/common/ResultTable';

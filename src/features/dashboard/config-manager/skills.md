@@ -1,6 +1,6 @@
-# editor skills
+# config-manager skills
 
-Use when editing `src/features/editor/`.
+Use when editing `src/features/dashboard/config-manager/`.
 
 ## Do
 - Keep changes in this folder's responsibility.
@@ -12,11 +12,10 @@ Use when editing `src/features/editor/`.
 - Break stable routes (`/validateurl`, `/editor`, `/login`, `/config-manager`).
 
 ## Workflows
-1. Page shell/providers wiring in this feature.
-2. Toolbar/panel UI in `features/editor/components`.
-3. Session keys from `services/session` / StorageService.
-4. Route `/editor` must stay on this feature (not `features_old`).
+1. Edit files here.
+2. Keep `/config-manager/*` admin-gated.
+3. Import Config Manager code from `src/features/dashboard/config-manager`.
 
 ## Related
 - Parent: [../README.md](../README.md) · [../skills.md](../skills.md)
-- Index: [docs/SKILLS_AND_WORKFLOWS.md](../../../docs/SKILLS_AND_WORKFLOWS.md)
+- Index: [docs/SKILLS_AND_WORKFLOWS.md](../../../../docs/SKILLS_AND_WORKFLOWS.md)

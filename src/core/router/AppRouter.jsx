@@ -91,7 +91,7 @@ const router = createBrowserRouter([
   {
     path: '/config-manager/*',
     lazy: async () => {
-      const { default: ConfigManagerPage } = await import('../../features/config-manager/ConfigManagerPage');
+      const { default: ConfigManagerPage } = await import('../../features/dashboard/config-manager/ConfigManagerPage');
       return {
         Component: () => (
           <ProtectedRoute requireAdmin>

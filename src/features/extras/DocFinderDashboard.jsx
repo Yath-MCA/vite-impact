@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import QueryBuilder from '../doc-finder/QueryBuilder';
-import DocsGrid from '../doc-finder/DocsGrid';
-import FetchToolbar from '../doc-finder/FetchToolbar';
+import QueryBuilder from '../dashboard/doc-finder/QueryBuilder';
+import DocsGrid from '../dashboard/doc-finder/DocsGrid';
+import FetchToolbar from '../dashboard/doc-finder/FetchToolbar';
 import { fetchDocs } from '../../services/docsApi';
 import { useQuery } from '@tanstack/react-query';
 import AppLayout from '../../components/layout/AppLayout';

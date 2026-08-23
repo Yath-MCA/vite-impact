@@ -4,10 +4,10 @@ import { Image as ImageIcon } from 'lucide-react';
 import { useEditor } from '../../../context/EditorContext';
 import { useLayout } from '../../../context/LayoutContext';
 import { MODULE_TYPES, useModule } from '../../../context/ModuleContext';
-import Navbar1 from '../../../components/editor/Navbar1';
-import Navbar2 from '../../../components/editor/Navbar2';
-import SharedMiddleColumn from '../../../components/editor/SharedMiddleColumn';
-import EditorFooter from '../../../components/editor/EditorFooter';
+import Navbar1 from '../components/Navbar1';
+import Navbar2 from '../components/Navbar2';
+import SharedMiddleColumn from '../components/SharedMiddleColumn';
+import EditorFooter from '../components/EditorFooter';
 import ModuleManager from '../modules/ModuleManager';
 import { registerEditorAlertBridge } from '../messages/registerEditorAlertBridge.js';
 import {
@@ -20,9 +20,9 @@ import { SESSION_STORAGE_KEYS } from '../../../services/session/sessionConstants
 import { getValidateAccessKey } from '../../../services/session/sessionStorage.js';
 import { showEditorMessage, EditorMessageKey } from '../messages/editorMessages.js';
 
-const NavigationPanel = lazy(() => import('../../../components/editor/NavigationPanel'));
-const ThumbnailPanel = lazy(() => import('../../../components/editor/ThumbnailPanel'));
-const PdfPreview = lazy(() => import('../../../components/editor/PdfPreview'));
+const NavigationPanel = lazy(() => import('../components/NavigationPanel'));
+const ThumbnailPanel = lazy(() => import('../components/ThumbnailPanel'));
+const PdfPreview = lazy(() => import('../components/PdfPreview'));
 
 function PanelLoader() {
   return <div className="h-full w-full animate-pulse bg-gray-100" />;

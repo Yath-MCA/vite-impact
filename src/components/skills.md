@@ -6,14 +6,14 @@ Use when editing or adding shared UI under `src/components/`.
 
 - Keep components presentational; call into `services/` or feature hooks for data.
 - Add `README.md` + `skills.md` when creating a **new** subfolder; update [docs/SKILLS_AND_WORKFLOWS.md](../../docs/SKILLS_AND_WORKFLOWS.md).
-- Reuse `charts/`, `grid/`, `layout/`, `loading/` before inventing parallel widgets.
-- For editor chrome, edit `components/editor/*` and wire from `features/editor/pages`.
+- Reuse `charts/`, `layout/`, `loading/` before inventing parallel widgets.
+- Keep editor chrome in `features/editor/components/`.
 
 ## Do not
 
 - Put new route pages or session orchestration here.
 - Implement feature-specific logic here instead of in `src/features/<name>/`.
-- Duplicate layouts that already exist under `core/layout` without consolidating.
+- Put dashboard/editor-owned widgets here instead of their feature folders.
 
 ## Workflow: add a shared component
 

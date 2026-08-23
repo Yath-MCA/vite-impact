@@ -8,11 +8,11 @@ Product modules (feature-MVC). Gold standard: `dashboard/` (`pages`, `layout`, `
 - `landing/`
 - `editor/`
 - `auth/`
-- `config-manager/`
-- `doc-finder/`
-- `activity/`
-- `history/`
-- `reports/`
+- `dashboard/activity/`
+- `dashboard/config-manager/`
+- `dashboard/doc-finder/`
+- `dashboard/reports/`
+- `editor/history/`
 - `extras/ (quarantine)`
 
 ## Dependencies

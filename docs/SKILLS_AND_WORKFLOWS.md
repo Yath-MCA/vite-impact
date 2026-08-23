@@ -19,8 +19,11 @@ Project docs that teach humans and Cursor agents how folders relate (feature-MVC
 | `landing` | [README](../src/features/landing/README.md) · [skills](../src/features/landing/skills.md) |
 | `editor` | [README](../src/features/editor/README.md) · [skills](../src/features/editor/skills.md) |
 | `dashboard` | [README](../src/features/dashboard/README.md) · [skills](../src/features/dashboard/skills.md) |
-| `config-manager` | [README](../src/features/config-manager/README.md) · [skills](../src/features/config-manager/skills.md) |
-| `doc-finder` | [README](../src/features/doc-finder/README.md) · [skills](../src/features/doc-finder/skills.md) |
+| `dashboard/activity` | [README](../src/features/dashboard/activity/README.md) · [skills](../src/features/dashboard/activity/skills.md) |
+| `dashboard/config-manager` | [README](../src/features/dashboard/config-manager/README.md) · [skills](../src/features/dashboard/config-manager/skills.md) |
+| `dashboard/doc-finder` | [README](../src/features/dashboard/doc-finder/README.md) · [skills](../src/features/dashboard/doc-finder/skills.md) |
+| `dashboard/reports` | [README](../src/features/dashboard/reports/README.md) · [skills](../src/features/dashboard/reports/skills.md) |
+| `editor/history` | [README](../src/features/editor/history/README.md) · [skills](../src/features/editor/history/skills.md) |
 | `extras` | [README](../src/features/extras/README.md) · [skills](../src/features/extras/skills.md) (quarantine) |
 
 ## Services
@@ -44,9 +47,6 @@ Project docs that teach humans and Cursor agents how folders relate (feature-MVC
 | `alerts` | [README](../src/components/alerts/README.md) · [skills](../src/components/alerts/skills.md) |
 | `charts` | [README](../src/components/charts/README.md) · [skills](../src/components/charts/skills.md) |
 | `common` | [README](../src/components/common/README.md) · [skills](../src/components/common/skills.md) |
-| `dashboard` | [README](../src/components/dashboard/README.md) · [skills](../src/components/dashboard/skills.md) |
-| `editor` | [README](../src/components/editor/README.md) · [skills](../src/components/editor/skills.md) |
-| `grid` | [README](../src/components/grid/README.md) · [skills](../src/components/grid/skills.md) |
 | `layout` | [README](../src/components/layout/README.md) · [skills](../src/components/layout/skills.md) |
 | `loading` | [README](../src/components/loading/README.md) · [skills](../src/components/loading/skills.md) |
 | `ollama` | [README](../src/components/ollama/README.md) · [skills](../src/components/ollama/skills.md) |
@@ -60,7 +60,10 @@ Project docs that teach humans and Cursor agents how folders relate (feature-MVC
 |------|------|
 | `features/extras/components/admin` | [README](../src/features/extras/components/admin/README.md) · [skills](../src/features/extras/components/admin/skills.md) |
 | `features/extras/components/client` | [README](../src/features/extras/components/client/README.md) · [skills](../src/features/extras/components/client/skills.md) |
-| `features/reports/components` | [README](../src/features/reports/components/README.md) · [skills](../src/features/reports/components/skills.md) |
+| `features/dashboard/components` | [README](../src/features/dashboard/components/README.md) · [skills](../src/features/dashboard/components/skills.md) |
+| `features/dashboard/components/grid` | [README](../src/features/dashboard/components/grid/README.md) · [skills](../src/features/dashboard/components/grid/skills.md) |
+| `features/dashboard/reports/components` | [README](../src/features/dashboard/reports/components/README.md) · [skills](../src/features/dashboard/reports/components/skills.md) |
+| `features/editor/components` | [README](../src/features/editor/components/README.md) · [skills](../src/features/editor/components/skills.md) |
 
 ## Overlay / core / context
 
@@ -82,7 +85,6 @@ Project docs that teach humans and Cursor agents how folders relate (feature-MVC
 | `error` | [README](../src/error/README.md) · [skills](../src/error/skills.md) (empty placeholder — overlay-system re-exports may expect files) |
 | `events` | [README](../src/events/README.md) · [skills](../src/events/skills.md) |
 | `legacy` | [README](../src/legacy/README.md) · [skills](../src/legacy/skills.md) |
-| `grid` (top-level) | [README](../src/grid/README.md) · [skills](../src/grid/skills.md) (prefer `components/grid`) |
 
 ## Generators
 
