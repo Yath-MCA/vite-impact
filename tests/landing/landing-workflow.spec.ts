@@ -17,9 +17,17 @@ import {
 
 test.describe('ValidateUrl and landing workflows', () => {
   test('marketing landing renders at root', async ({ page }) => {
+    const clientLogoHits: string[] = [];
+    page.on('request', (request) => {
+      if (request.url().includes('/assets/logo/clients/')) {
+        clientLogoHits.push(request.url());
+      }
+    });
+
     await page.goto('/');
     await expect(page.getByRole('heading', { name: /modern review and approval/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /login/i }).first()).toBeVisible();
+    expect(clientLogoHits, 'marketing / must not fetch client logos').toEqual([]);
   });
 
   test('validateurl without key shows validation error', async ({ page }) => {
@@ -39,6 +47,30 @@ test.describe('ValidateUrl and landing workflows', () => {
 
     await expect(page.getByText('E2E Test Article')).toBeVisible();
     await landingPage.assertAgreeVisible();
+  });
+
+  test('oup proof loads only oup logos, not other client marks', async ({ landingPage, page }) => {
+    const clientLogoHits: string[] = [];
+    page.on('request', (request) => {
+      if (request.url().includes('/assets/logo/clients/')) {
+        clientLogoHits.push(request.url());
+      }
+    });
+
+    await mockUrlValiditySuccess(page, { client: 'oup', status: 'active', dtd: 'jats' });
+    await landingPage.gotoValidateUrl(TEST_VALIDATE_KEY);
+    await landingPage.waitForLandingPanel();
+
+    const headerLogo = page.locator('nav img').first();
+    await expect(headerLogo).toHaveAttribute('src', /OUP_WHITE\.svg/);
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', /OUP_FAVICON\.svg/);
+
+    const joined = clientLogoHits.join('\n');
+    expect(joined).toMatch(/OUP_WHITE\.svg/);
+    expect(joined).not.toMatch(/LWW_/);
+    expect(joined).not.toMatch(/PLOS_/);
+    expect(joined).not.toMatch(/tfgroup/);
+    expect(joined).not.toMatch(/ACS_/);
   });
 
   test('idle_session_log_out alert shows session ended dialog then validates', async ({

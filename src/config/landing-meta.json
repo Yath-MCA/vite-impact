@@ -147,6 +147,21 @@
             "favicon": {
                 "name": "TNF_FAVICON.svg",
                 "alt": "Taylor & Francis Favicon"
+            },
+            "journal-header-logo": {
+                "name": "TNF_JORUNAL.svg",
+                "alt": "Taylor & Francis Journals Logo",
+                "width": "150px",
+                "height": "40"
+            },
+            "journal-footer-logo": {
+                "name": "TNF_JORUNAL.svg",
+                "alt": "Taylor & Francis Journals Logo",
+                "height": "50"
+            },
+            "journal-favicon": {
+                "name": "TNFJOURNALS_FAVICON.svg",
+                "alt": "Taylor & Francis Journals Favicon"
             }
         },
         "acs": {
@@ -186,79 +201,108 @@
             }
         }
     },
-    "sections": {
-        "header-title": [
-            {
-                "name": "default",
-                "header-title": ""
+    "copy": {
+        "common": {
+            "disclaimer": "The proofs provided are intended solely for checking purposes and should not be regarded as the final publication format, nor should they be utilized for any other reason. It is crucial that they are not posted on personal or institutional websites or printed and distributed. Until the final version has been published and citation details are obtainable, no excerpts or the entire article in its entirety should be included in any other publications.",
+            "thirdPartyPlugins": {
+                "title": "Third Party Plug-Ins:",
+                "text": "Using any third-party plug-in to translate the content or make any changes in the editor is not recommended as it might affect the content quality and the underlying metadata, which will delay publication.",
+                "chineseLabel": "Chinese Version:",
+                "chineseText": "请不要使用任何第三方插件翻译或者修改编辑器中的内容，因为这样可能会影响内容质量和底层元数据，从而导致发表延迟。"
             }
-        ],
-        "instructions": [
-            {
-                "content": "Log in to IMPACT in a single browser window at a time (but if you would like your co-authors to review the article as well, please share it with them by selecting the sharing option in IMPACT).",
-                "allowedclient": ["medknow", "plos"]
+        },
+        "clients": {
+            "default": {
+                "welcome": "",
+                "title": "Instructions",
+                "instructions": [
+                    "Take a thorough look at your proof and make any necessary modifications directly within the reports or article.",
+                    "It should be noted that the images in IMPACT have a low resolution to enhance the performance of the tool.",
+                    "Once you have reviewed the entire report and resolved all author queries, submit the article.",
+                    "An email will be sent to you with a copy of the proof containing your tracked changes for your own records."
+                ],
+                "notes": [],
+                "supportEmail": "impact.helpdesk@newgen.co"
             },
-            {
-                "content": "Review your proof carefully, making any necessary amendments directly into the article.",
-                "allowedclient": ["medknow", "plos"]
+            "oup": {
+                "welcome": "",
+                "title": "Instructions",
+                "instructions": [""],
+                "notes": [],
+                "supportEmail": ""
             },
-            {
-                "content": "Save your changes if you want to pause reviewing and use the logout option before closing the browser window. You may log in again later to resume reviewing using your log-in link.",
-                "allowedclient": ["medknow", "plos"]
+            "lww": {
+                "welcome": "",
+                "title": "Instructions",
+                "instructions": [""],
+                "notes": [""],
+                "supportEmail": ""
             },
-            {
-                "content": "Only finish your review in IMPACT when you are sure you have no additional changes to add as the review will be closed and not be accessible after reviewing has been completed.",
-                "allowedclient": ["medknow", "plos"]
+            "medknow": {
+                "welcome": "",
+                "title": "Instructions",
+                "instructions": [
+                    "Log in to IMPACT in a single browser window at a time (but if you would like your co-authors to review the article as well, please share it with them by selecting the sharing option in IMPACT).",
+                    "Review your proof carefully, making any necessary amendments directly into the article.",
+                    "Save your changes if you want to pause reviewing and use the logout option before closing the browser window. You may log in again later to resume reviewing using your log-in link.",
+                    "Only finish your review in IMPACT when you are sure you have no additional changes to add as the review will be closed and not be accessible after reviewing has been completed.",
+                    "Note that the images in IMPACT are low resolution to optimize the performance of the tool.",
+                    "Submit the article when you have reviewed the entire article and resolved all author queries.",
+                    "You will receive a copy of the proof with your changes tracked via email for your own records."
+                ],
+                "notes": [],
+                "supportEmail": ""
             },
-            {
-                "content": "Note that the images in IMPACT are low resolution to optimize the performance of the tool.",
-                "allowedclient": ["medknow", "plos"]
+            "plos": {
+                "welcome": "",
+                "title": "Instructions",
+                "instructions": [
+                    "Log in to IMPACT in a single browser window at a time (but if you would like your co-authors to review the article as well, please share it with them by selecting the sharing option in IMPACT).",
+                    "Review your proof carefully, making any necessary amendments directly into the article.",
+                    "Save your changes if you want to pause reviewing and use the logout option before closing the browser window. You may log in again later to resume reviewing using your log-in link.",
+                    "Only finish your review in IMPACT when you are sure you have no additional changes to add as the review will be closed and not be accessible after reviewing has been completed.",
+                    "Note that the images in IMPACT are low resolution to optimize the performance of the tool.",
+                    "Submit the article when you have reviewed the entire article and resolved all author queries.",
+                    "You will receive a copy of the proof with your changes tracked via email for your own records."
+                ],
+                "notes": [],
+                "supportEmail": ""
             },
-            {
-                "content": "Submit the article when you have reviewed the entire article and resolved all author queries.",
-                "allowedclient": ["medknow", "plos"]
+            "nihr": {
+                "welcome": "",
+                "title": "Instructions",
+                "instructions": [""],
+                "notes": [],
+                "supportEmail": ""
             },
-            {
-                "content": "You will receive a copy of the proof with your changes tracked via email for your own records.",
-                "allowedclient": ["medknow", "plos"]
+            "brill": {
+                "welcome": "",
+                "title": "Instructions",
+                "instructions": [""],
+                "notes": [],
+                "supportEmail": ""
             },
-            {
-                "content": "Take a thorough look at your proof and make any necessary modifications directly within the reports or article.",
-                "allowedclient": ["default"]
+            "tnf": {
+                "welcome": "",
+                "title": "Instructions",
+                "instructions": [""],
+                "notes": [],
+                "supportEmail": ""
             },
-            {
-                "content": "It should be noted that the images in IMPACT have a low resolution to enhance the performance of the tool.",
-                "allowedclient": ["default"]
+            "acs": {
+                "welcome": "",
+                "title": "Instructions",
+                "instructions": [""],
+                "notes": [],
+                "supportEmail": ""
             },
-            {
-                "content": "Once you have reviewed the entire report and resolved all author queries, submit the article.",
-                "allowedclient": ["default"]
-            },
-            {
-                "content": "An email will be sent to you with a copy of the proof containing your tracked changes for your own records.",
-                "allowedclient": ["default"]
+            "oho": {
+                "welcome": "",
+                "title": "Instructions",
+                "instructions": [""],
+                "notes": [],
+                "supportEmail": ""
             }
-        ],
-        "disclaimer": [
-            {
-                "content": "These proofs are for checking purposes only. They should not be considered as final publication format and must not be used for any other purpose. Please do not post them on your personal/institutional website, and do not print and distribute copies. Neither excerpts nor the whole article in its entirety should be included in other publications until the final version has been published and citation details are available.",
-                "allowedclient": ["medknow", "plos"]
-            },
-            {
-                "content": "The proofs provided are intended solely for checking purposes and should not be regarded as the final publication format, nor should they be utilized for any other reason. It is crucial that they are not posted on personal or institutional websites or printed and distributed. Until the final version has been published and citation details are obtainable, no excerpts or the entire article in its entirety should be included in any other publications.",
-                "allowedclient": ["default"]
-            }
-        ],
-        "thirdPartyPlugins": [
-            {
-                "content": {
-                    "title": "Third Party Plug-Ins:",
-                    "text": "Using any third-party plug-in to translate the content or make any changes in the editor is not recommended as it might affect the content quality and the underlying metadata, which will delay publication.",
-                    "chineseLabel": "Chinese Version:",
-                    "chineseText": "请不要使用任何第三方插件翻译或者修改编辑器中的内容，因为这样可能会影响内容质量和底层元数据，从而导致发表延迟。"
-                },
-                "allowedclient": ["medknow", "plos", "default"]
-            }
-        ]
+        }
     }
 }

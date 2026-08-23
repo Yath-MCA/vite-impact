@@ -13,7 +13,7 @@ Use when editing `src/features/landing/`.
 
 ## Workflows
 1. Validation/orchestration → ValidateUrlPage + hook (maintenance, link status, token OTP).
-2. Presentation/CTA → LandingUI.
+2. Presentation/CTA → LandingUI (logos via landingLogos from urlvalidity client/dtd).
 3. Session handshake only via `services/session` (DB-error vs conflict classification, landing retry).
 4. Keep email link URLs stable.
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback, lazy, Suspense } from 'react';
 import { Link, useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowRight,
@@ -42,7 +42,7 @@ import {
   LandingMessageKey,
   showLandingMessage
 } from '../messages/index.js';
-import LandingUI from './LandingUI';
+const LandingUI = lazy(() => import('./LandingUI'));
 
 // ─── Landing page constants ──────────────────────────────────────────────────
 
@@ -415,17 +415,25 @@ function ValidateUrlView({ accessKey, clientParam, alertParam }) {
 
   if (showLanding && docData) {
     return (
-      <LandingUI
-        docData={docData}
-        showAcceptButton={showAcceptButton}
-        showValidateEmailButton={userGate.showValidateEmailButton}
-        retryButtonLabel={userGate.retryButtonLabel}
-        onValidateEmail={handleValidateEmail}
-        plosAuthStatus={plosAuthStatus}
-        ui={ui}
-        isBusy={isBusy}
-        startLogin={startLogin}
-      />
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+            <Loader2 className="w-8 h-8 text-primary-600 animate-spin" aria-label="Loading landing" />
+          </div>
+        }
+      >
+        <LandingUI
+          docData={docData}
+          showAcceptButton={showAcceptButton}
+          showValidateEmailButton={userGate.showValidateEmailButton}
+          retryButtonLabel={userGate.retryButtonLabel}
+          onValidateEmail={handleValidateEmail}
+          plosAuthStatus={plosAuthStatus}
+          ui={ui}
+          isBusy={isBusy}
+          startLogin={startLogin}
+        />
+      </Suspense>
     );
   }
 

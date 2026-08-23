@@ -8,6 +8,8 @@ ValidateUrl controller + landing UI + session CTA orchestration.
 - `pages/ValidateUrlPage.jsx`
 - `pages/LandingUI.jsx`
 - `landingTheme.js`
+- `landingCopy.js`
+- `landingLogos.js`
 - `hooks/useLandingSessionFlow.js`
 - `routes/landingRoutes.jsx`
 

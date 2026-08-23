@@ -7,4 +7,4 @@ import React from 'react';
 export const landingRoutePaths = ['/', '/validateurl', '/validateurl/:client'];
 
 export { default as ValidateUrlPage } from '../pages/ValidateUrlPage.jsx';
-export { default as LandingUI } from '../pages/LandingUI.jsx';
+export const loadLandingUI = () => import('../pages/LandingUI.jsx');

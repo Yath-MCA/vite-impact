@@ -6,25 +6,13 @@ import PlosAuthPanel from '../plos/PlosAuthPanel.jsx';
 import { sanitizeHtml } from '../../../utils/sanitizeHtml';
 import { resolveLandingConfigOverride } from '../../../services/landing/landingConfigService';
 import { getLandingNavTheme } from '../landingTheme.js';
-
-const LOGO_BASE_PATH = '/assets/logo/clients';
-const DEFAULT_IMPACT_LOGO_SRC = '/assets/logo/IMPACT_5_4.svg';
-
-// Client logos dropped into src/assets/logo/clients (bundled + hashed by Vite)
-// take priority over the same filename served statically from public/assets/logo/clients.
-const clientLogoModules = import.meta.glob('/src/assets/logo/clients/*', { eager: true, import: 'default' });
-const clientLogoUrlByFilename = Object.fromEntries(
-  Object.entries(clientLogoModules).map(([filePath, url]) => [filePath.split('/').pop(), url])
-);
-
-// Logo "name" values are either a bare filename (resolved against the bundled
-// src/assets logos first, then public/assets/logo/clients as a fallback) or an
-// absolute path (e.g. the shared default IMPACT logo) — passed through unchanged.
-const resolveLogoSrc = (name) => {
-  if (!name) return DEFAULT_IMPACT_LOGO_SRC;
-  if (name.startsWith('/')) return name;
-  return clientLogoUrlByFilename[name] || `${LOGO_BASE_PATH}/${name}`;
-};
+import { getClientCopy } from '../landingCopy.js';
+import {
+  DEFAULT_IMPACT_LOGO_SRC,
+  pickLogoSlot,
+  resolveFaviconHref,
+  resolveLogoSrc
+} from '../landingLogos.js';
 
 const THEME_BANNER_CLASS = {
   oxford: 'bg-gradient-to-r from-oxford-600 to-oxford-700',
@@ -86,54 +74,27 @@ const LogoComponent = ({ config }) => (
 
 
 // Extract instructions, disclaimers, and plugin data dynamically based on the client name
-const getClientLandingConfig = (clientName) => {
-
-  const { instructions, disclaimer, thirdPartyPlugins } = metaConfig.sections;
-  // 1. Get client-specific instructions
-  let items = instructions
-    .filter(item => item.allowedclient.includes(clientName))
-    .map(item => item.content);
-
-  // Fall back to default instructions if none found for clientName
-  if (items.length === 0) {
-    items = instructions
-      .filter(item => item.allowedclient.includes('default'))
-      .map(item => item.content);
-  }
-
-  // 2. Get client-specific disclaimer
-  let disclaimerItem = disclaimer.find(item => item.allowedclient.includes(clientName));
-  if (!disclaimerItem) {
-    disclaimerItem = disclaimer.find(item => item.allowedclient.includes('default'));
-  }
-  const disclaimerContent = disclaimerItem ? disclaimerItem.content : '';
-
-  // 3. Get client-specific third party plugins warning
-  let pluginsItem = thirdPartyPlugins.find(item => item.allowedclient.includes(clientName));
-  if (!pluginsItem) {
-    pluginsItem = thirdPartyPlugins.find(item => item.allowedclient.includes('default'));
-  }
-  const thirdPartyPluginsContent = pluginsItem ? pluginsItem.content : null;
+const getClientLandingConfig = (clientName, dtd) => {
+  const copy = getClientCopy(clientName);
   const logoConfig = metaConfig.logo[clientName] || metaConfig.logo.default;
-
-  const headerLogoSrc = resolveLogoSrc(logoConfig['header-logo'].name);
-  const footerLogoSrc = resolveLogoSrc(logoConfig['footer-logo'].name);
+  const headerLogo = pickLogoSlot(logoConfig, 'header-logo', dtd) || logoConfig['header-logo'];
+  const footerLogo = pickLogoSlot(logoConfig, 'footer-logo', dtd) || logoConfig['footer-logo'];
 
   const logos = {
     header: {
-      src: headerLogoSrc,
-      alt: logoConfig['header-logo'].alt,
-      width: logoConfig['header-logo'].width,
-      height: logoConfig['header-logo'].height,
+      src: resolveLogoSrc(headerLogo.name),
+      alt: headerLogo.alt,
+      width: headerLogo.width,
+      height: headerLogo.height,
       className: 'object-contain',
       style: {
-        maxHeight: `${logoConfig['header-logo'].height}px`
+        maxHeight: `${headerLogo.height}px`
       }
     },
     footer: {
-      src: footerLogoSrc,
-      alt: logoConfig['footer-logo'].alt,
-      height: logoConfig['footer-logo'].height,
+      src: resolveLogoSrc(footerLogo.name),
+      alt: footerLogo.alt,
+      height: footerLogo.height,
       className: 'object-contain'
     }
   };
@@ -141,10 +102,13 @@ const getClientLandingConfig = (clientName) => {
   return {
     logo: logos,
     theme: logoConfig.theme || 'primary',
-    title: 'Instructions',
-    items,
-    disclaimer: disclaimerContent,
-    thirdPartyPlugins: thirdPartyPluginsContent,
+    title: copy.title,
+    items: copy.instructions,
+    notes: copy.notes,
+    welcome: copy.welcome,
+    supportEmail: copy.supportEmail,
+    disclaimer: copy.disclaimer,
+    thirdPartyPlugins: copy.thirdPartyPlugins,
     faqUrl: logoConfig.faqUrl || metaConfig.help?.faqUrl || '/assets/help/IMPACT_FAQ.pdf',
     guideUrl: logoConfig.guideUrl || metaConfig.help?.guideUrl || '/assets/help/IMPACT_User_Guide.pdf'
   };
@@ -208,9 +172,10 @@ export default function LandingUI({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientName]);
 
+  const dtd = docData?.dtd;
   const metaInfo = useMemo(
-    () => applyLandingConfigOverride(getClientLandingConfig(clientName), configOverride),
-    [clientName, configOverride]
+    () => applyLandingConfigOverride(getClientLandingConfig(clientName, dtd), configOverride),
+    [clientName, dtd, configOverride]
   );
   const isPlos = clientName === 'plos';
   const coverImageUrl = getCoverImageUrl(docData?.cover, clientName);
@@ -218,23 +183,22 @@ export default function LandingUI({
   const navTheme = getLandingNavTheme(metaInfo.theme);
 
   // Extract branding from response (takes precedence over env file)
-  const welcomeHtml = branding.WELCOME_TEXT || branding.welcome_text || branding.welcomeText;
+  const welcomeHtml = branding.WELCOME_TEXT || branding.welcome_text || branding.welcomeText || metaInfo.welcome;
   const safeWelcomeHtml = welcomeHtml ? sanitizeHtml(welcomeHtml) : '';
   const pageTitle = branding.PAGE_TITLE || branding.page_title || branding.pageTitle;
   const themeColor = navTheme.themeColor;
 
   useEffect(() => {
-    const faviconName = (metaConfig.logo[clientName] || metaConfig.logo.default).favicon?.name;
-    if (faviconName) {
-      let link = document.querySelector("link[rel='icon']");
-      if (!link) {
-        link = document.createElement('link');
-        link.rel = 'icon';
-        document.head.appendChild(link);
-      }
-      link.href = `${LOGO_BASE_PATH}/${faviconName}`;
+    const logoConfig = metaConfig.logo[clientName] || metaConfig.logo.default;
+    const href = resolveFaviconHref(logoConfig, dtd);
+    let link = document.querySelector("link[rel='icon']");
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
     }
-  }, [clientName]);
+    link.href = href;
+  }, [clientName, dtd]);
 
   useEffect(() => {
     if (pageTitle) {
@@ -323,6 +287,22 @@ export default function LandingUI({
               ))}
             </ul>
 
+            {metaInfo.notes?.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-3">
+                  Notes
+                </h3>
+                <ul className="space-y-2.5">
+                  {metaInfo.notes.map((item, idx) => (
+                    <li key={idx} className="text-sm text-gray-700 dark:text-gray-300 flex gap-2.5 leading-relaxed">
+                      <span className="text-primary-600 font-bold mt-0.5">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="mb-6 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
               <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                 If you need assistance with IMPACT, please review the{' '}
@@ -330,8 +310,8 @@ export default function LandingUI({
                 {' '}and{' '}
                 <a href={metaInfo.guideUrl} target="_blank" rel="noreferrer" className="text-primary-600 hover:underline font-semibold">User Guide</a>
                 {' '}or contact our support team at{' '}
-                <a href="mailto:impact.helpdesk@newgen.co" className="text-primary-600 hover:underline font-semibold">
-                  impact.helpdesk@newgen.co
+                <a href={`mailto:${metaInfo.supportEmail}`} className="text-primary-600 hover:underline font-semibold">
+                  {metaInfo.supportEmail}
                 </a>
               </p>
             </div>
