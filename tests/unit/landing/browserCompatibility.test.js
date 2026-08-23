@@ -4,7 +4,7 @@ import {
   isBrowserSupported,
   detectOS,
   BROWSER_REQUIREMENTS
-} from '../../../src/services/landing/browserCompatibility.js';
+} from '../../../src/services/core/browserCompatibility.js';
 
 describe('browserCompatibility', () => {
   it('allows modern Chrome on Windows', () => {
