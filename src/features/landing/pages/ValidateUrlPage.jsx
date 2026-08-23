@@ -27,8 +27,8 @@ import {
 import { isLocalHost } from '../../../services/session/runtimeFlags.js';
 import { checkBrowserCompatibility } from '../../../services/landing/browserCompatibility.js';
 import {
-  initMaintenance,
-  shouldBlockForMaintenance
+  fireMaintenanceAlert,
+  initMaintenance
 } from '../../../services/landing/maintenanceGuard.js';
 import useAcceptButtonVisibility from '../hooks/useAcceptButtonVisibility.js';
 import useLandingSessionFlow from '../hooks/useLandingSessionFlow.js';
@@ -265,13 +265,8 @@ function ValidateUrlView({ accessKey, clientParam, alertParam }) {
           return;
         }
 
-        initMaintenance();
-        if (shouldBlockForMaintenance()) {
-          setStatus('error');
-          setError('Scheduled maintenance is in progress.');
-          await showLandingMessage(LandingMessageKey.SCHEDULED_MAINTENANCE);
-          return;
-        }
+        await initMaintenance({ init: true });
+        fireMaintenanceAlert();
 
         if (alertParam === 'idle_session_log_out') {
           await showLandingMessage(LandingMessageKey.SESSION_OUT);

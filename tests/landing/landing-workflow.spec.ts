@@ -304,13 +304,14 @@ test.describe('ValidateUrl and landing workflows', () => {
     await expect(page.getByRole('button', { name: /send request/i })).toHaveCount(0);
   });
 
-  test('maintenance window blocks validateurl', async ({ page }) => {
+  test('maintenance does not skip urlvalidity', async ({ landingPage, page }) => {
+    await mockUrlValiditySuccess(page);
     await page.addInitScript(() => {
-      window.MAINTENANCE = { ON: true, START: '2026-08-23T10:00:00Z', Init: () => {} };
+      window.MAINTENANCE = { ON: true, START: String(Date.now() + 86400000), Init: () => {} };
     });
     const tracker = await trackUrlValidityCalls(page);
-    await page.goto(`/validateurl?key=${TEST_VALIDATE_KEY}`);
-    await expect(page.getByText('Validation Failed')).toBeVisible({ timeout: 15000 });
-    expect(tracker.count).toBe(0);
+    await landingPage.gotoValidateUrl(TEST_VALIDATE_KEY);
+    await landingPage.waitForLandingPanel();
+    expect(tracker.count).toBeGreaterThan(0);
   });
 });

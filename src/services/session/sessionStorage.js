@@ -155,8 +155,10 @@ export function commitSessionForEditor({
 export function persistMaintenanceStart() {
   if (typeof sessionStorage === 'undefined') return false;
   const state = getMaintenanceState();
-  if (!state.active || !state.start) return false;
-  sessionStorage.setItem(SESSION_STORAGE_KEYS.MAINTENANCE_START, state.start);
+  if (!state.ON && !state.active) return false;
+  const numeric = Number(state.START ?? state.start);
+  if (!Number.isFinite(numeric) || numeric <= 0) return false;
+  sessionStorage.setItem(SESSION_STORAGE_KEYS.MAINTENANCE_START, String(numeric));
   return true;
 }
 

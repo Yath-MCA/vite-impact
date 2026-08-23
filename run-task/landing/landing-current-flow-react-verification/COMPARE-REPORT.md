@@ -47,8 +47,8 @@ Remaining PARTIAL items are intentional UX differences (urlvalidity `r==0` error
 | --- | --- | --- |
 | Unsupported browser | IMPLEMENTED | `checkBrowserCompatibility` before POST |
 | Supported browser | IMPLEMENTED | same |
-| Maintenance module / blocking | IMPLEMENTED | `maintenanceGuard.js` `initMaintenance` + `shouldBlockForMaintenance` on boot |
-| Informational maintenance | PARTIAL | Blocking path + `SCHEDULED_MAINTENANCE` message; no separate non-blocking banner |
+| Maintenance module / blocking | MISSING-by-design | Legacy never blocked landing; React no longer skips urlvalidity |
+| Informational maintenance | IMPLEMENTED | `maintenanceGuard.js` toast via `fireMaintenanceAlert` (48h alert window, `SCHEDULED_MAINTENANCE`) |
 | Hidden tab exceeds timeout | PARTIAL | `useAcceptButtonVisibility` 5-minute TTL + revalidate (no accumulated hard reload) |
 | Maintenance at redirect | IMPLEMENTED | `persistMaintenanceStart` in `completeGrant` writes `MAINTENANCE_START` |
 
@@ -117,7 +117,7 @@ Remaining PARTIAL items are intentional UX differences (urlvalidity `r==0` error
 | Never treat DB errors as grants | IMPLEMENTED (error UI, not conflict UI) |
 | No storage before grant | IMPLEMENTED |
 | Server confirmation before redirect | IMPLEMENTED (`skipVerify` only on named poll-grant config) |
-| Maintenance / stale cleanup / idle reload | Maintenance + stale cleanup IMPLEMENTED; idle reload PARTIAL |
+| Maintenance / stale cleanup / idle reload | Toast + stale cleanup IMPLEMENTED; blocking MISSING-by-design; idle reload PARTIAL |
 
 ## Automated coverage map
 
@@ -131,7 +131,7 @@ Remaining PARTIAL items are intentional UX differences (urlvalidity `r==0` error
 | DB vs conflict r==0 | `sessionCheckClassify.test.js`, `sessionGateway.test.js` | link-share DB error |
 | Landing verify retry | `sessionGateway.test.js` | — |
 | Duplicate tab | `tabPresence.test.js` | duplicate tab |
-| Maintenance | `maintenanceGuard.test.js` | maintenance blocks validateurl |
+| Maintenance | `maintenanceGuard.test.js` | maintenance does not skip urlvalidity |
 | Stale localStorage | `sessionStorage.test.js` | — |
 
 ## Product decision (token OTP)
