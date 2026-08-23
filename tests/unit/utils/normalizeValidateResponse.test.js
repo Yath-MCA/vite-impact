@@ -22,6 +22,12 @@ describe('normalizeValidateResponse', () => {
     expect(normalized.doi).toBe('10.1000/xyz');
   });
 
+  it('does not default missing client to PLOS', () => {
+    const normalized = normalizeValidateResponse({ data: { identifier: 'DOC-1' } });
+    expect(normalized.client).toBe('default');
+    expect(normalized.client.toLowerCase()).not.toBe('plos');
+  });
+
   it('throws on denied validate response', () => {
     expect(() => assertValidateAccess({ r: 0 })).toThrow(/Access denied/i);
   });

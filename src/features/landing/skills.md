@@ -15,8 +15,8 @@ Use when editing `src/features/landing/`.
 1. Validation/orchestration → ValidateUrlPage + hook (maintenance, link status, token OTP).
 2. Marketing site for `/` → MarketingLandingPage.
 3. Presentation/CTA → LandingUI (logos via landingLogos from urlvalidity client/dtd).
-3. Session handshake only via `services/session` (DB-error vs conflict classification, landing retry).
-4. Keep email link URLs stable.
+4. Session handshake only via `services/session` (DB-error vs conflict classification, landing retry).
+5. Keep email link URLs stable.
 
 ## Related
 - Parent: [../README.md](../README.md) · [../skills.md](../skills.md)
