@@ -354,3 +354,48 @@ describe('sessionGateway closeSessionFromEditor', () => {
     expect(result.ok).toBe(false);
   });
 });
+
+describe('sessionGateway check classification and landing retry', () => {
+  beforeEach(() => {
+    apiService.makeRequest.mockReset();
+    installBrowserStorageMocks();
+  });
+
+  it('returns error for DB-shaped r==0 instead of blocked', async () => {
+    apiService.makeRequest.mockResolvedValueOnce({
+      r: 0,
+      message: 'Error while accessing DB for "check" request'
+    });
+
+    const result = await loginFromLanding(
+      { docid: 'DOC123' },
+      { buildContext }
+    );
+
+    expect(result.status).toBe('error');
+  });
+
+  it('retries verify after no_active_row then grants', async () => {
+    apiService.makeRequest
+      .mockResolvedValueOnce({ r: 1 })
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({ r: 1 })
+      .mockResolvedValueOnce({
+        data: [{
+          docid: 'DOC123',
+          session_id: '48291037',
+          session_start_time: '1700000000000',
+          session_end_time: '0',
+          docstatus: '1'
+        }]
+      });
+
+    const result = await loginFromLanding(
+      { docid: 'DOC123', client: 'oup', rolename: 'Author', username: 'a@b.com' },
+      { buildContext }
+    );
+
+    expect(result.status).toBe('granted');
+    expect(apiService.makeRequest.mock.calls.length).toBeGreaterThanOrEqual(4);
+  });
+});

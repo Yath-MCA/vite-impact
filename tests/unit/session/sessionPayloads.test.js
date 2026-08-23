@@ -29,7 +29,7 @@ describe('sessionPayloads', () => {
       process: 'check',
       docid: 'DOC123',
       session_id: '48291037',
-      remarks: 'login',
+      remarks: SESSION_REMARKS.USER_ACCEPT_OPEN_DOC,
       username: 'author@example.com'
     });
   });

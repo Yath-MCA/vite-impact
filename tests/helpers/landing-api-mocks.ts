@@ -289,6 +289,24 @@ export async function mockUserLoginInvalidEmail(page: Page) {
   });
 }
 
+export async function mockLinkShareDbError(page: Page) {
+  await page.route('**/linksharing**', async (route: Route) => {
+    const payload = parseJsonData(route.request().postData());
+    if (String(payload.process) === 'check') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          r: 0,
+          message: 'Error while accessing DB for "check" request'
+        })
+      });
+      return;
+    }
+    await route.continue();
+  });
+}
+
 /** Track whether urlvalidity was called (for browser gate tests). */
 export async function trackUrlValidityCalls(page: Page) {
   const state = { count: 0 };

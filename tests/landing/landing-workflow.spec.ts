@@ -4,6 +4,7 @@ import {
   defaultValidatePayload,
   mockLinkShareBlocked,
   mockLinkShareDenied,
+  mockLinkShareDbError,
   mockLinkShareSessionGrant,
   mockPlosCaptchaSuccess,
   mockUrlValidityFailure,
@@ -283,5 +284,33 @@ test.describe('ValidateUrl and landing workflows', () => {
     expect(tracker.count).toBe(0);
 
     await context.close();
+  });
+
+  test('signoff link shows signed off state', async ({ page }) => {
+    await mockUrlValidityFailure(page, { status: 'signoff' });
+    await page.goto(`/validateurl?key=${TEST_VALIDATE_KEY}`);
+    await expect(page.getByText('Validation Failed')).toBeVisible({ timeout: 15000 });
+  });
+
+  test('link-share DB error does not show send request dialog', async ({ landingPage, page }) => {
+    await mockUrlValiditySuccess(page);
+    await mockLinkShareDbError(page);
+
+    await landingPage.gotoValidateUrl(TEST_VALIDATE_KEY);
+    await landingPage.waitForLandingPanel();
+    await landingPage.agreeButton.click();
+
+    await landingPage.waitForSwal(/unable|try again|error/i);
+    await expect(page.getByRole('button', { name: /send request/i })).toHaveCount(0);
+  });
+
+  test('maintenance window blocks validateurl', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.MAINTENANCE = { ON: true, START: '2026-08-23T10:00:00Z', Init: () => {} };
+    });
+    const tracker = await trackUrlValidityCalls(page);
+    await page.goto(`/validateurl?key=${TEST_VALIDATE_KEY}`);
+    await expect(page.getByText('Validation Failed')).toBeVisible({ timeout: 15000 });
+    expect(tracker.count).toBe(0);
   });
 });

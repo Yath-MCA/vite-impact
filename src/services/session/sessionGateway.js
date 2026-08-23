@@ -14,7 +14,12 @@ import {
   generateRequestId,
   getSessionStartTime
 } from './sessionPayloads.js';
-import { commitSessionForEditor, stripIdleSessionSignOffAlert } from './sessionStorage.js';
+import { commitSessionForEditor, persistMaintenanceStart, stripIdleSessionSignOffAlert } from './sessionStorage.js';
+import {
+  isCheckErrorResponse,
+  isConflictShapedCheckResponse,
+  shouldRetryLandingVerify
+} from './sessionCheckClassify.js';
 
 function enrichLinkSharePayload(payload, ctx) {
   const next = { ...payload };
@@ -142,22 +147,68 @@ function isCollabBypassEligible(ctx) {
   return collaborative === '1' || collaborative === true || String(collaborative).toLowerCase() === 'yes';
 }
 
-export async function completeGrant(ctx, options = {}) {
-  const skipVerify = options.skipVerify === true;
+export async function retryLandingSessionCheck(ctx, options = {}) {
+  const maxAttempts = Math.max(
+    1,
+    Number(options.maxAttempts ?? sessionConfig.landingRetryMax ?? 3) || 3
+  );
+  let lastVerify = { ok: false, reason: 'no_active_row' };
 
-  if (!skipVerify) {
-    const verify = await verifySession({
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const { response } = await checkSession({
+      ...ctx,
+      remarks: SESSION_REMARKS.LANDING_RETRY
+    });
+
+    if (isCheckErrorResponse(response)) {
+      lastVerify = { ok: false, reason: 'check_error_response', response };
+      continue;
+    }
+
+    lastVerify = await verifySession({
       docId: ctx.docId,
       sessionId: ctx.sessionId,
       sessionStartTime: ctx.grantSessionStartTime || ctx.sessionStartTime,
       rolename: ctx.rolename,
       username: ctx.username
     });
-    if (!verify.ok) {
+
+    if (lastVerify.ok) {
+      return { ok: true, verify: lastVerify, attempts: attempt };
+    }
+
+    if (!shouldRetryLandingVerify(lastVerify.reason)) {
+      return { ok: false, verify: lastVerify, attempts: attempt };
+    }
+  }
+
+  return { ok: false, verify: lastVerify, attempts: maxAttempts };
+}
+
+export async function completeGrant(ctx, options = {}) {
+  const skipVerify = options.skipVerify === true;
+
+  if (!skipVerify) {
+    let verify = await verifySession({
+      docId: ctx.docId,
+      sessionId: ctx.sessionId,
+      sessionStartTime: ctx.grantSessionStartTime || ctx.sessionStartTime,
+      rolename: ctx.rolename,
+      username: ctx.username
+    });
+
+    if (!verify.ok && shouldRetryLandingVerify(verify.reason) && options.skipRetry !== true) {
+      const retried = await retryLandingSessionCheck(ctx, options);
+      if (!retried.ok) {
+        return { ok: false, verify: retried.verify || verify };
+      }
+      verify = retried.verify;
+    } else if (!verify.ok) {
       return { ok: false, verify };
     }
   }
 
+  persistMaintenanceStart();
   commitSessionForEditor({
     docId: ctx.docId,
     sessionId: ctx.sessionId,
@@ -180,13 +231,25 @@ export async function loginFromLanding(docData, options = {}) {
   const ctx = { ...baseCtx, sessionId, sessionStartTime };
   const r = response?.r;
 
-  if (r == 1 || (r == 0 && isCollabBypassEligible(ctx))) {
+  if (response == null) {
+    return { status: 'error', ctx, message: 'Empty session check response.' };
+  }
+
+  if (r == 1 || (r == 0 && isCollabBypassEligible(ctx) && isConflictShapedCheckResponse(response))) {
     const grant = await completeGrant(ctx, { skipVerify: false });
     if (grant.ok) return { status: 'granted', ctx };
     return { status: 'verify_failed', ctx, verify: grant.verify, checkResponse: response };
   }
 
   if (r == 0) {
+    if (isCheckErrorResponse(response) || !isConflictShapedCheckResponse(response)) {
+      return {
+        status: 'error',
+        ctx,
+        checkResponse: response,
+        message: response?.message || response?.error || 'Unable to start session.'
+      };
+    }
     return { status: 'blocked', ctx, checkResponse: response };
   }
 

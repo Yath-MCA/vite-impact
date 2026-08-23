@@ -13,7 +13,8 @@ export const SESSION_PROCESS = {
 export const SESSION_REMARKS = {
   USER_MANUAL_LOGOUT: 'user_manual_logout',
   USER_ACCEPT_OPEN_DOC: 'user_accept_access_btn',
-  USER_ENTER_VALID_EMAIL: 'user_enter_valid_email'
+  USER_ENTER_VALID_EMAIL: 'user_enter_valid_email',
+  LANDING_RETRY: 'landing_retry'
 };
 
 
@@ -38,7 +39,8 @@ export const SESSION_STORAGE_KEYS = {
   REDIRECT: 'redirect',
   SESSION_ID_PREFIX: 'xmleditor:sessionid:',
   DOC_ID: 'docid',
-  LANDING_TAB_ID: 'xmleditor:landing:tabid'
+  LANDING_TAB_ID: 'xmleditor:landing:tabid',
+  MAINTENANCE_START: 'MAINTENANCE_START'
 };
 
 /**

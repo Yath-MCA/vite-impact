@@ -4,6 +4,7 @@
 ValidateUrl controller + landing UI + session CTA orchestration.
 
 ## Key files
+- `landingAccess.js`
 - `pages/ValidateUrlPage.jsx`
 - `pages/LandingUI.jsx`
 - `hooks/useLandingSessionFlow.js`

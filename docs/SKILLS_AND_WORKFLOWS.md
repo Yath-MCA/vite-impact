@@ -36,6 +36,7 @@ Project docs that teach humans and Cursor agents how folders relate (feature-MVC
 | `src/services/` | [README](../src/services/README.md) · [skills](../src/services/skills.md) |
 | `api` | [README](../src/services/api/README.md) · [skills](../src/services/api/skills.md) |
 | `session` | [README](../src/services/session/README.md) · [skills](../src/services/session/skills.md) |
+| `landing` | [README](../src/services/landing/README.md) · [skills](../src/services/landing/skills.md) |
 | `core` | [README](../src/services/core/README.md) · [skills](../src/services/core/skills.md) |
 | `bridge` | [README](../src/services/bridge/README.md) · [skills](../src/services/bridge/skills.md) |
 | `ollama` | [README](../src/services/ollama/README.md) · [skills](../src/services/ollama/skills.md) |

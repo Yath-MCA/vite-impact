@@ -34,4 +34,24 @@ describe('normalizeValidateResponse', () => {
     expect(() => assertValidateAccess({ r: 4 })).toThrow(/IP address/i);
     expect(() => assertValidateAccess({ data: { status: 'deactive' }, r: 1 })).toThrow(/deactivated/i);
   });
+
+  it('throws signoff with a dedicated code and optional readonly redirect fields', () => {
+    try {
+      assertValidateAccess({ r: 1, data: { status: 'signoff', docid: 'DOC-1' } });
+      throw new Error('expected throw');
+    } catch (err) {
+      expect(err.code).toBe('signoff');
+      expect(err.docid).toBe('DOC-1');
+      expect(err.expired).toBe(false);
+    }
+  });
+
+  it('maps signed-off plus fdel to file_deleted', () => {
+    try {
+      assertValidateAccess({ r: 1, data: { status: 'signoff', fdel: true, docid: 'DOC-2' } });
+      throw new Error('expected throw');
+    } catch (err) {
+      expect(err.code).toBe('file_deleted');
+    }
+  });
 });

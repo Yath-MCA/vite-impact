@@ -1,15 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FileText, Users, HelpCircle, BookOpen, Monitor, Loader2 } from 'lucide-react';
 import metaConfig from '../../../config/landing-meta.json';
 import useLandingSessionFlow from '../hooks/useLandingSessionFlow';
 import PlosAuthPanel from '../plos/PlosAuthPanel.jsx';
 import { sanitizeHtml } from '../../../utils/sanitizeHtml';
+import { resolveLandingConfigOverride } from '../../../services/landing/landingConfigService';
 
 const LOGO_BASE_PATH = '/assets/logo/clients';
+const DEFAULT_IMPACT_LOGO_SRC = '/assets/logo/IMPACT_5_4.svg';
+
+// Client logos dropped into src/assets/logo/clients (bundled + hashed by Vite)
+// take priority over the same filename served statically from public/assets/logo/clients.
+const clientLogoModules = import.meta.glob('/src/assets/logo/clients/*', { eager: true, import: 'default' });
+const clientLogoUrlByFilename = Object.fromEntries(
+  Object.entries(clientLogoModules).map(([filePath, url]) => [filePath.split('/').pop(), url])
+);
+
+// Logo "name" values are either a bare filename (resolved against the bundled
+// src/assets logos first, then public/assets/logo/clients as a fallback) or an
+// absolute path (e.g. the shared default IMPACT logo) — passed through unchanged.
+const resolveLogoSrc = (name) => {
+  if (!name) return DEFAULT_IMPACT_LOGO_SRC;
+  if (name.startsWith('/')) return name;
+  return clientLogoUrlByFilename[name] || `${LOGO_BASE_PATH}/${name}`;
+};
 
 const THEME_BANNER_CLASS = {
   oxford: 'bg-gradient-to-r from-oxford-600 to-oxford-700',
-  primary: 'bg-gradient-to-r from-primary-600 to-primary-700'
+  primary: 'bg-gradient-to-r from-primary-600 to-primary-700',
+  lww: 'bg-gradient-to-r from-lww-600 to-lww-700',
+  medknow: 'bg-gradient-to-r from-medknow-600 to-medknow-700',
+  plos: 'bg-gradient-to-r from-plos-600 to-plos-700',
+  nihr: 'bg-gradient-to-r from-nihr-600 to-nihr-700',
+  brill: 'bg-gradient-to-r from-brill-600 to-brill-700',
+  tnf: 'bg-gradient-to-r from-tnf-600 to-tnf-700',
+  acs: 'bg-gradient-to-r from-acs-600 to-acs-700',
+  oho: 'bg-gradient-to-r from-oho-600 to-oho-700'
 };
 
 // Get BUCKET_URL from window.ENV or fallback
@@ -45,7 +71,13 @@ const LogoComponent = ({ config }) => (
   <img
     {...config}
     onError={(e) => {
-      e.target.style.display = 'none';
+      // Broken client logo -> fall back to the default IMPACT logo instead of
+      // leaving the header blank. Guard against the fallback itself failing.
+      if (e.target.src.endsWith(DEFAULT_IMPACT_LOGO_SRC)) {
+        e.target.style.display = 'none';
+        return;
+      }
+      e.target.src = DEFAULT_IMPACT_LOGO_SRC;
     }}
   />
 );
@@ -83,8 +115,8 @@ const getClientLandingConfig = (clientName) => {
   const thirdPartyPluginsContent = pluginsItem ? pluginsItem.content : null;
   const logoConfig = metaConfig.logo[clientName] || metaConfig.logo.default;
 
-  const headerLogoSrc = `${LOGO_BASE_PATH}/${logoConfig['header-logo'].name}`;
-  const footerLogoSrc = `${LOGO_BASE_PATH}/${logoConfig['footer-logo'].name}`;
+  const headerLogoSrc = resolveLogoSrc(logoConfig['header-logo'].name);
+  const footerLogoSrc = resolveLogoSrc(logoConfig['footer-logo'].name);
 
   const logos = {
     header: {
@@ -111,7 +143,32 @@ const getClientLandingConfig = (clientName) => {
     title: 'Instructions',
     items,
     disclaimer: disclaimerContent,
-    thirdPartyPlugins: thirdPartyPluginsContent
+    thirdPartyPlugins: thirdPartyPluginsContent,
+    faqUrl: logoConfig.faqUrl || metaConfig.help?.faqUrl || '/assets/help/IMPACT_FAQ.pdf',
+    guideUrl: logoConfig.guideUrl || metaConfig.help?.guideUrl || '/assets/help/IMPACT_User_Guide.pdf'
+  };
+};
+
+// Merge a DB/API-resolved landing config (see landingConfigService) over the
+// landing-meta.json-derived defaults. Only overrides fields the source actually sent.
+const applyLandingConfigOverride = (baseConfig, override) => {
+  if (!override) return baseConfig;
+
+  const overrideLogo = (baseLogo, logoOverride) => {
+    if (!logoOverride) return baseLogo;
+    const src = logoOverride.src || (logoOverride.name ? resolveLogoSrc(logoOverride.name) : baseLogo.src);
+    return { ...baseLogo, ...logoOverride, src };
+  };
+
+  return {
+    ...baseConfig,
+    theme: override.theme || baseConfig.theme,
+    faqUrl: override.faqUrl || baseConfig.faqUrl,
+    guideUrl: override.guideUrl || baseConfig.guideUrl,
+    logo: {
+      header: overrideLogo(baseConfig.logo.header, override.logo?.header),
+      footer: overrideLogo(baseConfig.logo.footer, override.logo?.footer)
+    }
   };
 };
 
@@ -127,20 +184,38 @@ export default function LandingUI({
   startLogin: sessionStartLogin
 }) {
   const [coverImageError, setCoverImageError] = useState(false);
+  const [configOverride, setConfigOverride] = useState(null);
   const internalFlow = useLandingSessionFlow(docData);
   const ui = sessionUi ?? internalFlow.ui;
   const isBusy = sessionIsBusy ?? internalFlow.isBusy;
   const startLogin = sessionStartLogin ?? internalFlow.startLogin;
 
   const clientName = (docData?.client ?? 'default').toLowerCase();
+  const branding = docData?.branding || {};
 
-  const metaInfo = getClientLandingConfig(clientName);
+  useEffect(() => {
+    let cancelled = false;
+    setConfigOverride(null);
+
+    resolveLandingConfigOverride(clientName, branding).then(({ config }) => {
+      if (!cancelled) setConfigOverride(config);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientName]);
+
+  const metaInfo = useMemo(
+    () => applyLandingConfigOverride(getClientLandingConfig(clientName), configOverride),
+    [clientName, configOverride]
+  );
   const isPlos = clientName === 'plos';
   const coverImageUrl = getCoverImageUrl(docData?.cover, clientName);
   const bannerClass = THEME_BANNER_CLASS[metaInfo.theme] || THEME_BANNER_CLASS.primary;
 
   // Extract branding from response (takes precedence over env file)
-  const branding = docData?.branding || {};
   const welcomeHtml = branding.WELCOME_TEXT || branding.welcome_text || branding.welcomeText;
   const safeWelcomeHtml = welcomeHtml ? sanitizeHtml(welcomeHtml) : '';
   const pageTitle = branding.PAGE_TITLE || branding.page_title || branding.pageTitle;
@@ -192,11 +267,11 @@ export default function LandingUI({
               {LogoComponent({ config: metaInfo.logo.header })}
             </div>
             <div className="flex items-center space-x-6">
-              <a href="#" className="text-sm text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center gap-1">
+              <a href={metaInfo.faqUrl} target="_blank" rel="noreferrer" className="text-sm text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center gap-1">
                 <HelpCircle className="w-4 h-4" />
                 FAQs
               </a>
-              <a href="#" className="text-sm text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center gap-1">
+              <a href={metaInfo.guideUrl} target="_blank" rel="noreferrer" className="text-sm text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center gap-1">
                 <FileText className="w-4 h-4" />
                 User Guide
               </a>
@@ -249,9 +324,9 @@ export default function LandingUI({
             <div className="mb-6 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
               <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                 If you need assistance with IMPACT, please review the{' '}
-                <a href="#" className="text-primary-600 hover:underline font-semibold">FAQs</a>
+                <a href={metaInfo.faqUrl} target="_blank" rel="noreferrer" className="text-primary-600 hover:underline font-semibold">FAQs</a>
                 {' '}and{' '}
-                <a href="#" className="text-primary-600 hover:underline font-semibold">User Guide</a>
+                <a href={metaInfo.guideUrl} target="_blank" rel="noreferrer" className="text-primary-600 hover:underline font-semibold">User Guide</a>
                 {' '}or contact our support team at{' '}
                 <a href="mailto:impact.helpdesk@newgen.co" className="text-primary-600 hover:underline font-semibold">
                   impact.helpdesk@newgen.co

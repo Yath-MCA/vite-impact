@@ -2,6 +2,7 @@ const fs = require('fs');
 const http = require('http');
 const path = require('path');
 const { execFile } = require('child_process');
+const { getLandingConfig } = require('./landingConfigDb');
 
 function loadEnvFile() {
   const envPath = path.join(__dirname, '.env');
@@ -122,6 +123,22 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    const landingConfigMatch = requestUrl.pathname.match(/^\/api\/landing-config\/([^/]+)$/);
+    if (landingConfigMatch) {
+      if (req.method !== 'GET') {
+        return jsonResponse(res, 405, { error: 'Method Not Allowed' });
+      }
+
+      const clientKey = decodeURIComponent(landingConfigMatch[1]).toLowerCase();
+      const config = getLandingConfig(clientKey);
+
+      if (!config) {
+        return jsonResponse(res, 404, { error: `Unknown client: ${clientKey}` });
+      }
+
+      return jsonResponse(res, 200, config);
+    }
+
     if (requestUrl.pathname === '/sync-doc') {
       if (req.method !== 'POST') {
         return jsonResponse(res, 405, { error: 'Method Not Allowed' });
@@ -159,5 +176,5 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`Lightweight wrapper running at http://localhost:${PORT}`);
-  console.log('Endpoints: GET /health, POST /sync-doc');
+  console.log('Endpoints: GET /health, GET /api/landing-config/:clientKey, POST /sync-doc');
 });

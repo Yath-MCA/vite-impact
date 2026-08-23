@@ -1,4 +1,5 @@
-import { SESSION_STORAGE_KEYS } from './sessionConstants.js';
+import { LOCAL_STORAGE_KEYS, SESSION_STORAGE_KEYS } from './sessionConstants.js';
+import { getMaintenanceState } from '../landing/maintenanceGuard.js';
 import {
   applyLegacyLocalStorage,
   normalizeSessionSource,
@@ -149,6 +150,42 @@ export function commitSessionForEditor({
   }
 
   return { ok: true, docId: resolvedDocId };
+}
+
+export function persistMaintenanceStart() {
+  if (typeof sessionStorage === 'undefined') return false;
+  const state = getMaintenanceState();
+  if (!state.active || !state.start) return false;
+  sessionStorage.setItem(SESSION_STORAGE_KEYS.MAINTENANCE_START, state.start);
+  return true;
+}
+
+/**
+ * Clear stale per-doc localStorage for a non-Collator re-visit (legacy clearDocScopedLocalData).
+ */
+export function clearDocScopedLocalData(docId) {
+  if (!docId || typeof localStorage === 'undefined') return 0;
+  const suffix = `:${docId}`;
+  const exactKeys = [
+    `${LOCAL_STORAGE_KEYS.SHARED_PREFIX}${docId}`,
+    `${LOCAL_STORAGE_KEYS.SHARED_PREFIX}${docId}:compact`,
+    `${LOCAL_STORAGE_KEYS.SHARED_PREFIX}${docId}:source`,
+    `${LOCAL_STORAGE_KEYS.USERNAME_PREFIX}${docId}`,
+    `${LOCAL_STORAGE_KEYS.USER_ID_PREFIX}${docId}`,
+    `${LOCAL_STORAGE_KEYS.USER_ROLE_PREFIX}${docId}`,
+    `${LOCAL_STORAGE_KEYS.USER_COLOR_PREFIX}${docId}`,
+    `${LOCAL_STORAGE_KEYS.COLLAB_ENABLED_PREFIX}${docId}`
+  ];
+  const toRemove = new Set(exactKeys);
+  for (let i = 0; i < localStorage.length; i += 1) {
+    const key = localStorage.key(i);
+    if (!key) continue;
+    if (key.startsWith('xmleditor:') && key.endsWith(suffix)) {
+      toRemove.add(key);
+    }
+  }
+  toRemove.forEach((key) => localStorage.removeItem(key));
+  return toRemove.size;
 }
 
 export function buildSessionContextFromDocData(docData, overrides = {}) {

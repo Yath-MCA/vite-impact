@@ -1,23 +1,26 @@
 {
+    "help": {
+        "faqUrl": "/assets/help/IMPACT_FAQ.pdf",
+        "guideUrl": "/assets/help/IMPACT_User_Guide.pdf"
+    },
     "logo": {
         "default": {
             "theme": "primary",
             "header-logo": {
-                "name": "OUP_WHITE.svg",
+                "name": "/assets/logo/IMPACT_5_4.svg",
                 "alt": "IMPACT Logo",
                 "width": "150px",
                 "height": "30"
             },
             "footer-logo": {
-                "name": "OUP_WHITE.svg",
+                "name": "/assets/logo/IMPACT_5_4.svg",
                 "alt": "IMPACT Logo",
                 "height": "50"
             },
             "favicon": {
-                "name": "OUP_FAVICON.svg",
+                "name": "/assets/logo/favicon.ico",
                 "alt": "IMPACT Favicon"
-            },
-            "website": "https://global.oup.com"
+            }
         },
         "oup": {
             "theme": "oxford",
@@ -39,7 +42,7 @@
             "website": "https://global.oup.com"
         },
         "lww": {
-            "theme": "primary",
+            "theme": "lww",
             "header-logo": {
                 "name": "LWW_WHITE_BOTTOM.svg",
                 "alt": "LWW Logo",
@@ -57,7 +60,7 @@
             }
         },
         "medknow": {
-            "theme": "primary",
+            "theme": "medknow",
             "header-logo": {
                 "name": "MEDKNOW_FAVICON.svg",
                 "alt": "Medknow Logo",
@@ -75,7 +78,7 @@
             }
         },
         "plos": {
-            "theme": "primary",
+            "theme": "plos",
             "header-logo": {
                 "name": "OUP_WHITE.svg",
                 "alt": "PLOS Logo",
@@ -93,7 +96,7 @@
             }
         },
         "nihr": {
-            "theme": "primary",
+            "theme": "nihr",
             "header-logo": {
                 "name": "NIHR.svg",
                 "alt": "NIHR Logo",
@@ -111,7 +114,7 @@
             }
         },
         "brill": {
-            "theme": "primary",
+            "theme": "brill",
             "header-logo": {
                 "name": "BRILL.svg",
                 "alt": "Brill Logo",
@@ -129,7 +132,7 @@
             }
         },
         "tnf": {
-            "theme": "primary",
+            "theme": "tnf",
             "header-logo": {
                 "name": "tfgroup.svg",
                 "alt": "Taylor & Francis Logo",
@@ -147,7 +150,7 @@
             }
         },
         "acs": {
-            "theme": "primary",
+            "theme": "acs",
             "header-logo": {
                 "name": "ACS_WHITE.svg",
                 "alt": "ACS Logo",
@@ -165,7 +168,7 @@
             }
         },
         "oho": {
-            "theme": "primary",
+            "theme": "oho",
             "header-logo": {
                 "name": "OHO_WHITE.svg",
                 "alt": "OHO Logo",

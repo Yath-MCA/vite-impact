@@ -12,7 +12,7 @@ import {
 import { setUserInfo, toLegacyUserInfo } from '../../../services/session/userInfoBridge.js';
 import { normalizeSessionSource } from '../../../services/session/sessionSource.js';
 import { promptValidateUserEmail } from '../sessionDialogs.js';
-import { isPlosClient, shouldRunPlosAuth } from '../landingAccess.js';
+import { isPlosClient, isTokenOtpEnabled, shouldRunLandingAuth } from '../landingAccess.js';
 import usePlosAuthentication from '../plos/usePlosAuthentication.js';
 
 /**
@@ -54,7 +54,7 @@ export default function useLandingUserValidation({
       });
       setUserInfo(toLegacyUserInfo(src));
 
-      if (!isPlosClient(workingDoc.client)) {
+      if (!isPlosClient(workingDoc.client) && !isTokenOtpEnabled(workingDoc)) {
         await startLogin({
           remarks: SESSION_REMARKS.USER_ENTER_VALID_EMAIL,
           username: email
@@ -63,7 +63,7 @@ export default function useLandingUserValidation({
       }
     }
 
-    if (shouldRunPlosAuth(workingDoc, validateResponse, workingDoc.client)) {
+    if (shouldRunLandingAuth(workingDoc, validateResponse, workingDoc.client)) {
       plosAuthRequired = true;
       const authResult = await runPlosAuth(validateResponse?.data || workingDoc, {
         docId: workingDoc.docid,

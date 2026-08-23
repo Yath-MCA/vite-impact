@@ -5,6 +5,7 @@ Linksharing session gateway (check/verify/request/poll), payloads, storage commi
 
 ## Key files
 - `sessionGateway.js`
+- `sessionCheckClassify.js`
 - `sessionPayloads.js`
 - `sessionStorage.js`
 - `sessionConfig.js`

@@ -20,11 +20,16 @@ import { useClient } from '../../../context/ClientContext';
 import { loadClientById } from '../../../utils/clientLoader';
 import { assertValidateAccess, normalizeValidateResponse } from '../../../utils/normalizeValidateResponse';
 import {
+  clearDocScopedLocalData,
   setPendingValidateResponse,
   setValidateAccessKey
 } from '../../../services/session/sessionStorage';
 import { isLocalHost } from '../../../services/session/runtimeFlags.js';
 import { checkBrowserCompatibility } from '../../../services/landing/browserCompatibility.js';
+import {
+  initMaintenance,
+  shouldBlockForMaintenance
+} from '../../../services/landing/maintenanceGuard.js';
 import useAcceptButtonVisibility from '../hooks/useAcceptButtonVisibility.js';
 import useLandingSessionFlow from '../hooks/useLandingSessionFlow.js';
 import useLandingUserValidation from '../hooks/useLandingUserValidation.js';
@@ -260,6 +265,14 @@ function ValidateUrlView({ accessKey, clientParam, alertParam }) {
           return;
         }
 
+        initMaintenance();
+        if (shouldBlockForMaintenance()) {
+          setStatus('error');
+          setError('Scheduled maintenance is in progress.');
+          await showLandingMessage(LandingMessageKey.SCHEDULED_MAINTENANCE);
+          return;
+        }
+
         if (alertParam === 'idle_session_log_out') {
           await showLandingMessage(LandingMessageKey.SESSION_OUT);
         }
@@ -284,6 +297,10 @@ function ValidateUrlView({ accessKey, clientParam, alertParam }) {
 
         const flatDocData = normalizeValidateResponse(response);
         if (cancelled) return;
+
+        if (String(flatDocData.rolename) !== 'Collator') {
+          clearDocScopedLocalData(flatDocData.docid);
+        }
 
         const claim = await claimValidateTab({
           docId: flatDocData.docid,
@@ -315,6 +332,20 @@ function ValidateUrlView({ accessKey, clientParam, alertParam }) {
         }, 800);
       } catch (err) {
         if (cancelled) return;
+        if (err?.code === 'signoff') {
+          setError(err.message);
+          setStatus('error');
+          const result = await showLandingMessage(LandingMessageKey.SIGN_OFF);
+          if (result?.isConfirmed && err.docid) {
+            navigate(`/editor?mode=readonly&docid=${encodeURIComponent(err.docid)}`);
+          }
+          return;
+        }
+        if (err?.code === 'file_deleted') {
+          await showLandingMessage(LandingMessageKey.FILE_DELETED);
+        } else if (err?.code === 'expired' || err?.code === 'deactive') {
+          await showLandingMessage(LandingMessageKey.EXPIRED);
+        }
         setError(err.message || 'Unable to validate your proof link.');
         setStatus('error');
       }

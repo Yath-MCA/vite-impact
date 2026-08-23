@@ -51,12 +51,53 @@ export function normalizeValidateResponse(response) {
   };
 }
 
-export function assertValidateAccess(response) {
+export const INACTIVE_LINK_STATUSES = ['signoff', 'deactive'];
+
+export function classifyValidateAccess(response) {
   const resData = response?.data ?? response ?? {};
   const r = response?.r ?? resData.r;
+  const status = String(resData.status || '').toLowerCase();
+  const expired = Boolean(resData.fdel);
+  const docid = resData.docid || resData.identifier || '';
 
-  if (r === 0) throw new Error('Access denied. Please contact support.');
-  if (r === 4) throw new Error('Your IP address does not have permission to access this link.');
-  if (resData.status === 'expired' || resData.fdel) throw new Error('This proof link has expired.');
-  if (resData.status === 'deactive') throw new Error('This proof link has been deactivated.');
+  if (r === 0) {
+    return { ok: false, code: 'denied', message: 'Access denied. Please contact support.', docid };
+  }
+  if (r === 4) {
+    return {
+      ok: false,
+      code: 'ip_blocked',
+      message: 'Your IP address does not have permission to access this link.',
+      docid
+    };
+  }
+  if (status === 'signoff') {
+    if (expired) {
+      return { ok: false, code: 'file_deleted', message: 'This proof link has expired.', docid, expired: true };
+    }
+    return {
+      ok: false,
+      code: 'signoff',
+      message: 'This proof has been signed off and is available in read-only mode.',
+      docid,
+      expired: false
+    };
+  }
+  if (status === 'deactive') {
+    return { ok: false, code: 'deactive', message: 'This proof link has been deactivated.', docid };
+  }
+  if (status === 'expired' || expired) {
+    return { ok: false, code: 'expired', message: 'This proof link has expired.', docid, expired: true };
+  }
+  return { ok: true, docid, resData };
+}
+
+export function assertValidateAccess(response) {
+  const result = classifyValidateAccess(response);
+  if (result.ok) return result;
+  const err = new Error(result.message);
+  err.code = result.code;
+  err.docid = result.docid;
+  err.expired = result.expired;
+  throw err;
 }

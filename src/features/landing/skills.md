@@ -12,9 +12,9 @@ Use when editing `src/features/landing/`.
 - Break stable routes (`/validateurl`, `/editor`, `/login`, `/config-manager`).
 
 ## Workflows
-1. Validation/orchestration → ValidateUrlPage + hook.
+1. Validation/orchestration → ValidateUrlPage + hook (maintenance, link status, token OTP).
 2. Presentation/CTA → LandingUI.
-3. Session handshake only via `services/session`.
+3. Session handshake only via `services/session` (DB-error vs conflict classification, landing retry).
 4. Keep email link URLs stable.
 
 ## Related

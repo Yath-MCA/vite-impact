@@ -53,8 +53,16 @@ export function canUserAccessFreely(resData, response = {}) {
 }
 
 export function shouldRunPlosAuth(resData, response, clientName) {
-  if (!isPlosClient(clientName)) return false;
+  return shouldRunLandingAuth(resData, response, clientName);
+}
+
+export function isTokenOtpEnabled(resData) {
+  return String(resData?.enable || '').toLowerCase() === 'tokenotp';
+}
+
+/** Extra landing auth: PLOS clients or any client with enable=tokenotp. */
+export function shouldRunLandingAuth(resData, response, clientName) {
   if (canUserAccessFreely(resData, response)) return false;
   if (String(resData?.enable || '').toLowerCase() === 'none') return false;
-  return true;
+  return isPlosClient(clientName) || isTokenOtpEnabled(resData);
 }

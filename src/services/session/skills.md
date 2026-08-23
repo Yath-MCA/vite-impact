@@ -15,7 +15,8 @@ Use when editing `src/services/session/`.
 1. Change process/status constants in sessionConstants.
 2. Storage commit must stay legacy-compatible for editor bootstrap.
 3. Config via window.ENV / VITE_.
-4. Cover branches in `tests/unit/session/`.
+4. Classify check r==0 with sessionCheckClassify before treating it as a conflict.
+5. Cover branches in `tests/unit/session/`.
 
 ## Related
 - Parent: [../README.md](../README.md) · [../skills.md](../skills.md)

@@ -9,7 +9,8 @@ import {
   getValidateResponse,
   commitSessionForEditor,
   saveLegacyLocalStorageData,
-  clearPendingValidateResponse
+  clearPendingValidateResponse,
+  clearDocScopedLocalData
 } from '../../../src/services/session/sessionStorage.js';
 import { clearUserInfo, getUserInfo } from '../../../src/services/session/userInfoBridge.js';
 
@@ -68,5 +69,15 @@ describe('sessionStorage commit', () => {
   it('rejects legacy save when apikey and email are missing', () => {
     const result = saveLegacyLocalStorageData({ docid: 'DOC1' });
     expect(result.ok).toBe(false);
+  });
+
+  it('clears doc-scoped localStorage keys', () => {
+    localStorage.setItem(`${LOCAL_STORAGE_KEYS.SHARED_PREFIX}DOC123`, '{"docid":"DOC123"}');
+    localStorage.setItem(`${LOCAL_STORAGE_KEYS.USERNAME_PREFIX}DOC123`, 'a@b.com');
+    localStorage.setItem(`${LOCAL_STORAGE_KEYS.SHARED_PREFIX}OTHER`, '{}');
+    clearDocScopedLocalData('DOC123');
+    expect(localStorage.getItem(`${LOCAL_STORAGE_KEYS.SHARED_PREFIX}DOC123`)).toBeNull();
+    expect(localStorage.getItem(`${LOCAL_STORAGE_KEYS.USERNAME_PREFIX}DOC123`)).toBeNull();
+    expect(localStorage.getItem(`${LOCAL_STORAGE_KEYS.SHARED_PREFIX}OTHER`)).toBe('{}');
   });
 });
