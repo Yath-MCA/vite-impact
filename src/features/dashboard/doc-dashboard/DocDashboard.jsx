@@ -1,9 +1,9 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { Search, Database, AlertTriangle, FileX2, CheckCircle2 } from 'lucide-react';
-import Header from '../components/layout/Header';
-import Footer from '../components/layout/Footer';
-import { DOC_COLLECTIONS, EXCEPTION_COLLECTIONS } from '../../shared/constants/docCollections';
+import Header from '../../../components/layout/Header';
+import Footer from '../../../components/layout/Footer';
+import { DOC_COLLECTIONS, EXCEPTION_COLLECTIONS } from '../../../shared/constants/docCollections';
 
 const DEFAULT_IGNORED_COLUMNS = ['_r', '_w'];
 const COMMON_METADATA_KEYS = [
@@ -1034,6 +1034,33 @@ export default function DocDashboard() {
                                     )}
 
                                     {activeDocId && combinedRows.length > 0 && visibleColumns.length > 0 && (
+                                        <div className="overflow-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                                                <thead className="bg-gray-50 dark:bg-gray-800">
+                                                    <tr>
+                                                        {visibleColumns.map((column) => (
+                                                            <th
+                                                                key={column}
+                                                                scope="col"
+                                                                className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300"
+                                                            >
+                                                                {column}
+                                                            </th>
+                                                        ))}
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
+                                                    {filteredAndSortedRows.map((row, rowIndex) => (
+                                                        <tr key={`${row.__collection || 'row'}-${rowIndex}`} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                                            {visibleColumns.map((column) => (
+                                                                <td key={`${column}-${rowIndex}`} className="px-3 py-2 align-top text-gray-700 dark:text-gray-200">
+                                                                    {toDisplayText(column, row[column])}
+                                                                </td>
+                                                            ))}
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
                                         </div>
                                     )}
 

@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import AgGridWrapper from '../../../dashboard/components/grid/AgGridWrapper';
+import AgGridWrapper from '../grid/AgGridWrapper';
 
 function ClientManagementGrid({ rowData }) {
   const columnDefs = useMemo(() => [

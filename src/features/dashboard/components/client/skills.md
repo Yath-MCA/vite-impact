@@ -1,6 +1,6 @@
 # client skills
 
-Use when editing `src/features/extras/components/client/` (or related imports).
+Use when editing `src/features/dashboard/components/client/` (or related imports).
 
 ## Do
 - Keep changes scoped to this folder's responsibility.
@@ -18,5 +18,5 @@ Use when editing `src/features/extras/components/client/` (or related imports).
 
 ## Related
 - Folder: [README.md](./README.md)
-- Feature: [extras](../../README.md) · [skills](../../skills.md)
+- Feature: [dashboard](../../README.md) · [skills](../../skills.md)
 - Index: [docs/SKILLS_AND_WORKFLOWS.md](../../../../../docs/SKILLS_AND_WORKFLOWS.md)

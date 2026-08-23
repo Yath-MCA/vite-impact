@@ -17,4 +17,4 @@ Skills/workflows index: [docs/SKILLS_AND_WORKFLOWS.md](../docs/SKILLS_AND_WORKFL
 
 **Rule:** New pages/workflows go under `features/<name>/`; reusable UI/helpers/providers/hooks go under `shared/`; app shell composition stays under `core/`.
 
-**Structure debt (docs-first; refactor later):** `features/extras` quarantine and layout dedupe.
+**Structure debt (docs-first; refactor later):** layout dedupe.

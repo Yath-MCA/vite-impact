@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 const expectLoadableComponent = (component) => {
   expect(['function', 'object']).toContain(typeof component);
@@ -17,8 +19,8 @@ describe('feature cleanup imports', () => {
   });
 
   it('loads feature-owned component groups from feature folders', async () => {
-    const clientGrid = await import('../../../src/features/extras/components/client/ArticlesGrid.jsx');
-    const adminGrid = await import('../../../src/features/extras/components/admin/UserManagementGrid.jsx');
+    const clientGrid = await import('../../../src/features/dashboard/components/client/ArticlesGrid.jsx');
+    const adminGrid = await import('../../../src/features/dashboard/components/admin/UserManagementGrid.jsx');
     const reportGrid = await import('../../../src/features/dashboard/reports/components/ReportGrid.jsx');
 
     expectLoadableComponent(clientGrid.default);
@@ -46,5 +48,21 @@ describe('feature cleanup imports', () => {
     expectLoadableComponent(navbar.default);
     expectLoadableComponent(navigationPanel.default);
     expectLoadableComponent(history.default);
+  });
+
+  it('loads all dashboard-owned page implementations from dashboard pages', async () => {
+    const adminPage = await import('../../../src/features/dashboard/pages/AdminDashboard.jsx');
+    const clientPage = await import('../../../src/features/dashboard/pages/ClientDashboard.jsx');
+    const devPage = await import('../../../src/features/dashboard/pages/DevDashboard.jsx');
+    const docPage = await import('../../../src/features/dashboard/pages/DocDashboard.jsx');
+
+    expectLoadableComponent(adminPage.default);
+    expectLoadableComponent(clientPage.default);
+    expectLoadableComponent(devPage.default);
+    expectLoadableComponent(docPage.default);
+  });
+
+  it('removes the extras quarantine folder from tracked source layout', () => {
+    expect(existsSync(resolve(process.cwd(), 'src/features/extras'))).toBe(false);
   });
 });

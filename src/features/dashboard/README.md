@@ -6,11 +6,14 @@ Canonical feature module: dashboard pages, layout, context, routes, menu config,
 ## Key files
 - `pages/`
 - `components/`
+- `components/admin/`
+- `components/client/`
 - `components/grid/`
 - `activity/`
 - `config-manager/`
 - `doc-finder/`
 - `reports/`
+- `doc-dashboard/`
 - `layout/`
 - `context/`
 - `routes/dashboardRoutes.jsx`

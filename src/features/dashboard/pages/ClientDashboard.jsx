@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
-import ArticleStatusChart from './components/client/ArticleStatusChart';
-import ArticlesGrid from './components/client/ArticlesGrid';
-import ProductionOverview from './components/client/ProductionOverview';
-import QueriesReport from './components/client/QueriesReport';
-import LineChart from '../../components/charts/LineChart';
-import DashboardTopBar from '../../components/layout/DashboardTopBar';
+import ArticleStatusChart from '../components/client/ArticleStatusChart';
+import ArticlesGrid from '../components/client/ArticlesGrid';
+import ProductionOverview from '../components/client/ProductionOverview';
+import QueriesReport from '../components/client/QueriesReport';
+import LineChart from '../../../components/charts/LineChart';
+import DashboardTopBar from '../../../components/layout/DashboardTopBar';
 
 export default function ClientDashboard() {
   const overview = useMemo(() => [

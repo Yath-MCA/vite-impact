@@ -104,14 +104,14 @@ Pages:
 
 - `src/features/dashboard/pages/DevDashboard.jsx`
 - `src/features/dashboard/pages/AdminDashboard.jsx`
-- `src/features/extras/ClientDashboard.jsx`
+- `src/features/dashboard/pages/ClientDashboard.jsx`
 - `src/features/dashboard/reports/pages/ReportsPage.jsx`
 
 UI modules:
 
 - `src/features/dashboard/components/*`
-- `src/features/extras/components/admin/*`
-- `src/features/extras/components/client/*`
+- `src/features/dashboard/components/admin/*`
+- `src/features/dashboard/components/client/*`
 - `src/features/dashboard/reports/components/*`
 - `src/components/charts/*`
 

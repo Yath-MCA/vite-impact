@@ -24,7 +24,6 @@ Project docs that teach humans and Cursor agents how folders relate (feature-MVC
 | `dashboard/doc-finder` | [README](../src/features/dashboard/doc-finder/README.md) · [skills](../src/features/dashboard/doc-finder/skills.md) |
 | `dashboard/reports` | [README](../src/features/dashboard/reports/README.md) · [skills](../src/features/dashboard/reports/skills.md) |
 | `editor/history` | [README](../src/features/editor/history/README.md) · [skills](../src/features/editor/history/skills.md) |
-| `extras` | [README](../src/features/extras/README.md) · [skills](../src/features/extras/skills.md) (quarantine) |
 
 ## Services
 
@@ -58,8 +57,8 @@ Project docs that teach humans and Cursor agents how folders relate (feature-MVC
 
 | Path | Docs |
 |------|------|
-| `features/extras/components/admin` | [README](../src/features/extras/components/admin/README.md) · [skills](../src/features/extras/components/admin/skills.md) |
-| `features/extras/components/client` | [README](../src/features/extras/components/client/README.md) · [skills](../src/features/extras/components/client/skills.md) |
+| `features/dashboard/components/admin` | [README](../src/features/dashboard/components/admin/README.md) · [skills](../src/features/dashboard/components/admin/skills.md) |
+| `features/dashboard/components/client` | [README](../src/features/dashboard/components/client/README.md) · [skills](../src/features/dashboard/components/client/skills.md) |
 | `features/dashboard/components` | [README](../src/features/dashboard/components/README.md) · [skills](../src/features/dashboard/components/skills.md) |
 | `features/dashboard/components/grid` | [README](../src/features/dashboard/components/grid/README.md) · [skills](../src/features/dashboard/components/grid/skills.md) |
 | `features/dashboard/reports/components` | [README](../src/features/dashboard/reports/components/README.md) · [skills](../src/features/dashboard/reports/components/skills.md) |

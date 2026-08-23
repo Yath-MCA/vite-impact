@@ -13,7 +13,6 @@ Product modules (feature-MVC). Gold standard: `dashboard/` (`pages`, `layout`, `
 - `dashboard/doc-finder/`
 - `dashboard/reports/`
 - `editor/history/`
-- `extras/ (quarantine)`
 
 ## Dependencies
 Consumes `services/`, shared `components/`, and `core/router`.

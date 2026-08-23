@@ -10,7 +10,7 @@ Client-facing dashboard widgets (articles, production, queries).
 - `QueriesReport.jsx`
 
 ## Dependencies
-Used by client/extras dashboards; charts/grid helpers.
+Used by client dashboard views; charts/grid helpers.
 
 ## Status
 **active · consider feature later**

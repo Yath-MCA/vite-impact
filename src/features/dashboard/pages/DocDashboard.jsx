@@ -1,12 +1,8 @@
 import React from 'react';
-import DocsGrid from '../doc-finder/DocsGrid';
+import DocDashboardView from '../doc-dashboard/DocDashboard';
 
 const DocDashboard = () => {
-  return (
-    <div>
-      {/* <DocsGrid rowData={[]} onOpen={() => { }} /> */}
-    </div>
-  );
+  return <DocDashboardView />;
 };
 
 export default DocDashboard;

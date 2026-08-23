@@ -11,7 +11,7 @@ App layout pieces (AppLayout, header, sidebar, footer, dashboard top bar). Overl
 - `DashboardTopBar.jsx`
 
 ## Dependencies
-Used by extras/dashboard shells; prefer consolidating with core/layout over time.
+Used by dashboard shells; prefer consolidating with core/layout over time.
 
 ## Status
 **active**

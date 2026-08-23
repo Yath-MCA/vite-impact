@@ -119,7 +119,6 @@ Lazy Pages:
 ├── ../../pages/ReportsPage                 → src/pages/ReportsPage.jsx
 ├── ../../pages/SettingsPage                → src/pages/SettingsPage.jsx
 ├── ../../pages/ValidateUrl                 → src/pages/ValidateUrl.jsx
-├── ../../pages/DocFinderDashboard           → src/pages/DocFinderDashboard.jsx
 ├── ../../pages/SupabasePage                → src/pages/SupabasePage.jsx
 └── ../../components/ConfigManager/ConfigManagerPage → src/components/ConfigManager/ConfigManagerPage.jsx
 ```

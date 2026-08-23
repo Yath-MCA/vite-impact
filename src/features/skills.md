@@ -7,7 +7,7 @@ Use when creating or changing product modules under `src/features/`.
 - Follow dashboard as the structural gold standard (`pages`, `layout`, `routes`, `context`, `hooks`).
 - Wire routes through `core/router/AppRouter.jsx` with stable URL contracts.
 - Keep Model code in `services/`; keep shared chrome in `components/` when reusable across features.
-- Quarantine `extras/` — migrate callers, do not expand it.
+- Keep dashboard-related pages, widgets, grids, and support workflows under `features/dashboard`.
 
 ## Do not
 
