@@ -8,6 +8,7 @@ Pure helpers (normalizeValidateResponse, sanitizeHtml, clientLoader, etc.).
 - `sanitizeHtml.js`
 - `clientLoader.js`
 - `loadCKEditor.js`
+- `devLogger.js`
 
 ## Dependencies
 No React providers; callable from pages/services.
