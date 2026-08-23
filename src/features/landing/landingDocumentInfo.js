@@ -13,6 +13,7 @@ export function getPublicationTitleLabel(docData) {
 }
 
 export function buildCoverImageUrl(coverName, clientName, bucketUrl) {
+  console.log(coverName, clientName, bucketUrl);
   if (!coverName || !clientName) return null;
   return `${bucketUrl}_SUPPORT_FILES/${clientName.toUpperCase()}/cover/${coverName}.png`;
 }

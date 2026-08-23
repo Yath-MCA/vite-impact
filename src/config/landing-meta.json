@@ -214,6 +214,7 @@
         "clients": {
             "default": {
                 "welcome": "",
+                "subtitle": "The online proofing tool for collaborating on journal content",
                 "title": "Instructions",
                 "instructions": [
                     "Take a thorough look at your proof and make any necessary modifications directly within the reports or article.",
@@ -226,6 +227,7 @@
             },
             "oup": {
                 "welcome": "",
+                "subtitle": "The online proofing tool that permits authors to directly edit and collaborate on journal content for Oxford University Press.",
                 "title": "Instructions",
                 "instructions": [""],
                 "notes": [],
@@ -233,6 +235,7 @@
             },
             "lww": {
                 "welcome": "",
+                "subtitle": "The online proofing tool for collaborating on proofing journal content for Wolters Kluwer Health, LLC.",
                 "title": "Instructions",
                 "instructions": [""],
                 "notes": [""],
@@ -240,6 +243,7 @@
             },
             "medknow": {
                 "welcome": "",
+                "subtitle": "The online proofing tool for collaborating on proofing journal content for Wolters Kluwer - Medknow",
                 "title": "Instructions",
                 "instructions": [
                     "Log in to IMPACT in a single browser window at a time (but if you would like your co-authors to review the article as well, please share it with them by selecting the sharing option in IMPACT).",
@@ -255,6 +259,7 @@
             },
             "plos": {
                 "welcome": "",
+                "subtitle": "The online proofing tool for collaborating on proofing journal content for Public Library of Science",
                 "title": "Instructions",
                 "instructions": [
                     "Log in to IMPACT in a single browser window at a time (but if you would like your co-authors to review the article as well, please share it with them by selecting the sharing option in IMPACT).",
@@ -270,6 +275,7 @@
             },
             "nihr": {
                 "welcome": "",
+                "subtitle": "The online proofing tool for collaborating on journal content",
                 "title": "Instructions",
                 "instructions": [""],
                 "notes": [],
@@ -277,6 +283,7 @@
             },
             "brill": {
                 "welcome": "",
+                "subtitle": "The online proofing tool for collaborating on proofing journal content for BRILL.",
                 "title": "Instructions",
                 "instructions": [""],
                 "notes": [],
@@ -284,13 +291,15 @@
             },
             "tnf": {
                 "welcome": "",
+                "subtitle": "The online proofing tool that permits authors to directly edit and collaborate on book content.",
                 "title": "Instructions",
                 "instructions": [""],
                 "notes": [],
-                "supportEmail": ""
+                "supportEmail": "impact.helpdesk.tnf@newgen.co"
             },
             "acs": {
                 "welcome": "",
+                "subtitle": "The online proofing tool that permits authors to directly edit and collaborate on journal content for American Chemical Society.",
                 "title": "Instructions",
                 "instructions": [""],
                 "notes": [],
@@ -298,10 +307,43 @@
             },
             "oho": {
                 "welcome": "",
+                "subtitle": "The online proofing tool that permits authors to directly edit and collaborate on book content for Oxford University Press.",
                 "title": "Instructions",
                 "instructions": [""],
                 "notes": [],
                 "supportEmail": ""
+            },
+            "intellect": {
+                "welcome": "",
+                "subtitle": "The online proofing tool for collaborating on proofing journal content for INTELLECT.",
+                "title": "Instructions",
+                "instructions": [""],
+                "notes": [],
+                "supportEmail": ""
+            },
+            "oso": {
+                "welcome": "",
+                "subtitle": "The online proofing tool that permits authors to directly edit and collaborate on book content for Oxford University Press.",
+                "title": "Instructions",
+                "instructions": [""],
+                "notes": [],
+                "supportEmail": "impact.notification.oup@newgen.co"
+            },
+            "oxmedo": {
+                "welcome": "",
+                "subtitle": "The online proofing tool that permits authors to directly edit and collaborate on book content for Oxford Medical Online.",
+                "title": "Instructions",
+                "instructions": [""],
+                "notes": [],
+                "supportEmail": ""
+            },
+            "lse": {
+                "welcome": "",
+                "subtitle": "An online proofing tool that allows authors to directly edit and collaborate on book content",
+                "title": "Instructions",
+                "instructions": [""],
+                "notes": [],
+                "supportEmail": "impact.helpdesk.lse@newgen.co"
             }
         }
     }

@@ -20,6 +20,7 @@ export function getClientCopy(clientName, meta = landingMeta) {
 
   return {
     welcome: own.welcome || fallback.welcome || '',
+    subtitle: own.subtitle || fallback.subtitle || '',
     title: own.title || fallback.title || 'Instructions',
     instructions: instructions.length ? instructions : filterLines(fallback.instructions),
     notes: filterLines(own.notes),

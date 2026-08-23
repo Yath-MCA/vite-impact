@@ -75,9 +75,7 @@ var LoadingUI = (function () {
     return { show: show, progress: progress, success: success, error: error, hide: hide };
 }());
 
-const GET_COVER_IMG_URL = function (name, client) {
-    return `${BUCKET_URL}_SUPPORT_FILES/${client.toLocaleUpperCase()}/cover/${name}.png`;
-};
+
 var [USER_INFO, commonfn, URL_PARAMETER, redirect_url, DOC_ID, DOC_DTD] = [{}, {}, {}, "", "", ""],
     LINK_STATUS_ALRET = ["signoff", "deactive"],
     NEW_SESSION_ID = Math.floor(10000000 + Math.random() * 90000000), Request_ID = Math.floor(100000000 + Math.random() * 900000000),

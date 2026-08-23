@@ -19,4 +19,21 @@ describe('LandingUI layout', () => {
     expect(source).toContain('`${navTheme.linkClass} group`');
     expect(source).toContain("navTheme.isDarkNav ? 'w-4 h-4' : 'w-4 h-4 group-hover:text-primary-700'");
   });
+
+  it('renders configured welcome subtitle below the IMPACT title', () => {
+    const source = landingUiSource();
+
+    expect(source).toContain('metaInfo.subtitle');
+  });
+
+  it('uses accessible 13px Inter UI styling for landing body sections', () => {
+    const source = landingUiSource();
+
+    expect(source).toContain("fontFamily: 'Inter UI, sans-serif'");
+    expect(source).toContain("fontSize: '13px'");
+    expect(source).toContain('text-gray-800 dark:text-gray-200 flex gap-2.5 leading-relaxed');
+    expect(source).toContain('text-gray-700 dark:text-gray-300 leading-relaxed');
+    expect(source).toContain('text-amber-950 dark:text-amber-100 leading-relaxed');
+    expect(source).toContain('text-primary-700 hover:underline font-semibold');
+  });
 });

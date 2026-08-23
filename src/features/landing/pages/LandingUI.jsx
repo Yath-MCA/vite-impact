@@ -52,6 +52,11 @@ const BROWSER_COMPATIBILITY = {
   }
 };
 
+const LANDING_BODY_TEXT_STYLE = {
+  fontFamily: 'Inter UI, sans-serif',
+  fontSize: '13px'
+};
+
 
 const LogoComponent = ({ config }) => (
   <img
@@ -103,6 +108,7 @@ const getClientLandingConfig = (clientName, dtd) => {
     items: copy.instructions,
     notes: copy.notes,
     welcome: copy.welcome,
+    subtitle: copy.subtitle,
     supportEmail: copy.supportEmail,
     disclaimer: copy.disclaimer,
     thirdPartyPlugins: copy.thirdPartyPlugins,
@@ -260,14 +266,17 @@ export default function LandingUI({
                 Welcome to <span className="font-black">IMPACT</span>
               </h1>
               <p className="text-primary-100">
-                The online proofing tool for collaborating on journal content
+                {metaInfo.subtitle || 'The online proofing tool for collaborating on journal content'}
                 {docData?.projecttitle && ` — ${docData.projecttitle}`}
               </p>
             </>
           )}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <div
+          className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
+          style={LANDING_BODY_TEXT_STYLE}
+        >
 
           {/* Left: Instructions */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
@@ -278,7 +287,7 @@ export default function LandingUI({
 
             <ul className="space-y-2.5 mb-6">
               {metaInfo.items.map((item, idx) => (
-                <li key={idx} className="text-sm text-gray-700 dark:text-gray-300 flex gap-2.5 leading-relaxed">
+                <li key={idx} className="text-gray-800 dark:text-gray-200 flex gap-2.5 leading-relaxed">
                   <span className="text-primary-600 font-bold mt-0.5">•</span>
                   <span>{item}</span>
                 </li>
@@ -292,7 +301,7 @@ export default function LandingUI({
                 </h3>
                 <ul className="space-y-2.5">
                   {metaInfo.notes.map((item, idx) => (
-                    <li key={idx} className="text-sm text-gray-700 dark:text-gray-300 flex gap-2.5 leading-relaxed">
+                    <li key={idx} className="text-gray-800 dark:text-gray-200 flex gap-2.5 leading-relaxed">
                       <span className="text-primary-600 font-bold mt-0.5">•</span>
                       <span>{item}</span>
                     </li>
@@ -302,39 +311,39 @@ export default function LandingUI({
             )}
 
             <div className="mb-6 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
-              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 If you need assistance with IMPACT, please review the{' '}
-                <a href={metaInfo.faqUrl} target="_blank" rel="noreferrer" className="text-primary-600 hover:underline font-semibold">FAQs</a>
+                <a href={metaInfo.faqUrl} target="_blank" rel="noreferrer" className="text-primary-700 hover:underline font-semibold">FAQs</a>
                 {' '}and{' '}
-                <a href={metaInfo.guideUrl} target="_blank" rel="noreferrer" className="text-primary-600 hover:underline font-semibold">User Guide</a>
+                <a href={metaInfo.guideUrl} target="_blank" rel="noreferrer" className="text-primary-700 hover:underline font-semibold">User Guide</a>
                 {' '}or contact our support team at{' '}
-                <a href={`mailto:${metaInfo.supportEmail}`} className="text-primary-600 hover:underline font-semibold">
+                <a href={`mailto:${metaInfo.supportEmail}`} className="text-primary-700 hover:underline font-semibold">
                   {metaInfo.supportEmail}
                 </a>
               </p>
             </div>
 
             <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-              <h3 className="text-sm font-bold text-amber-900 dark:text-amber-300 mb-2">
+              <h3 className="font-bold text-amber-950 dark:text-amber-100 mb-2">
                 Disclaimer
               </h3>
-              <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed mb-4">
+              <p className="text-amber-950 dark:text-amber-100 leading-relaxed mb-4">
                 {metaInfo.disclaimer}
               </p>
 
               {/* Third Party Plugins - Medknow Chinese translation */}
               {metaInfo.thirdPartyPlugins && (
                 <div className="pt-3 border-t border-amber-200 dark:border-amber-700">
-                  <h4 className="text-sm font-bold text-amber-900 dark:text-amber-300 mb-2">
+                  <h4 className="font-bold text-amber-950 dark:text-amber-100 mb-2">
                     {metaInfo.thirdPartyPlugins.title}
                   </h4>
-                  <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed mb-3">
+                  <p className="text-amber-950 dark:text-amber-100 leading-relaxed mb-3">
                     {metaInfo.thirdPartyPlugins.text}
                   </p>
-                  <div className="text-xs font-semibold text-primary-700 dark:text-primary-400 mb-1">
+                  <div className="font-semibold text-primary-700 dark:text-primary-300 mb-1">
                     {metaInfo.thirdPartyPlugins.chineseLabel}
                   </div>
-                  <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed" lang="zh-CN">
+                  <p className="text-amber-950 dark:text-amber-100 leading-relaxed" lang="zh-CN">
                     {metaInfo.thirdPartyPlugins.chineseText}
                   </p>
                 </div>
@@ -426,7 +435,7 @@ export default function LandingUI({
                 {/* Journal/Book Title */}
                 {(docData?.journaltitle || docData?.booktitle) && (
                   <div>
-                    <div className="text-xs font-bold text-primary-600 dark:text-primary-400 uppercase tracking-wider mb-1">
+                    <div className="font-bold text-primary-700 dark:text-primary-300 uppercase tracking-wider mb-1">
                       {publicationTitleLabel}
                     </div>
                     <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight">
@@ -437,7 +446,7 @@ export default function LandingUI({
 
                 {/* DOI */}
                 {docData?.doi && (
-                  <div className="font-mono text-sm text-gray-600 dark:text-gray-400 break-all">
+                  <div className="font-mono text-gray-700 dark:text-gray-300 break-all">
                     {docData.doi}
                   </div>
                 )}
@@ -445,10 +454,10 @@ export default function LandingUI({
                 {/* Article Title */}
                 {docData?.articletitle && (
                   <div>
-                    <div className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+                    <div className="font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
                       Article Title
                     </div>
-                    <p className="text-sm text-gray-900 dark:text-white leading-snug">
+                    <p className="text-gray-900 dark:text-white leading-snug">
                       {docData.articletitle}
                     </p>
                   </div>
@@ -457,11 +466,11 @@ export default function LandingUI({
                 {/* Authors */}
                 {docData?.authorgroup && (
                   <div>
-                    <div className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1 mb-1">
+                    <div className="font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-1 mb-1">
                       <Users className="w-3.5 h-3.5" />
                       Authors
                     </div>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
                       {docData.authorgroup}
                     </p>
                   </div>
