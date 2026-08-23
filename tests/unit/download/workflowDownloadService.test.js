@@ -23,6 +23,7 @@ import { buildZipPayload } from '../../../src/services/download/downloadPayloads
 import {
   WorkflowDownloadService,
   buildDownloadFilesList,
+  getDownloadRequest,
   initDownloadService,
   resetDownloadService
 } from '../../../src/services/download/index.js';
@@ -133,5 +134,12 @@ describe('workflow download service', () => {
     expect(window.iDownloadMethod).toBeTruthy();
     expect(typeof window.iDownloadMethod.click).toBe('function');
     expect(window.WorkflowDownloadModule).toBe(WorkflowDownloadService);
+  });
+
+  it('exports getDownloadRequest with a resolved help URL', async () => {
+    const request = await getDownloadRequest('Help_FAQ_pdf');
+    expect(request).toBeTruthy();
+    expect(request.url).toContain('file_sn=');
+    expect(request.tempfile).toMatch(/^IMPACT_FAQ/);
   });
 });

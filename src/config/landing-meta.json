@@ -1,7 +1,7 @@
 {
     "help": {
-        "faqUrl": "/assets/help/IMPACT_FAQ.pdf",
-        "guideUrl": "/assets/help/IMPACT_User_Guide.pdf"
+        "faqUrl": "IMPACT_FAQ.pdf",
+        "guideUrl": "IMPACT_User_Guide.pdf"
     },
     "logo": {
         "default": {

@@ -22,6 +22,10 @@ export function downloadClick(action, result, options) {
   return getDownloadService().click(action, result, options);
 }
 
+export function getDownloadRequest(action, result, options) {
+  return getDownloadService().getDownloadRequest(action, result, options);
+}
+
 export function resetDownloadService() {
   singleton = null;
   unbindDownloadBridge();
@@ -40,6 +44,7 @@ export const downloadService = {
     return getDownloadService();
   },
   click: (...args) => getDownloadService().click(...args),
+  getDownloadRequest: (...args) => getDownloadService().getDownloadRequest(...args),
   Init: (...args) => getDownloadService().Init(...args),
   zip_download: (...args) => getDownloadService().zip_download(...args)
 };

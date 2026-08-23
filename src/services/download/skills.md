@@ -3,8 +3,9 @@
 Use when editing `src/services/download/` or adding a download from any page/component.
 
 ## Do
-- Import `downloadService` / `downloadClick` from `services/download` in React code.
+- Import `downloadService` / `downloadClick` / `getDownloadRequest` from `services/download` in React code.
 - Call `initDownloadService()` once from editor and landing boot so `window.iDownloadMethod` exists for legacy HTML.
+- Prefer `downloadClick` for left-click. Use `getDownloadRequest` only to hydrate `href` after Init (middle-click / copy-link).
 - Keep URL building and zip payloads in this folder; do not duplicate `filedownload` query strings in features.
 - Use existing editor message keys (`fileDownloadSuccess`, `fileDownloadFail`, `PopupBlocker_New`).
 

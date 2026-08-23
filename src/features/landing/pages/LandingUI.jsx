@@ -14,6 +14,11 @@ import {
   resolveFaviconHref,
   resolveLogoSrc
 } from '../landingLogos.js';
+import {
+  downloadClick,
+  getDownloadRequest,
+  initDownloadService
+} from '../../../services/download/index.js';
 
 const PlosAuthPanel = lazy(() => import('../plos/PlosAuthPanel.jsx'));
 
@@ -222,6 +227,36 @@ export default function LandingUI({
     window.location.reload();
   };
 
+  const [faqHref, setFaqHref] = useState(metaInfo.faqUrl);
+  const [guideHref, setGuideHref] = useState(metaInfo.guideUrl);
+
+  useEffect(() => {
+    setFaqHref(metaInfo.faqUrl);
+    setGuideHref(metaInfo.guideUrl);
+    let cancelled = false;
+
+    (async () => {
+      await initDownloadService();
+      const [faqRequest, guideRequest] = await Promise.all([
+        getDownloadRequest('Help_FAQ_pdf'),
+        getDownloadRequest('Help_Guide_pdf')
+      ]);
+      if (cancelled) return;
+      if (faqRequest?.url) setFaqHref(faqRequest.url);
+      if (guideRequest?.url) setGuideHref(guideRequest.url);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [metaInfo.faqUrl, metaInfo.guideUrl]);
+
+  const onHelpDownload = (event, action) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+    event.preventDefault();
+    downloadClick(action, 'landing');
+  };
+
   return (
     <div className="min-h-screen  flex flex-col"
       style={{ '--theme-color': themeColor }}
@@ -237,11 +272,23 @@ export default function LandingUI({
               {LogoComponent({ config: metaInfo.logo.header })}
             </div>
             <div className="flex items-center space-x-6">
-              <a href={metaInfo.faqUrl} target="_blank" rel="noreferrer" className={`${navTheme.linkClass} group`}>
+              <a
+                href={faqHref}
+                target="_blank"
+                rel="noreferrer"
+                className={`${navTheme.linkClass} group`}
+                onClick={(e) => onHelpDownload(e, 'Help_FAQ_pdf')}
+              >
                 <HelpCircle className={navTheme.isDarkNav ? 'w-4 h-4' : 'w-4 h-4 group-hover:text-primary-700'} />
                 FAQs
               </a>
-              <a href={metaInfo.guideUrl} target="_blank" rel="noreferrer" className={`${navTheme.linkClass} group`}>
+              <a
+                href={guideHref}
+                target="_blank"
+                rel="noreferrer"
+                className={`${navTheme.linkClass} group`}
+                onClick={(e) => onHelpDownload(e, 'Help_Guide_pdf')}
+              >
                 <FileText className={navTheme.isDarkNav ? 'w-4 h-4' : 'w-4 h-4 group-hover:text-primary-700'} />
                 User Guide
               </a>
@@ -313,9 +360,21 @@ export default function LandingUI({
             <div className="mb-6 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 If you need assistance with IMPACT, please review the{' '}
-                <a href={metaInfo.faqUrl} target="_blank" rel="noreferrer" className="text-primary-700 hover:underline font-semibold">FAQs</a>
+                <a
+                  href={faqHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary-700 hover:underline font-semibold"
+                  onClick={(e) => onHelpDownload(e, 'Help_FAQ_pdf')}
+                >FAQs</a>
                 {' '}and{' '}
-                <a href={metaInfo.guideUrl} target="_blank" rel="noreferrer" className="text-primary-700 hover:underline font-semibold">User Guide</a>
+                <a
+                  href={guideHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary-700 hover:underline font-semibold"
+                  onClick={(e) => onHelpDownload(e, 'Help_Guide_pdf')}
+                >User Guide</a>
                 {' '}or contact our support team at{' '}
                 <a href={`mailto:${metaInfo.supportEmail}`} className="text-primary-700 hover:underline font-semibold">
                   {metaInfo.supportEmail}

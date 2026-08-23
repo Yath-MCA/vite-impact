@@ -36,4 +36,26 @@ describe('LandingUI layout', () => {
     expect(source).toContain('text-amber-950 dark:text-amber-100 leading-relaxed');
     expect(source).toContain('text-primary-700 hover:underline font-semibold');
   });
+
+  it('binds FAQ and User Guide links to downloadClick help actions', () => {
+    const source = landingUiSource();
+
+    expect(source).toContain('getDownloadRequest');
+    expect(source).toContain('initDownloadService');
+    expect(source).toContain("downloadClick(action, 'landing')");
+    expect(source).toContain("onHelpDownload(e, 'Help_FAQ_pdf')");
+    expect(source).toContain("onHelpDownload(e, 'Help_Guide_pdf')");
+    expect(source.match(/onHelpDownload\(e, 'Help_FAQ_pdf'\)/g)?.length).toBe(2);
+    expect(source.match(/onHelpDownload\(e, 'Help_Guide_pdf'\)/g)?.length).toBe(2);
+  });
+
+  it('hydrates help hrefs from the download service and skips intercept on modified clicks', () => {
+    const source = landingUiSource();
+
+    expect(source).toContain('href={faqHref}');
+    expect(source).toContain('href={guideHref}');
+    expect(source).toContain("getDownloadRequest('Help_FAQ_pdf')");
+    expect(source).toContain("getDownloadRequest('Help_Guide_pdf')");
+    expect(source).toContain('if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;');
+  });
 });

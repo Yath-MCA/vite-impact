@@ -10,7 +10,7 @@ Cross-feature download orchestration: help PDFs, workflow PDF/XML, zip packages,
 - `downloadAlerts.js` — editor message / toast mapping
 - `WorkflowDownloadService.js` — port of legacy `WorkflowDownloadModule`
 - `downloadBridge.js` — `window.iDownloadMethod` sync
-- `index.js` — singleton, `initDownloadService()`, `downloadClick()`
+- `index.js` — singleton, `initDownloadService()`, `downloadClick()`, `getDownloadRequest()`
 
 ## Dependencies
 - `services/api/apiService.js` (`FILE_DOWNLOAD`, `ZIP_DOWNLOAD`, `GET_DOCS`, `UPDATE_INSERT`)
