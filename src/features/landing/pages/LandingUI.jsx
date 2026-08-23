@@ -5,6 +5,7 @@ import useLandingSessionFlow from '../hooks/useLandingSessionFlow';
 import PlosAuthPanel from '../plos/PlosAuthPanel.jsx';
 import { sanitizeHtml } from '../../../utils/sanitizeHtml';
 import { resolveLandingConfigOverride } from '../../../services/landing/landingConfigService';
+import { getLandingNavTheme } from '../landingTheme.js';
 
 const LOGO_BASE_PATH = '/assets/logo/clients';
 const DEFAULT_IMPACT_LOGO_SRC = '/assets/logo/IMPACT_5_4.svg';
@@ -214,12 +215,13 @@ export default function LandingUI({
   const isPlos = clientName === 'plos';
   const coverImageUrl = getCoverImageUrl(docData?.cover, clientName);
   const bannerClass = THEME_BANNER_CLASS[metaInfo.theme] || THEME_BANNER_CLASS.primary;
+  const navTheme = getLandingNavTheme(metaInfo.theme);
 
   // Extract branding from response (takes precedence over env file)
   const welcomeHtml = branding.WELCOME_TEXT || branding.welcome_text || branding.welcomeText;
   const safeWelcomeHtml = welcomeHtml ? sanitizeHtml(welcomeHtml) : '';
   const pageTitle = branding.PAGE_TITLE || branding.page_title || branding.pageTitle;
-  const themeColor = metaInfo.theme;
+  const themeColor = navTheme.themeColor;
 
   useEffect(() => {
     const faviconName = (metaConfig.logo[clientName] || metaConfig.logo.default).favicon?.name;
@@ -258,7 +260,7 @@ export default function LandingUI({
     >
 
       {/* Header */}
-      <nav className="bg-white sticky top-0 z-40 shadow-sm"
+      <nav className={`${navTheme.navClass} sticky top-0 z-40 shadow-sm`}
         style={{ '--theme-color': themeColor }}
       >
         <div className="container mx-auto px-4">
@@ -267,11 +269,11 @@ export default function LandingUI({
               {LogoComponent({ config: metaInfo.logo.header })}
             </div>
             <div className="flex items-center space-x-6">
-              <a href={metaInfo.faqUrl} target="_blank" rel="noreferrer" className="text-sm text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center gap-1">
+              <a href={metaInfo.faqUrl} target="_blank" rel="noreferrer" className={navTheme.linkClass}>
                 <HelpCircle className="w-4 h-4" />
                 FAQs
               </a>
-              <a href={metaInfo.guideUrl} target="_blank" rel="noreferrer" className="text-sm text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center gap-1">
+              <a href={metaInfo.guideUrl} target="_blank" rel="noreferrer" className={navTheme.linkClass}>
                 <FileText className="w-4 h-4" />
                 User Guide
               </a>
