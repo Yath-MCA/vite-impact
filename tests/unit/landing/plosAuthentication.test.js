@@ -9,7 +9,7 @@ vi.mock('../../../src/services/api/apiService.js', () => ({
   }
 }));
 
-vi.mock('../../../src/plugins/sweetalert/index.js', () => ({
+vi.mock('../../../src/shared/plugins/sweetalert/index.js', () => ({
   Swal: {
     fire: vi.fn().mockResolvedValue({ isConfirmed: false }),
     isVisible: vi.fn().mockReturnValue(false),

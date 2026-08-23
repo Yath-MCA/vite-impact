@@ -1,6 +1,6 @@
 import { startTransition, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../shared/providers/AuthProvider';
 import { dashboardMenuConfig } from '../config/dashboardMenuConfig';
 import { filterMenuItemsByPermission } from '../utils/menuPermissions';
 

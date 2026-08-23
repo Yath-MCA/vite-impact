@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { BRANDING, THEME } from '../config/theme';
+import { BRANDING, THEME } from '../../config/theme';
 
 const ClientContext = createContext();
 

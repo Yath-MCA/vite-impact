@@ -1,4 +1,4 @@
-import { Swal } from '../../../plugins/sweetalert/index.js';
+import { Swal } from '../../../shared/plugins/sweetalert/index.js';
 import { apiService, API_ENDPOINTS } from '../../../services/api/apiService.js';
 import { ROLE_IDS } from '../../../services/api/roleCatalog.js';
 import { getRecaptchaSiteKey } from './plosAuthConfig.js';

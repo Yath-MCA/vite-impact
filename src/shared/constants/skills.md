@@ -1,6 +1,6 @@
-# hooks skills
+# constants skills
 
-Use when editing `src/hooks/`.
+Use when editing `src/shared/constants/`.
 
 ## Do
 - Keep changes in this folder's responsibility.
@@ -12,10 +12,10 @@ Use when editing `src/hooks/`.
 - Break stable routes (`/validateurl`, `/editor`, `/login`, `/config-manager`).
 
 ## Workflows
-1. Add shared hooks only if used by 2+ features.
-2. Feature-only hooks → features/<name>/hooks.
-3. Export from index when stable.
+1. Prefer domain constants next to domain (sessionConstants).
+2. Keep global constants small.
+3. Update README when adding modules.
 
 ## Related
-- Index: [docs/SKILLS_AND_WORKFLOWS.md](../../docs/SKILLS_AND_WORKFLOWS.md)
-- [src/README.md](../README.md)
+- Index: [docs/SKILLS_AND_WORKFLOWS.md](../../../docs/SKILLS_AND_WORKFLOWS.md)
+- [src/README.md](../../README.md)

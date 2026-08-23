@@ -3,7 +3,7 @@ import { FileText, Users, HelpCircle, BookOpen, Monitor, Loader2 } from 'lucide-
 import metaConfig from '../../../config/landing-meta.json';
 import useLandingSessionFlow from '../hooks/useLandingSessionFlow';
 import PlosAuthPanel from '../plos/PlosAuthPanel.jsx';
-import { sanitizeHtml } from '../../../utils/sanitizeHtml';
+import { sanitizeHtml } from '../../../shared/utils/sanitizeHtml';
 import { resolveLandingConfigOverride } from '../../../services/landing/landingConfigService';
 import { getLandingNavTheme } from '../landingTheme.js';
 import { getClientCopy } from '../landingCopy.js';
@@ -577,4 +577,3 @@ export default function LandingUI({
     </div>
   );
 }
-

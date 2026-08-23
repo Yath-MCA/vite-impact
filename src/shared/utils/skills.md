@@ -1,6 +1,6 @@
-# constants skills
+# utils skills
 
-Use when editing `src/constants/`.
+Use when editing `src/shared/utils/`.
 
 ## Do
 - Keep changes in this folder's responsibility.
@@ -12,10 +12,10 @@ Use when editing `src/constants/`.
 - Break stable routes (`/validateurl`, `/editor`, `/login`, `/config-manager`).
 
 ## Workflows
-1. Prefer domain constants next to domain (sessionConstants).
-2. Keep global constants small.
-3. Update README when adding modules.
+1. Keep utils pure and tested under tests/unit/utils when logic-heavy.
+2. Domain IO stays in services.
+3. Document new exports in README.
 
 ## Related
-- Index: [docs/SKILLS_AND_WORKFLOWS.md](../../docs/SKILLS_AND_WORKFLOWS.md)
-- [src/README.md](../README.md)
+- Index: [docs/SKILLS_AND_WORKFLOWS.md](../../../docs/SKILLS_AND_WORKFLOWS.md)
+- [src/README.md](../../README.md)

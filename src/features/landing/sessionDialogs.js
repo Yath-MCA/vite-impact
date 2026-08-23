@@ -2,7 +2,7 @@
  * Landing session SweetAlert dialogs (legacy LinkSessionSend-style popups).
  * Landing is outside editor ModuleContext — use Swal + landing message catalog.
  */
-import { close, Swal } from '../../plugins/sweetalert/index.js';
+import { close, Swal } from '../../shared/plugins/sweetalert/index.js';
 import { validateEmailInput } from '../../services/session/sessionSource.js';
 import {
   LandingMessageKey,

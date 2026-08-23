@@ -12,7 +12,7 @@ Use when editing `src/context/`.
 - Break stable routes (`/validateurl`, `/editor`, `/login`, `/config-manager`).
 
 ## Workflows
-1. Keep provider logic here until moved under core/providers files.
+1. Keep editor/layout/module context here until a safer second-pass migration.
 2. Feature-local context stays under features (e.g. dashboard).
 3. Do not put API session handshake in context — use services/session.
 

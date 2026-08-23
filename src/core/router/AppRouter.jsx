@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 
-import { AuthProvider } from '../../context/AuthContext';
-import { ClientProvider } from '../../context/ClientContext';
+import { AuthProvider } from '../../shared/providers/AuthProvider';
+import { ClientProvider } from '../../shared/providers/ClientProvider';
 import { EditorProvider } from '../../context/EditorContext';
 import { LayoutProvider } from '../../context/LayoutContext';
 import { ModuleProvider } from '../../context/ModuleContext';

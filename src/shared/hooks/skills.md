@@ -1,6 +1,6 @@
-# utils skills
+# hooks skills
 
-Use when editing `src/utils/`.
+Use when editing `src/shared/hooks/`.
 
 ## Do
 - Keep changes in this folder's responsibility.
@@ -12,10 +12,10 @@ Use when editing `src/utils/`.
 - Break stable routes (`/validateurl`, `/editor`, `/login`, `/config-manager`).
 
 ## Workflows
-1. Keep utils pure and tested under tests/unit/utils when logic-heavy.
-2. Domain IO stays in services.
-3. Document new exports in README.
+1. Add shared hooks only if used by 2+ features.
+2. Feature-only hooks → features/<name>/hooks.
+3. Export from index when stable.
 
 ## Related
-- Index: [docs/SKILLS_AND_WORKFLOWS.md](../../docs/SKILLS_AND_WORKFLOWS.md)
-- [src/README.md](../README.md)
+- Index: [docs/SKILLS_AND_WORKFLOWS.md](../../../docs/SKILLS_AND_WORKFLOWS.md)
+- [src/README.md](../../README.md)

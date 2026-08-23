@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useClient } from '../../context/ClientContext';
+import { useClient } from '../../shared/providers/ClientProvider';
 import { useLayout } from '../../context/LayoutContext';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../shared/providers/AuthProvider';
 import { Menu, X, Sun, Moon, Monitor, LayoutDashboard, FileText, Settings, User, Database } from 'lucide-react';
 
 export default function Header() {

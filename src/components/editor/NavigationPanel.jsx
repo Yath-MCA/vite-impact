@@ -1,7 +1,7 @@
 import { memo, useMemo, useState } from 'react';
 import { BookOpen, MessageSquare, MessagesSquare } from 'lucide-react';
 import { useEditor } from '../../context/EditorContext';
-import { useClient } from '../../context/ClientContext';
+import { useClient } from '../../shared/providers/ClientProvider';
 import Toc from './Toc';
 import Queries from './Queries';
 import Comments from './Comments';

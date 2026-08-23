@@ -3,7 +3,7 @@ import { useQueries } from '@tanstack/react-query';
 import { Search, Database, AlertTriangle, FileX2, CheckCircle2 } from 'lucide-react';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-import { DOC_COLLECTIONS, EXCEPTION_COLLECTIONS } from '../constants/docCollections';
+import { DOC_COLLECTIONS, EXCEPTION_COLLECTIONS } from '../../shared/constants/docCollections';
 
 const DEFAULT_IGNORED_COLUMNS = ['_r', '_w'];
 const COMMON_METADATA_KEYS = [

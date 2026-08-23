@@ -1,11 +1,11 @@
 /**
- * @file AuthContext.jsx
+ * @file AuthProvider.jsx
  * @description Authentication context for user/admin roles
  * Manages login state and admin privileges
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { apiService, ADMIN_CONFIG, ROLE_IDS } from '../services/api/apiService';
+import { apiService, ADMIN_CONFIG, ROLE_IDS } from '../../services/api/apiService';
 
 const AuthContext = createContext(null);
 

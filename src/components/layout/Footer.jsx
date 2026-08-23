@@ -1,4 +1,4 @@
-import { useClient } from '../../context/ClientContext';
+import { useClient } from '../../shared/providers/ClientProvider';
 import { useLayout } from '../../context/LayoutContext';
 
 export default function Footer() {

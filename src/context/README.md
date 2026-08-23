@@ -1,17 +1,15 @@
 # context
 
 ## Purpose / ownership
-Global React providers: Auth, Client, Editor, Layout, Module.
+Editor/app-shell React contexts that still need a safer second-pass migration.
 
 ## Key files
-- `AuthContext.jsx`
-- `ClientContext.jsx`
 - `EditorContext.jsx`
 - `LayoutContext.jsx`
 - `ModuleContext.jsx`
 
 ## Dependencies
-Re-exported from `core/providers` (Auth/Client). Editor/Layout/Module wrap editor routes.
+Editor/Layout/Module wrap editor routes. Shared Auth/Client providers now live in `src/shared/providers`.
 
 ## Status
 **active**

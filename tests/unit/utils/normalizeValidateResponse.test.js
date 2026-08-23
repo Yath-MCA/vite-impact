@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   normalizeValidateResponse,
   assertValidateAccess
-} from '../../../src/utils/normalizeValidateResponse.js';
+} from '../../../src/shared/utils/normalizeValidateResponse.js';
 
 describe('normalizeValidateResponse', () => {
   it('maps docid from identifier fallback', () => {

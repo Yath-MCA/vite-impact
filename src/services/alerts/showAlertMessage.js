@@ -2,7 +2,7 @@
  * Map catalog dialog entry → SweetAlert2 via the project plugin.
  * Supports flat dialog config and triad prompt/success/cancel shapes.
  */
-import { Swal } from '../../plugins/sweetalert/index.js';
+import { Swal } from '../../shared/plugins/sweetalert/index.js';
 import { interpolateMessageEntry } from './interpolateAlertText.js';
 
 /**

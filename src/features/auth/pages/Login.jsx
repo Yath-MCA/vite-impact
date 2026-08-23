@@ -5,7 +5,7 @@
 
 import React, { useState, startTransition } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../shared/providers/AuthProvider';
 import { BRANDING } from '../../../config/theme';
 
 const Login = () => {

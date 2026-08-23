@@ -1,4 +1,4 @@
-import { CLIENT_CONFIGS } from '../context/ClientContext';
+import { CLIENT_CONFIGS } from '../providers/ClientProvider';
 
 export const loadClientById = (clientId) => {
   return new Promise((resolve, reject) => {

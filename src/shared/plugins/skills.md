@@ -1,6 +1,6 @@
 # plugins skills
 
-Use when editing `src/plugins/`.
+Use when editing `src/shared/plugins/`.
 
 ## Do
 - Keep changes in this folder's responsibility.
@@ -17,5 +17,5 @@ Use when editing `src/plugins/`.
 3. See docs/PLUGINS_README.md for broader notes.
 
 ## Related
-- Index: [docs/SKILLS_AND_WORKFLOWS.md](../../docs/SKILLS_AND_WORKFLOWS.md)
-- [src/README.md](../README.md)
+- Index: [docs/SKILLS_AND_WORKFLOWS.md](../../../docs/SKILLS_AND_WORKFLOWS.md)
+- [src/README.md](../../README.md)

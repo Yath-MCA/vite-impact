@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, LogOut, UserCircle2 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { useClient } from '../../context/ClientContext';
+import { useAuth } from '../../shared/providers/AuthProvider';
+import { useClient } from '../../shared/providers/ClientProvider';
 
 function formatRoleLabel(userRole, isAdmin) {
   if (isAdmin) return 'Admin';

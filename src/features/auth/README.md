@@ -8,7 +8,7 @@ Login / authentication entry UI.
 - `index.js`
 
 ## Dependencies
-`context/AuthContext`, `config/theme`, route `/login`.
+`shared/providers/AuthProvider`, `config/theme`, route `/login`.
 
 ## Status
 **active**

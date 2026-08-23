@@ -16,9 +16,9 @@ import {
 } from 'lucide-react';
 import { BRANDING } from '../../../config/theme';
 import { apiService, API_ENDPOINTS } from '../../../services/api/apiService';
-import { useClient } from '../../../context/ClientContext';
-import { loadClientById } from '../../../utils/clientLoader';
-import { assertValidateAccess, normalizeValidateResponse } from '../../../utils/normalizeValidateResponse';
+import { useClient } from '../../../shared/providers/ClientProvider';
+import { loadClientById } from '../../../shared/utils/clientLoader';
+import { assertValidateAccess, normalizeValidateResponse } from '../../../shared/utils/normalizeValidateResponse';
 import {
   clearDocScopedLocalData,
   setPendingValidateResponse,

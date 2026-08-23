@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { useLayout } from '../../context/LayoutContext';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../shared/providers/AuthProvider';
 import {
   LayoutDashboard,
   FileText,

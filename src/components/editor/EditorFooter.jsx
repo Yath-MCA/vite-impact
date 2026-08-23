@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { Wifi, WifiOff, FileText, GitBranch } from 'lucide-react';
-import { useClient } from '../../context/ClientContext';
+import { useClient } from '../../shared/providers/ClientProvider';
 import { useEditor } from '../../context/EditorContext';
-import { useOnlineStatus } from '../../hooks/useOnlineStatus';
+import { useOnlineStatus } from '../../shared/hooks/useOnlineStatus';
 
 export default function EditorFooter() {
     const { clientConfig } = useClient();
