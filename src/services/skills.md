@@ -20,4 +20,5 @@ Use when editing `src/services/`.
 ## Related
 - [skills.md](./skills.md)
 - Session: [./session/](./session/)
+- Download: [./download/](./download/)
 - Index: [docs/SKILLS_AND_WORKFLOWS.md](../../docs/SKILLS_AND_WORKFLOWS.md)

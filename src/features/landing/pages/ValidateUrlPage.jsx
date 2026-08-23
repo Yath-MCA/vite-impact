@@ -15,6 +15,7 @@ import {
   fireMaintenanceAlert,
   initMaintenance
 } from '../../../services/landing/maintenanceGuard.js';
+import { initDownloadService } from '../../../services/download/index.js';
 import useAcceptButtonVisibility from '../hooks/useAcceptButtonVisibility.js';
 import useLandingSessionFlow from '../hooks/useLandingSessionFlow.js';
 import useLandingUserValidation from '../hooks/useLandingUserValidation.js';
@@ -181,6 +182,7 @@ function ValidateUrlView({ accessKey, clientParam, alertParam }) {
       try {
         await initMaintenance({ init: true });
         fireMaintenanceAlert();
+        initDownloadService();
 
         if (alertParam === 'idle_session_log_out') {
           await showLandingMessage(LandingMessageKey.SESSION_OUT);
