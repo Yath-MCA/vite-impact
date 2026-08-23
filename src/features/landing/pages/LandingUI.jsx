@@ -5,6 +5,7 @@ import useLandingSessionFlow from '../hooks/useLandingSessionFlow';
 import { isPlosClient } from '../landingAccess.js';
 import { sanitizeHtml } from '../../../shared/utils/sanitizeHtml';
 import { resolveLandingConfigOverride } from '../../../services/landing/landingConfigService';
+import { buildCoverImageUrl, getPublicationTitleLabel } from '../landingDocumentInfo.js';
 import { getLandingNavTheme } from '../landingTheme.js';
 import { getClientCopy } from '../landingCopy.js';
 import {
@@ -31,12 +32,6 @@ const THEME_BANNER_CLASS = {
 
 // Get BUCKET_URL from window.ENV or fallback
 const BUCKET_URL = window.ENV?.BUCKET_URL || window.BUCKET_URL || 'http://localhost/xmleditor/';
-
-// Get cover image URL
-const getCoverImageUrl = (coverName, clientName) => {
-  if (!coverName || !clientName) return null;
-  return `${BUCKET_URL}_SUPPORT_FILES/${clientName.toUpperCase()}/cover/${coverName}.png`;
-};
 
 // Browser compatibility information (from src/snippets/component/browser.html)
 const BROWSER_COMPATIBILITY = {
@@ -180,7 +175,8 @@ export default function LandingUI({
     [clientName, dtd, configOverride]
   );
   const isPlos = isPlosClient(docData?.client);
-  const coverImageUrl = getCoverImageUrl(docData?.cover, clientName);
+  const coverImageUrl = buildCoverImageUrl(docData?.cover, clientName, BUCKET_URL);
+  const publicationTitleLabel = getPublicationTitleLabel(docData);
   const bannerClass = THEME_BANNER_CLASS[metaInfo.theme] || THEME_BANNER_CLASS.primary;
   const navTheme = getLandingNavTheme(metaInfo.theme);
 
@@ -235,12 +231,12 @@ export default function LandingUI({
               {LogoComponent({ config: metaInfo.logo.header })}
             </div>
             <div className="flex items-center space-x-6">
-              <a href={metaInfo.faqUrl} target="_blank" rel="noreferrer" className={navTheme.linkClass}>
-                <HelpCircle className="w-4 h-4" />
+              <a href={metaInfo.faqUrl} target="_blank" rel="noreferrer" className={`${navTheme.linkClass} group`}>
+                <HelpCircle className={navTheme.isDarkNav ? 'w-4 h-4' : 'w-4 h-4 group-hover:text-primary-700'} />
                 FAQs
               </a>
-              <a href={metaInfo.guideUrl} target="_blank" rel="noreferrer" className={navTheme.linkClass}>
-                <FileText className="w-4 h-4" />
+              <a href={metaInfo.guideUrl} target="_blank" rel="noreferrer" className={`${navTheme.linkClass} group`}>
+                <FileText className={navTheme.isDarkNav ? 'w-4 h-4' : 'w-4 h-4 group-hover:text-primary-700'} />
                 User Guide
               </a>
             </div>
@@ -249,7 +245,7 @@ export default function LandingUI({
       </nav>
 
       {/* Main Content */}
-      <div className="flex-1 container mx-auto px-4 py-8">
+      <div className="flex-1 container max-w-screen-2xl mx-auto px-4 py-8">
 
         {/* Welcome Banner */}
         <div className={`${bannerClass} text-white rounded-lg p-6 mb-6 shadow-lg`}>
@@ -271,7 +267,7 @@ export default function LandingUI({
           )}
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
 
           {/* Left: Instructions */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
@@ -431,7 +427,7 @@ export default function LandingUI({
                 {(docData?.journaltitle || docData?.booktitle) && (
                   <div>
                     <div className="text-xs font-bold text-primary-600 dark:text-primary-400 uppercase tracking-wider mb-1">
-                      {docData?.dtd === 'jats' ? 'Journal' : 'Book'} Title
+                      {publicationTitleLabel}
                     </div>
                     <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight">
                       {docData.journaltitle || docData.booktitle}

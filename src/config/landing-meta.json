@@ -44,7 +44,7 @@
         "lww": {
             "theme": "lww",
             "header-logo": {
-                "name": "LWW_WHITE_BOTTOM.svg",
+                "name": "LWW.svg",
                 "alt": "LWW Logo",
                 "width": "150px",
                 "height": "40"

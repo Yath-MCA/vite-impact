@@ -18,15 +18,20 @@ export const THEME_COLOR_HEX = {
 
 const LIGHT_NAV = {
   navClass: 'bg-white text-gray-700',
-  linkClass: 'text-sm text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center gap-1'
+  linkClass: 'text-base text-gray-700 dark:text-gray-300 hover:text-primary-700 dark:hover:text-primary-400 flex items-center gap-1'
+};
+
+const LWW_LIGHT_NAV = {
+  navClass: 'bg-white text-gray-900',
+  linkClass: 'text-base text-gray-800 dark:text-gray-300 hover:text-primary-700 dark:hover:text-white flex items-center gap-1'
 };
 
 const DARK_NAV_LINK =
-  'text-sm text-white hover:text-white/80 flex items-center gap-1';
+  'text-base text-white hover:text-white/80 flex items-center gap-1';
 
 export const THEME_NAV_CLASS = {
   oxford: { navClass: 'bg-oxford-900 text-white', linkClass: DARK_NAV_LINK },
-  lww: { navClass: 'bg-lww-900 text-white', linkClass: DARK_NAV_LINK },
+  lww: LWW_LIGHT_NAV,
   plos: { navClass: 'bg-plos-900 text-white', linkClass: DARK_NAV_LINK },
   acs: { navClass: 'bg-acs-900 text-white', linkClass: DARK_NAV_LINK },
   oho: { navClass: 'bg-oho-900 text-white', linkClass: DARK_NAV_LINK },

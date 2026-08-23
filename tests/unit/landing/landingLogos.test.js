@@ -26,6 +26,13 @@ describe('landingLogos', () => {
     expect(resolveFaviconHref(landingMeta.logo.oup)).toBe('/assets/logo/clients/OUP_FAVICON.svg');
   });
 
+  it('uses a non-white lww header logo and keeps the white footer logo', () => {
+    expect(pickLogoSlot(landingMeta.logo.lww, 'header-logo')?.name).toBe('LWW.svg');
+    expect(pickLogoSlot(landingMeta.logo.lww, 'footer-logo')?.name).toBe('LWW_WHITE_BOTTOM.svg');
+    expect(listLandingLogoSrcs(landingMeta.logo.lww)).toContain('/assets/logo/clients/LWW.svg');
+    expect(listLandingLogoSrcs(landingMeta.logo.lww)).toContain('/assets/logo/clients/LWW_WHITE_BOTTOM.svg');
+  });
+
   it('picks TNF journal marks when dtd is jats', () => {
     const header = pickLogoSlot(landingMeta.logo.tnf, 'header-logo', 'jats');
     expect(header.name).toBe('TNF_JORUNAL.svg');
