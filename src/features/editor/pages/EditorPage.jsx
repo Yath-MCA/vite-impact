@@ -19,6 +19,7 @@ import {
 import { SESSION_STORAGE_KEYS } from '../../../services/session/sessionConstants.js';
 import { getValidateAccessKey } from '../../../services/session/sessionStorage.js';
 import { showEditorMessage, EditorMessageKey } from '../messages/editorMessages.js';
+import { loadCKEditor } from '../../../shared/utils/loadCKEditor.js';
 
 const NavigationPanel = lazy(() => import('../components/NavigationPanel'));
 const ThumbnailPanel = lazy(() => import('../components/ThumbnailPanel'));
@@ -103,6 +104,9 @@ export default function EditorPage({ readOnly = false }) {
   const { toggles } = useLayout();
   const { registerModule } = useModule();
   const [editorData, setEditorData] = useState(INITIAL_CONTENT);
+  const [ckeditorReady, setCkeditorReady] = useState(
+    typeof window !== 'undefined' && Boolean(window.CKEDITOR)
+  );
   const syncTimerRef = useRef(null);
   const sessionDocId =
     typeof sessionStorage !== 'undefined'
@@ -113,6 +117,20 @@ export default function EditorPage({ readOnly = false }) {
 
   useEffect(() => {
     registerEditorAlertBridge();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadCKEditor()
+      .then(() => {
+        if (!cancelled) setCkeditorReady(true);
+      })
+      .catch(() => {
+        if (!cancelled) setCkeditorReady(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -240,13 +258,19 @@ export default function EditorPage({ readOnly = false }) {
         <section className="flex min-w-0 flex-1 overflow-hidden">
           <div className="flex min-w-0 flex-1 justify-center overflow-y-auto bg-[#ece7de] px-3 py-4 md:px-6 md:py-6">
             <div className="w-full max-w-5xl rounded-sm border border-gray-200 bg-white shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
-              <CKEditor
-                initData={editorData}
-                onChange={handleEditorChange}
-                onInstanceReady={handleEditorReady}
-                onInstanceDestroyed={handleEditorDestroyed}
-                config={editorConfig}
-              />
+              {ckeditorReady ? (
+                <CKEditor
+                  initData={editorData}
+                  onChange={handleEditorChange}
+                  onInstanceReady={handleEditorReady}
+                  onInstanceDestroyed={handleEditorDestroyed}
+                  config={editorConfig}
+                />
+              ) : (
+                <div className="flex h-[760px] items-center justify-center text-sm text-gray-500">
+                  Loading editor…
+                </div>
+              )}
             </div>
           </div>
 

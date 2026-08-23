@@ -5,13 +5,6 @@ import ProtectedRoute from '../../../core/router/ProtectedRoute';
 import AdminDashboard from '../pages/AdminDashboard';
 import DevDashboard from '../pages/DevDashboard';
 import DocDashboard from '../pages/DocDashboard';
-import ConfigManagerPage from '../config-manager/ConfigManagerPage';
-
-const ProtectedConfigManager = () => (
-  <ProtectedRoute requireAdmin>
-    <ConfigManagerPage />
-  </ProtectedRoute>
-);
 
 const DashboardRoutes = () => {
   const location = useLocation();
@@ -58,7 +51,7 @@ const DashboardRoutes = () => {
         <Route index element={<AdminDashboard />} />
       </Route>
 
-      <Route path="config-manager/*" element={<ProtectedConfigManager />} />
+      <Route path="config-manager/*" element={<Navigate to="/config-manager" replace />} />
       <Route path="admin-dashboard" element={<Navigate to="/admin" replace />} />
       <Route path="dashboard" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

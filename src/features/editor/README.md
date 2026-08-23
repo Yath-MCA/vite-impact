@@ -8,6 +8,7 @@ Editor feature page, route exports, editor chrome, and editor history.
 - `components/`
 - `history/`
 - `routes/editorRoutes.jsx`
+- `routes/EditorRouteShell.jsx`
 - `index.jsx`
 
 ## Dependencies

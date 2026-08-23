@@ -15,7 +15,7 @@ src/
   core/                 # app shell (router, providers facade, layout)
   features/
     landing/
-      pages/            # ValidateUrlPage (controller+routing), LandingUI (view)
+      pages/            # ValidateUrlPage, MarketingLandingPage, LandingUI
       hooks/            # useLandingSessionFlow
       routes/
     dashboard/          # reference module plus dashboard-owned workflows

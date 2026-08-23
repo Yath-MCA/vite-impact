@@ -11,16 +11,16 @@ This document summarizes the main application routes and the pages or components
 
 | Route | Destination | Notes |
 | --- | --- | --- |
-| `/` | Landing page | Loads [src/features/landing/pages/ValidateUrlPage.jsx](../src/features/landing/pages/ValidateUrlPage.jsx) |
+| `/` | Marketing landing | Loads [src/features/landing/pages/MarketingLandingPage.jsx](../src/features/landing/pages/MarketingLandingPage.jsx) |
 | `/login` | Login page | Loads [src/features/auth/pages/Login.jsx](../src/features/auth/pages/Login.jsx) |
 | `/dashboard/*` | Dashboard router | Renders the dashboard feature with provider context |
 | `/doc-dashboard/*` | Dashboard router (doc dashboard mode) | Uses the same dashboard router but shows the doc dashboard experience |
 | `/docdashboard` | Redirect to `/doc-dashboard` | Alias redirect |
 | `/doc-finder` | Redirect to `/devboard` | Legacy alias |
 | `/admindashboard` | Redirect to `/dashboard/admin` | Legacy alias |
-| `/client` | Client dashboard | Loads [src/features/extras/ClientDashboard.jsx](../src/features/extras/ClientDashboard.jsx) |
-| `/validateurl` | Landing page | Same component as `/` |
-| `/validateurl/:client` | Landing page with client param | Same component as `/` |
+| `/client` | Client dashboard | Loads [src/features/dashboard/pages/ClientDashboard.jsx](../src/features/dashboard/pages/ClientDashboard.jsx) |
+| `/validateurl` | URL validation | Loads [src/features/landing/pages/ValidateUrlPage.jsx](../src/features/landing/pages/ValidateUrlPage.jsx) |
+| `/validateurl/:client` | URL validation with client param | Same ValidateUrl page |
 | `/editor` | Editor page | Loads [src/features/editor/pages/EditorPage.jsx](../src/features/editor/pages/EditorPage.jsx) |
 | `/editor-readyonly` | Editor page in read-only mode | Same editor page with `readOnly` enabled |
 | `/config-manager/*` | Config manager page | Protected admin route via [src/features/dashboard/config-manager/ConfigManagerPage.jsx](../src/features/dashboard/config-manager/ConfigManagerPage.jsx) |
@@ -35,7 +35,7 @@ These routes are mounted under the dashboard router and are handled in [src/feat
 | `/dashboard` | Redirect to `/dashboard/dev` | Default dashboard landing |
 | `/dashboard/dev` | Dev dashboard | Loads [src/features/dashboard/pages/DevDashboard.jsx](../src/features/dashboard/pages/DevDashboard.jsx) |
 | `/dashboard/admin` | Admin dashboard | Loads [src/features/dashboard/pages/AdminDashboard.jsx](../src/features/dashboard/pages/AdminDashboard.jsx) |
-| `/dashboard/config-manager/*` | Config manager page | Protected admin route |
+| `/dashboard/config-manager/*` | Redirect to `/config-manager` | Canonical config manager lives at `/config-manager/*` |
 | `/dashboard/admin-dashboard` | Redirect to `/admin` | Legacy redirect |
 | `/dashboard/dashboard` | Redirect to `/dashboard` | Alias redirect |
 | `/doc-dashboard` | Doc dashboard | Loads [src/features/dashboard/pages/DocDashboard.jsx](../src/features/dashboard/pages/DocDashboard.jsx) |

@@ -6,6 +6,7 @@ ValidateUrl controller + landing UI + session CTA orchestration.
 ## Key files
 - `landingAccess.js`
 - `pages/ValidateUrlPage.jsx`
+- `pages/MarketingLandingPage.jsx`
 - `pages/LandingUI.jsx`
 - `landingTheme.js`
 - `landingCopy.js`

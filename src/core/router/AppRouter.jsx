@@ -2,33 +2,39 @@ import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 
 import { AuthProvider } from '../../shared/providers/AuthProvider';
 import { ClientProvider } from '../../shared/providers/ClientProvider';
-import { EditorProvider } from '../../context/EditorContext';
-import { LayoutProvider } from '../../context/LayoutContext';
-import { ModuleProvider } from '../../context/ModuleContext';
-
-import { DashboardProvider } from '../../features/dashboard/context/DashboardContext';
 import ProtectedRoute from './ProtectedRoute';
-import DashboardRoutes from '../../features/dashboard/routes/dashboardRoutes';
 import BrowserCompatibilityGate from './BrowserCompatibilityGate';
 
-function withEditorProviders(Component, readOnly = false) {
-  return function EditorRoute() {
-    return (
-      <EditorProvider>
-        <LayoutProvider>
-          <ModuleProvider>
-            <Component readOnly={readOnly} />
-          </ModuleProvider>
-        </LayoutProvider>
-      </EditorProvider>
-    );
+async function loadDashboardRoute() {
+  const [{ DashboardProvider }, { default: DashboardRoutes }] = await Promise.all([
+    import('../../features/dashboard/context/DashboardContext'),
+    import('../../features/dashboard/routes/dashboardRoutes')
+  ]);
+
+  return {
+    Component: function DashboardRoute() {
+      return (
+        <DashboardProvider>
+          <DashboardRoutes />
+        </DashboardProvider>
+      );
+    }
   };
+}
+
+async function loadEditorRoute(readOnly) {
+  const [{ createEditorRoute }, { default: EditorPage }] = await Promise.all([
+    import('../../features/editor/routes/EditorRouteShell'),
+    import('../../features/editor/pages/EditorPage')
+  ]);
+
+  return { Component: createEditorRoute(EditorPage, readOnly) };
 }
 
 const router = createBrowserRouter([
   {
     path: '/',
-    lazy: () => import('../../features/landing/pages/ValidateUrlPage').then(m => ({ Component: m.default }))
+    lazy: () => import('../../features/landing/pages/MarketingLandingPage').then(m => ({ Component: m.default }))
   },
   {
     path: '/login',
@@ -36,19 +42,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/dashboard/*',
-    element: (
-      <DashboardProvider>
-        <DashboardRoutes />
-      </DashboardProvider>
-    )
+    lazy: loadDashboardRoute
   },
   {
     path: '/doc-dashboard/*',
-    element: (
-      <DashboardProvider>
-        <DashboardRoutes />
-      </DashboardProvider>
-    )
+    lazy: loadDashboardRoute
   },
   {
     path: '/docdashboard',
@@ -64,7 +62,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/client',
-    lazy: () => import('../../features/extras/ClientDashboard').then(m => ({ Component: m.default }))
+    lazy: () => import('../../features/dashboard/pages/ClientDashboard').then(m => ({ Component: m.default }))
   },
   {
     path: '/validateurl',
@@ -76,17 +74,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/editor',
-    lazy: () =>
-      import('../../features/editor/pages/EditorPage').then((m) => ({
-        Component: withEditorProviders(m.default, false)
-      }))
+    lazy: () => loadEditorRoute(false)
   },
   {
     path: '/editor-readyonly',
-    lazy: () =>
-      import('../../features/editor/pages/EditorPage').then((m) => ({
-        Component: withEditorProviders(m.default, true)
-      }))
+    lazy: () => loadEditorRoute(true)
   },
   {
     path: '/config-manager/*',
