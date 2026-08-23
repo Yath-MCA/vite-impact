@@ -25,7 +25,6 @@ import {
   setValidateAccessKey
 } from '../../../services/session/sessionStorage';
 import { isLocalHost } from '../../../services/session/runtimeFlags.js';
-import { checkBrowserCompatibility } from '../../../services/landing/browserCompatibility.js';
 import {
   fireMaintenanceAlert,
   initMaintenance
@@ -254,17 +253,6 @@ function ValidateUrlView({ accessKey, clientParam, alertParam }) {
 
     async function validateByKey(key) {
       try {
-        const browserInfo = checkBrowserCompatibility();
-        if (typeof window !== 'undefined') {
-          window.browserInfo = browserInfo;
-        }
-        if (!browserInfo.isAllowed || !browserInfo.isCompatible) {
-          setStatus('error');
-          setError('Your browser is not supported for IMPACT.');
-          await showLandingMessage(LandingMessageKey.UNSUPPORTED_BROWSER);
-          return;
-        }
-
         await initMaintenance({ init: true });
         fireMaintenanceAlert();
 
