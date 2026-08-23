@@ -9,6 +9,7 @@ import { ModuleProvider } from '../../context/ModuleContext';
 import { DashboardProvider } from '../../features/dashboard/context/DashboardContext';
 import ProtectedRoute from './ProtectedRoute';
 import DashboardRoutes from '../../features/dashboard/routes/dashboardRoutes';
+import BrowserCompatibilityGate from './BrowserCompatibilityGate';
 
 function withEditorProviders(Component, readOnly = false) {
   return function EditorRoute() {
@@ -110,7 +111,9 @@ const AppRouter = () => {
   return (
     <AuthProvider>
       <ClientProvider>
-        <RouterProvider router={router} />
+        <BrowserCompatibilityGate>
+          <RouterProvider router={router} />
+        </BrowserCompatibilityGate>
       </ClientProvider>
     </AuthProvider>
   );
