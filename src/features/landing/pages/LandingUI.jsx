@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { FileText, Users, HelpCircle, BookOpen, Monitor, Loader2 } from 'lucide-react';
 import metaConfig from '../../../config/landing-meta.json';
 import useLandingSessionFlow from '../hooks/useLandingSessionFlow';
-import PlosAuthPanel from '../plos/PlosAuthPanel.jsx';
+import { isPlosClient } from '../landingAccess.js';
 import { sanitizeHtml } from '../../../shared/utils/sanitizeHtml';
 import { resolveLandingConfigOverride } from '../../../services/landing/landingConfigService';
 import { getLandingNavTheme } from '../landingTheme.js';
@@ -13,6 +13,8 @@ import {
   resolveFaviconHref,
   resolveLogoSrc
 } from '../landingLogos.js';
+
+const PlosAuthPanel = lazy(() => import('../plos/PlosAuthPanel.jsx'));
 
 const THEME_BANNER_CLASS = {
   oxford: 'bg-gradient-to-r from-oxford-600 to-oxford-700',
@@ -177,7 +179,7 @@ export default function LandingUI({
     () => applyLandingConfigOverride(getClientLandingConfig(clientName, dtd), configOverride),
     [clientName, dtd, configOverride]
   );
-  const isPlos = clientName === 'plos';
+  const isPlos = isPlosClient(docData?.client);
   const coverImageUrl = getCoverImageUrl(docData?.cover, clientName);
   const bannerClass = THEME_BANNER_CLASS[metaInfo.theme] || THEME_BANNER_CLASS.primary;
   const navTheme = getLandingNavTheme(metaInfo.theme);
@@ -344,7 +346,11 @@ export default function LandingUI({
             </div>
 
             {/* PLOS: extra verification (OTP / reCAPTCHA) before accept */}
-            {isPlos && <PlosAuthPanel status={plosAuthStatus} />}
+            {isPlos && (
+              <Suspense fallback={null}>
+                <PlosAuthPanel status={plosAuthStatus} />
+              </Suspense>
+            )}
 
             {showAcceptButton && !isBusy && (
               <button

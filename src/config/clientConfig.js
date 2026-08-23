@@ -68,5 +68,6 @@ export const ROLE_PERMISSIONS = {
   }
 };
 
+/** Dashboard/editor sample default only — never use as urlvalidity/landing client fallback. */
 export const DEFAULT_CLIENT_ID = 'PLOS';
 export const DEFAULT_ROLE = 'Editor';

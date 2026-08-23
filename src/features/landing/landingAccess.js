@@ -52,17 +52,21 @@ export function canUserAccessFreely(resData, response = {}) {
   return false;
 }
 
-export function shouldRunPlosAuth(resData, response, clientName) {
-  return shouldRunLandingAuth(resData, response, clientName);
-}
-
 export function isTokenOtpEnabled(resData) {
   return String(resData?.enable || '').toLowerCase() === 'tokenotp';
 }
 
-/** Extra landing auth: PLOS clients or any client with enable=tokenotp. */
-export function shouldRunLandingAuth(resData, response, clientName) {
+/**
+ * Extra landing auth (OTP / reCAPTCHA) only for urlvalidity client === plos.
+ * Missing/default client is not PLOS. Token OTP on other clients does not run this flow.
+ */
+export function shouldRunPlosAuth(resData, response, clientName) {
   if (canUserAccessFreely(resData, response)) return false;
   if (String(resData?.enable || '').toLowerCase() === 'none') return false;
-  return isPlosClient(clientName) || isTokenOtpEnabled(resData);
+  return isPlosClient(clientName);
+}
+
+/** Extra landing auth — same gate as PLOS-only verification. */
+export function shouldRunLandingAuth(resData, response, clientName) {
+  return shouldRunPlosAuth(resData, response, clientName);
 }

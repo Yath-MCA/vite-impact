@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { SESSION_REMARKS } from '../../../services/session/sessionConstants.js';
 import {
   applySelectedEmailToResData,
@@ -12,18 +12,32 @@ import {
 import { setUserInfo, toLegacyUserInfo } from '../../../services/session/userInfoBridge.js';
 import { normalizeSessionSource } from '../../../services/session/sessionSource.js';
 import { promptValidateUserEmail } from '../sessionDialogs.js';
-import { isPlosClient, isTokenOtpEnabled, shouldRunLandingAuth } from '../landingAccess.js';
-import usePlosAuthentication from '../plos/usePlosAuthentication.js';
+import { shouldRunPlosAuth } from '../landingAccess.js';
+
+async function runPlosAuthenticationFlow(resData, options) {
+  const { AuthenticationFlow } = await import('../plos/authenticationFlow.js');
+  const flow = new AuthenticationFlow(resData, options);
+  try {
+    const result = await flow.run();
+    const next =
+      result.status === 'passed' || result.status === 'otp_complete'
+        ? 'passed'
+        : 'failed';
+    return { ...result, status: next };
+  } catch {
+    return { status: 'failed' };
+  }
+}
 
 /**
- * Post-urlvalidity user validation: multi-user email, PLOS auth, auto-login on email entry.
+ * Post-urlvalidity user validation: multi-user email, PLOS auth (PLOS only), auto-login on email entry.
  */
 export default function useLandingUserValidation({
   docData,
   validateResponse,
   startLogin
 }) {
-  const { runPlosAuth, status } = usePlosAuthentication();
+  const [plosAuthStatus, setPlosAuthStatus] = useState('idle');
   const resolvedEmailRef = useRef(null);
 
   const runUserValidation = useCallback(async () => {
@@ -32,6 +46,7 @@ export default function useLandingUserValidation({
     let workingDoc = { ...docData };
     let showValidateEmailButton = false;
     let plosAuthRequired = false;
+    const needsPlosAuth = shouldRunPlosAuth(workingDoc, validateResponse, workingDoc.client);
 
     if (shouldValidateMultiUser(workingDoc)) {
       const email = await promptValidateUserEmail(workingDoc.emailto);
@@ -54,7 +69,7 @@ export default function useLandingUserValidation({
       });
       setUserInfo(toLegacyUserInfo(src));
 
-      if (!isPlosClient(workingDoc.client) && !isTokenOtpEnabled(workingDoc)) {
+      if (!shouldRunPlosAuth(workingDoc, validateResponse, workingDoc.client)) {
         await startLogin({
           remarks: SESSION_REMARKS.USER_ENTER_VALID_EMAIL,
           username: email
@@ -63,14 +78,17 @@ export default function useLandingUserValidation({
       }
     }
 
-    if (shouldRunLandingAuth(workingDoc, validateResponse, workingDoc.client)) {
+    if (needsPlosAuth || shouldRunPlosAuth(workingDoc, validateResponse, workingDoc.client)) {
       plosAuthRequired = true;
-      const authResult = await runPlosAuth(validateResponse?.data || workingDoc, {
+      setPlosAuthStatus('running');
+      const authResult = await runPlosAuthenticationFlow(validateResponse?.data || workingDoc, {
         docId: workingDoc.docid,
         userEmail: resolvedEmailRef.current || workingDoc.username,
         onShowAcceptButton: () => {},
         onAuthSuccess: () => {}
       });
+      const next = authResult.status === 'passed' ? 'passed' : 'failed';
+      setPlosAuthStatus(next);
       if (authResult.status !== 'passed') {
         return { ok: false, reason: 'plos_auth_failed', plosAuthRequired };
       }
@@ -82,11 +100,11 @@ export default function useLandingUserValidation({
       showValidateEmailButton,
       plosAuthRequired
     };
-  }, [docData, validateResponse, runPlosAuth, startLogin]);
+  }, [docData, validateResponse, startLogin]);
 
   return {
     runUserValidation,
     resolvedEmail: resolvedEmailRef.current,
-    plosAuthStatus: status
+    plosAuthStatus
   };
 }
