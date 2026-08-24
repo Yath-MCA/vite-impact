@@ -56,8 +56,7 @@ export class FileUploadService {
     this._inFlightUploadPromise = null;
   }
 
-  isSingleSizeExceeded(fileSize, subfolder) {
-    if (subfolder === 'images') return false;
+  isSingleSizeExceeded(fileSize) {
     if (toMb(fileSize) > MAX_SINGLE_FILE_SIZE_MB) {
       showEditorMessage('upload_file_too_big');
       return true;
@@ -65,8 +64,7 @@ export class FileUploadService {
     return false;
   }
 
-  isMultiSizeExceeded(totalSize, subfolder) {
-    if (subfolder === 'images') return false;
+  isMultiSizeExceeded(totalSize) {
     return toMb(totalSize) > MAX_MULTI_FILE_SIZE_MB;
   }
 
@@ -77,11 +75,11 @@ export class FileUploadService {
     return null;
   }
 
-  appendFiles(formData, fileArr, subfolder) {
+  appendFiles(formData, fileArr) {
     let totalSize = 0;
     for (let i = 0; i < fileArr.length; i++) {
       const file = fileArr[i];
-      if (this.isSingleSizeExceeded(file.size, subfolder)) return null;
+      if (this.isSingleSizeExceeded(file.size)) return null;
       totalSize += file.size;
       formData.append(`file_${i}`, file);
     }
@@ -124,18 +122,13 @@ export class FileUploadService {
     const formData = new FormData();
     const { subfolder } = customData;
 
-    // Check total size first
-    let totalSize = 0;
-    for (let i = 0; i < fileArr.length; i++) {
-      totalSize += fileArr[i].size;
-    }
-    if (this.isMultiSizeExceeded(totalSize, subfolder)) {
+    this.appendCommonData(formData, customData);
+    const totalSize = this.appendFiles(formData, fileArr);
+    if (totalSize == null) return null;
+
+    if (this.isMultiSizeExceeded(totalSize) && subfolder !== 'images') {
       return this.handleSizeExceeded(subfolder);
     }
-
-    this.appendCommonData(formData, customData);
-    const finalTotalSize = this.appendFiles(formData, fileArr, subfolder);
-    if (finalTotalSize == null) return null;
 
     this.debugFormData(formData);
     return formData;

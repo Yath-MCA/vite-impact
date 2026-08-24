@@ -49,7 +49,7 @@ describe('fileUploadService', () => {
 
   it('rejects a total over 500MB unless subfolder is images', async () => {
     const service = new FileUploadService();
-    const files = [makeFile('a.png', 300 * 1024 * 1024), makeFile('b.png', 300 * 1024 * 1024)];
+    const files = Array.from({ length: 6 }, (_, i) => makeFile(`f${i}.png`, 90 * 1024 * 1024));
 
     const blocked = await service.makeRequest(files, {});
     expect(blocked).toBeNull();
