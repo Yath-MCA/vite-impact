@@ -47,6 +47,17 @@ describe('fileUploadService', () => {
     expect(apiService.makeRequest).not.toHaveBeenCalled();
   });
 
+  it('rejects on the single-file cap even when the batch total also exceeds 500MB (per-file check takes precedence)', async () => {
+    const service = new FileUploadService();
+    const files = Array.from({ length: 5 }, (_, i) => makeFile(`f${i}.png`, 110 * 1024 * 1024));
+
+    const result = await service.makeRequest(files);
+    expect(result).toBeNull();
+    expect(showEditorMessage).toHaveBeenCalledWith('upload_file_too_big');
+    expect(showEditorMessage).not.toHaveBeenCalledWith('upload_size_big');
+    expect(apiService.makeRequest).not.toHaveBeenCalled();
+  });
+
   it('rejects a total over 500MB, suppressing the toast (not the block) when subfolder is images', async () => {
     const service = new FileUploadService();
     const files = Array.from({ length: 6 }, (_, i) => makeFile(`f${i}.png`, 90 * 1024 * 1024));
