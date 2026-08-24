@@ -48,17 +48,31 @@ describe('userActionHistory', () => {
     const trimmed = trimHistory(history, 0.8);
     expect(trimmed.query_quick_answer).toHaveLength(8);
     expect(trimmed.query_quick_answer[0].info).toBe('q2');
-    expect(trimmed.attachments_flow.map((e) => e.filename)).toEqual(['legacy2']);
+    expect(trimmed.attachments_flow.map((e) => e.filename)).toEqual(['legacy1', 'legacy2']);
   });
 
-  it('merges array channels on the composite signature, newer time_c wins', () => {
+  it('merges array channels as a union of distinct-signature entries, sorted by time_c', () => {
     const local = createEmptyHistory();
     local.attachments_flow = [{ filename: 'f1', process: 'upload', time_c: 5, time_iso: 'A' }];
     const server = createEmptyHistory();
     server.attachments_flow = [{ filename: 'f1', process: 'upload', time_c: 10, time_iso: 'B' }];
 
     const merged = mergeHistory(local, server);
-    expect(merged.attachments_flow).toEqual([{ filename: 'f1', process: 'upload', time_c: 10, time_iso: 'B' }]);
+    expect(merged.attachments_flow).toEqual([
+      { filename: 'f1', process: 'upload', time_c: 5, time_iso: 'A' },
+      { filename: 'f1', process: 'upload', time_c: 10, time_iso: 'B' }
+    ]);
+  });
+
+  it('dedupes an entry with an identical signature present in both local and server', () => {
+    const entry = { filename: 'f1', process: 'upload', time_c: 5, time_iso: 'A' };
+    const local = createEmptyHistory();
+    local.attachments_flow = [{ ...entry }];
+    const server = createEmptyHistory();
+    server.attachments_flow = [{ ...entry }];
+
+    const merged = mergeHistory(local, server);
+    expect(merged.attachments_flow).toEqual([entry]);
   });
 
   it('merges open_close_dialog entries keyed on _session + action', () => {
