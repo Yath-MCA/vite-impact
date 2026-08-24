@@ -15,7 +15,7 @@ vi.mock('../../../src/features/editor/messages/editorMessages.js', () => ({
 
 import { apiService } from '../../../src/services/api/apiService.js';
 import { showEditorMessage } from '../../../src/features/editor/messages/editorMessages.js';
-import { FileUploadService, sanitizeFileArrays } from '../../../src/services/upload/fileUploadService.js';
+import { FileUploadService, sanitizeAttachmentData } from '../../../src/services/upload/fileUploadService.js';
 
 function makeFile(name, sizeBytes) {
   const file = new File([new Uint8Array(1)], name);
@@ -39,12 +39,52 @@ describe('fileUploadService', () => {
     vi.restoreAllMocks();
   });
 
-  it('rejects a single file over 100MB without calling the API', async () => {
+  it('rejects a single file over 100MB and aborts the whole upload (fixes legacy partial-upload bug)', async () => {
     const service = new FileUploadService();
-    const result = await service.makeRequest([makeFile('big.png', 101 * 1024 * 1024)]);
+    const result = await service.makeRequest([makeFile('ok.png', 10), makeFile('big.png', 101 * 1024 * 1024)]);
     expect(result).toBeNull();
     expect(showEditorMessage).toHaveBeenCalledWith('upload_file_too_big');
     expect(apiService.makeRequest).not.toHaveBeenCalled();
+  });
+
+  it('rejects a total over 500MB unless subfolder is images', async () => {
+    const service = new FileUploadService();
+    const files = [makeFile('a.png', 300 * 1024 * 1024), makeFile('b.png', 300 * 1024 * 1024)];
+
+    const blocked = await service.makeRequest(files, {});
+    expect(blocked).toBeNull();
+    expect(showEditorMessage).toHaveBeenCalledWith('upload_size_big');
+
+    showEditorMessage.mockClear();
+    apiService.makeRequest.mockClear();
+    const allowed = await service.makeRequest(files, { subfolder: 'images' });
+    expect(allowed).toEqual({ r: 1 });
+    expect(showEditorMessage).not.toHaveBeenCalled();
+  });
+
+  it('posts with an explicit multipart Content-Type header', async () => {
+    const service = new FileUploadService();
+    await service.makeRequest([makeFile('a.png', 10)]);
+    expect(apiService.makeRequest).toHaveBeenCalledWith(
+      '/api/filesuploadmultiple',
+      null,
+      expect.objectContaining({
+        headers: expect.objectContaining({ 'Content-Type': 'multipart/form-data' })
+      })
+    );
+  });
+
+  it('appends file_sn/file_on/ext as repeated fields, not a JSON string', async () => {
+    const service = new FileUploadService();
+    await service.makeRequest([makeFile('a.png', 10)], {
+      file_sn: ['a.png', ''],
+      file_on: ['Original A', 'Original B'],
+      ext: ['', 'gif']
+    });
+    const formData = apiService.makeRequest.mock.calls[0][2].rawBody;
+    expect(formData.getAll('file_sn')).toEqual(['a.png']);
+    expect(formData.getAll('file_on')).toEqual(['Original A']);
+    expect(formData.getAll('ext')).toEqual(['png']);
   });
 
   it('reuses the in-flight request while one is pending, calling the API only once', async () => {
@@ -67,12 +107,22 @@ describe('fileUploadService', () => {
     expect(secondResult).toEqual({ r: 1 });
   });
 
-  it('sanitizes file_sn/file_on/ext by dropping empty entries and deriving ext', () => {
-    const result = sanitizeFileArrays(['a.png', '', 'b'], ['A', 'B', 'C'], ['png', 'gif', '']);
-    expect(result).toEqual({
-      file_sn: ['a.png', 'b'],
-      file_on: ['A', 'C'],
-      ext: ['png', '']
+  describe('sanitizeAttachmentData', () => {
+    it('returns {} when none of file_sn/file_on/ext are passed', () => {
+      expect(sanitizeAttachmentData({ tbl: 'Usernotes' })).toEqual({});
+    });
+
+    it('drops empty file_sn, pairs file_on by cleaned index, derives ext from sn', () => {
+      const result = sanitizeAttachmentData({
+        file_sn: ['a.png', '', 'b'],
+        file_on: ['A', 'B', 'C'],
+        ext: ['png', 'gif', '']
+      });
+      expect(result).toEqual({
+        file_sn: ['a.png', 'b'],
+        file_on: ['A', 'C'],
+        ext: ['png', '']
+      });
     });
   });
 });

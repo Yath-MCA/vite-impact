@@ -4,7 +4,7 @@
 Multipart file upload: 100 MB/file and 500 MB/total gates, `file_sn`/`file_on`/`ext` sanitize, in-flight promise reuse. Not wired into figures/query/dialogs in this plan — service only.
 
 ## Key files
-- `fileUploadService.js` — `FileUploadService` class, `makeRequest(files, customData)`, `sanitizeFileArrays`
+- `fileUploadService.js` — `FileUploadService` class (`Content-Type: multipart/form-data` header, repeated-field FormData for `file_sn`/`file_on`/`ext`), `makeRequest(files, customData)`, `sanitizeAttachmentData`
 - `index.js` — singleton `fileUploadService`
 
 ## Dependencies
