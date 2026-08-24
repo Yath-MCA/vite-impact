@@ -82,6 +82,7 @@ export const EDITOR_MESSAGE_LEGACY_KEY_MAP = Object.freeze({
   'Lww_Figure_Size_Err': EditorMessageKey.LWW_FIGURE_SIZE_ERR,
   'Single_Upload_Size_Err': EditorMessageKey.SINGLE_UPLOAD_SIZE_ERR,
   'Multi_Upload_Size_Err': EditorMessageKey.MULTI_UPLOAD_SIZE_ERR,
+  'upload_file_too_big': EditorMessageKey.SINGLE_UPLOAD_SIZE_ERR,
   'upload_size_big': EditorMessageKey.UPLOAD_SIZE_BIG,
   'Upload_Invalid_Err': EditorMessageKey.UPLOAD_INVALID_ERR,
   'Replace_Image_Err': EditorMessageKey.REPLACE_IMAGE_ERR,

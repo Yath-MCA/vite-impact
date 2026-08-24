@@ -8,6 +8,7 @@ Shared Model layer: HTTP transport, session gateway, editor init/storage, bridge
 - `session/`
 - `landing/`
 - `download/`
+- `error/`
 - `core/`
 - `bridge/`
 - `ollama/`

@@ -11,6 +11,7 @@ import EditorFooter from '../components/EditorFooter';
 import ModuleManager from '../modules/ModuleManager';
 import { registerEditorAlertBridge } from '../messages/registerEditorAlertBridge.js';
 import { initDownloadService } from '../../../services/download/index.js';
+import { initErrorOps } from '../../../services/error/index.js';
 import {
   claimValidateTab,
   releaseValidateTab,
@@ -119,6 +120,7 @@ export default function EditorPage({ readOnly = false }) {
   useEffect(() => {
     registerEditorAlertBridge();
     initDownloadService();
+    initErrorOps();
   }, []);
 
   useEffect(() => {
