@@ -4,8 +4,8 @@
 Dialog/tour/find/replace/attachment activity history: localStorage persistence, `UserPreference` fetch/sync. Bound from `services/error`'s `initErrorOps()`.
 
 ## Key files
-- `userActionHistory.js` — empty history shape, alias fold (`supp_file_workflow` → `attachments_flow`), merge, trim
-- `userActionService.js` — `createUserActionService()`: localStorage load/save, `getadmindocs` fetch + merge, `findupdateorinsert` sync
+- `userActionHistory.js` — empty history shape, `normalizeHistoryData` (alias fold + open_close_dialog shape normalize), composite-key merge, trim
+- `userActionService.js` — `createUserActionService()`: per-channel `RECORD_INFO` routing (`guided_tour` syncs via `UPDATE_INSERT`, the rest via `FIND_UPDATE_INSERT`), `invoke(channel)`, localStorage load/save, `getadmindocs` fetch + merge, `findupdateorinsert`/`updateorinsert` sync with an `isSyncing` reentrancy guard
 - `index.js` — singleton `userActionService`, `initUserActionSync()` (beforeunload/pagehide keepalive sync)
 
 ## Dependencies
