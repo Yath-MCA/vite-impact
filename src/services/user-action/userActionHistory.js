@@ -95,16 +95,19 @@ function getEntryKey(entry) {
 }
 
 function getArrayEntryKey(entry = {}, index = 0) {
+  const t = getTime(entry);
   const signature = [
+    t,
     entry.action || '',
     entry.process || '',
     entry.filename || '',
     entry.oldfilename || '',
     entry.dialog_id || '',
     entry._session || '',
+    entry.time_iso || '',
     entry.info || ''
   ].join('|');
-  if (signature === '||||||') return `idx:${index}`;
+  if (signature === `${t}||||||||`) return `${t}|idx:${index}`;
   return signature;
 }
 
@@ -151,19 +154,19 @@ export function trimHistory(history, ratio) {
 
   Object.keys(history.open_close_dialog || {}).forEach((dialogKey) => {
     const entries = history.open_close_dialog[dialogKey] || [];
-    const keep = Math.floor(entries.length * ratio);
+    const keep = Math.ceil(entries.length * ratio);
     trimmed.open_close_dialog[dialogKey] = entries.slice(-keep);
   });
 
   ARRAY_CHANNELS.forEach((key) => {
     const entries = history[key] || [];
-    const keep = Math.floor(entries.length * ratio);
+    const keep = Math.ceil(entries.length * ratio);
     trimmed[key] = entries.slice(-keep);
   });
 
   if (Array.isArray(history.supp_file_workflow) && history.supp_file_workflow.length) {
     const legacyEntries = history.supp_file_workflow;
-    const keep = Math.floor(legacyEntries.length * ratio);
+    const keep = Math.ceil(legacyEntries.length * ratio);
     trimmed.attachments_flow = [...trimmed.attachments_flow, ...legacyEntries.slice(-keep)];
   }
 
