@@ -47,7 +47,7 @@ describe('fileUploadService', () => {
     expect(apiService.makeRequest).not.toHaveBeenCalled();
   });
 
-  it('rejects a total over 500MB unless subfolder is images', async () => {
+  it('rejects a total over 500MB, suppressing the toast (not the block) when subfolder is images', async () => {
     const service = new FileUploadService();
     const files = Array.from({ length: 6 }, (_, i) => makeFile(`f${i}.png`, 90 * 1024 * 1024));
 
@@ -57,9 +57,10 @@ describe('fileUploadService', () => {
 
     showEditorMessage.mockClear();
     apiService.makeRequest.mockClear();
-    const allowed = await service.makeRequest(files, { subfolder: 'images' });
-    expect(allowed).toEqual({ r: 1 });
+    const blockedImages = await service.makeRequest(files, { subfolder: 'images' });
+    expect(blockedImages).toBeNull();
     expect(showEditorMessage).not.toHaveBeenCalled();
+    expect(apiService.makeRequest).not.toHaveBeenCalled();
   });
 
   it('posts with an explicit multipart Content-Type header', async () => {

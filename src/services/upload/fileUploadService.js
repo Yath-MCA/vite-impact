@@ -126,7 +126,7 @@ export class FileUploadService {
     const totalSize = this.appendFiles(formData, fileArr);
     if (totalSize == null) return null;
 
-    if (this.isMultiSizeExceeded(totalSize) && subfolder !== 'images') {
+    if (this.isMultiSizeExceeded(totalSize)) {
       return this.handleSizeExceeded(subfolder);
     }
 
