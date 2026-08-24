@@ -77,10 +77,11 @@ export class FileUploadService {
     return null;
   }
 
-  appendFiles(formData, fileArr) {
+  appendFiles(formData, fileArr, subfolder) {
     let totalSize = 0;
     for (let i = 0; i < fileArr.length; i++) {
       const file = fileArr[i];
+      if (this.isSingleSizeExceeded(file.size, subfolder)) return null;
       totalSize += file.size;
       formData.append(`file_${i}`, file);
     }
@@ -123,25 +124,18 @@ export class FileUploadService {
     const formData = new FormData();
     const { subfolder } = customData;
 
-    // Calculate total size first to check multi-file limit before individual limits
+    // Check total size first
     let totalSize = 0;
     for (let i = 0; i < fileArr.length; i++) {
       totalSize += fileArr[i].size;
     }
-
     if (this.isMultiSizeExceeded(totalSize, subfolder)) {
       return this.handleSizeExceeded(subfolder);
     }
 
-    // Now check individual file sizes
-    for (let i = 0; i < fileArr.length; i++) {
-      if (this.isSingleSizeExceeded(fileArr[i].size, subfolder)) {
-        return null;
-      }
-    }
-
     this.appendCommonData(formData, customData);
-    this.appendFiles(formData, fileArr);
+    const finalTotalSize = this.appendFiles(formData, fileArr, subfolder);
+    if (finalTotalSize == null) return null;
 
     this.debugFormData(formData);
     return formData;
