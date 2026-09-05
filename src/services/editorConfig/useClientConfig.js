@@ -19,7 +19,7 @@ async function fetchXmlDoc(url) {
  * parsed further; `refStyleRules` exposes the raw ceg XML Document for
  * future reference-styling work.
  */
-export function useClientConfig({ client, dtd, journalCode, refStyle, isJournal }) {
+export function useClientConfig({ client, dtd, journalCode, refStyle, isJournal, type }) {
   const [state, setState] = useState({
     toggles: { ...CLIENT_CONFIG_DEFAULTS },
     refStyleRules: null,
@@ -39,12 +39,12 @@ export function useClientConfig({ client, dtd, journalCode, refStyle, isJournal 
       return undefined;
     }
 
-    const requestKey = `${client}|${dtd}|${journalCode}|${refStyle}`;
+    const requestKey = `${client}|${dtd}|${journalCode}|${refStyle}|${type}`;
     requestKeyRef.current = requestKey;
     let cancelled = false;
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
-    const basePath = buildClientConfigBasePath({ dtd, client });
+    const basePath = buildClientConfigBasePath({ dtd, client, type });
     const cegFileBase = !isJournal && refStyle ? refStyle : journalCode;
 
     const configUrl = `${basePath}config.xml`;
@@ -73,7 +73,7 @@ export function useClientConfig({ client, dtd, journalCode, refStyle, isJournal 
     return () => {
       cancelled = true;
     };
-  }, [client, dtd, journalCode, refStyle, isJournal]);
+  }, [client, dtd, journalCode, refStyle, isJournal, type]);
 
   return state;
 }

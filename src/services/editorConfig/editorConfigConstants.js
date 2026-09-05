@@ -10,7 +10,7 @@ const env = (windowKey, viteKey, defaultVal) => {
 export const editorConfigEnv = {
   bucketUrl: env('BUCKET_URL', 'VITE_BUCKET_URL', 'http://localhost/xmleditor/'),
   assetsBase: env('EDITOR_CONFIG_ASSETS_BASE', 'VITE_EDITOR_CONFIG_ASSETS_BASE', '/assets'),
-  configVersion: env('EDITOR_CONFIG_VERSION', 'VITE_EDITOR_CONFIG_VERSION', 'v1')
+  configVersion: env('VERSION', 'VITE_VERSION', '1.0.0')
 };
 
 export function buildDocumentContentUrl(docId) {
@@ -20,8 +20,8 @@ export function buildDocumentContentUrl(docId) {
   return `${base}${docId}/${docId}.html`;
 }
 
-export function buildClientConfigBasePath({ dtd, client }) {
-  const dtdFolder = String(dtd || '').toUpperCase() === 'BITS' ? 'books' : 'journals';
+export function buildClientConfigBasePath({ dtd, client, type }) {
+  const dtdFolder = type || (String(dtd || '').toUpperCase() === 'BITS' ? 'books' : 'journals');
   const clientLower = String(client || '').toLowerCase();
   return `${editorConfigEnv.assetsBase}/${editorConfigEnv.configVersion}/config/${dtdFolder}/${clientLower}/`;
 }

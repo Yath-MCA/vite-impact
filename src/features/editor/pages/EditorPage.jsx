@@ -11,7 +11,7 @@ import EditorFooter from '../components/EditorFooter';
 import ModuleManager from '../modules/ModuleManager';
 import { registerEditorAlertBridge } from '../messages/registerEditorAlertBridge.js';
 import { initDownloadService } from '../../../services/download/index.js';
-import { initErrorOps } from '../../../services/error/index.js';
+import { initErrorOps, errorLogTrace } from '../../../services/error/index.js';
 import {
   claimValidateTab,
   releaseValidateTab,
@@ -117,7 +117,8 @@ export default function EditorPage({ readOnly = false }) {
     dtd: sessionSrc.dtd,
     journalCode: sessionSrc.shorttitle,
     refStyle: sessionSrc.raw?.refstyle || '',
-    isJournal
+    isJournal,
+    type: sessionSrc.type
   });
   const editorContent = useEditorContent(sessionDocId);
   const isThreeColumnConfig = clientConfig.toggles.layoutMode === 'three-column';
@@ -127,6 +128,12 @@ export default function EditorPage({ readOnly = false }) {
     initDownloadService();
     initErrorOps();
   }, []);
+
+  useEffect(() => {
+    if (clientConfig.error) {
+      errorLogTrace('useClientConfig', clientConfig.error.message);
+    }
+  }, [clientConfig.error]);
 
   useEffect(() => {
     let cancelled = false;
@@ -274,7 +281,7 @@ export default function EditorPage({ readOnly = false }) {
                   <p className="font-medium">Unable to load this document.</p>
                   <p className="text-gray-500">{editorContent.error.message}</p>
                 </div>
-              ) : ckeditorReady && !editorContent.loading && editorData ? (
+              ) : ckeditorReady && !editorContent.loading && editorContent.content != null ? (
                 <CKEditor
                   initData={editorData}
                   onChange={handleEditorChange}
