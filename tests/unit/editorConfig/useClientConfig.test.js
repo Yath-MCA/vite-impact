@@ -59,10 +59,10 @@ describe('useClientConfig', () => {
 
   it('starts in a loading state before resolving', () => {
     global.fetch.mockReturnValue(new Promise(() => {}));
-    const { result } = renderHook(useClientConfig, {
+    const harness = renderHook(useClientConfig, {
       client: 'PLOS', dtd: 'JATS', journalCode: 'PONE', refStyle: '', isJournal: true
     });
-    expect(result.loading).toBe(true);
+    expect(harness.result.loading).toBe(true);
   });
 
   it('parses config.xml into toggles once all requests resolve', async () => {
@@ -73,18 +73,17 @@ describe('useClientConfig', () => {
       return xmlResponse('<root></root>');
     });
 
-    const { result } = renderHook(useClientConfig, {
+    const harness = renderHook(useClientConfig, {
       client: 'PLOS', dtd: 'JATS', journalCode: 'PONE', refStyle: '', isJournal: true
     });
 
     await act(async () => {
-      await Promise.resolve();
-      await Promise.resolve();
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
-    expect(result.loading).toBe(false);
-    expect(result.toggles.layoutMode).toBe('three-column');
-    expect(result.error).toBeNull();
+    expect(harness.result.loading).toBe(false);
+    expect(harness.result.toggles.layoutMode).toBe('three-column');
+    expect(harness.result.error).toBeNull();
   });
 
   it('falls back to default toggles and sets error when a request fails, without blocking', async () => {
@@ -95,18 +94,17 @@ describe('useClientConfig', () => {
       return xmlResponse('<root></root>');
     });
 
-    const { result } = renderHook(useClientConfig, {
+    const harness = renderHook(useClientConfig, {
       client: 'PLOS', dtd: 'JATS', journalCode: 'PONE', refStyle: '', isJournal: true
     });
 
     await act(async () => {
-      await Promise.resolve();
-      await Promise.resolve();
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
-    expect(result.loading).toBe(false);
-    expect(result.toggles.layoutMode).toBe('default');
-    expect(result.error).not.toBeNull();
+    expect(harness.result.loading).toBe(false);
+    expect(harness.result.toggles.layoutMode).toBe('default');
+    expect(harness.result.error).not.toBeNull();
   });
 
   it('requests the ceg refStyling file using refStyle when isJournal is false', async () => {
@@ -125,10 +123,10 @@ describe('useClientConfig', () => {
   });
 
   it('skips fetching entirely when client or dtd is missing', () => {
-    const { result } = renderHook(useClientConfig, {
+    const harness = renderHook(useClientConfig, {
       client: '', dtd: '', journalCode: '', refStyle: '', isJournal: false
     });
-    expect(result.loading).toBe(false);
+    expect(harness.result.loading).toBe(false);
     expect(global.fetch).not.toHaveBeenCalled();
   });
 });
