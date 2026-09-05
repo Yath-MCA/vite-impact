@@ -19,9 +19,12 @@ import {
   stopTabPresence
 } from '../../../services/session/tabPresence.js';
 import { SESSION_STORAGE_KEYS } from '../../../services/session/sessionConstants.js';
-import { getValidateAccessKey } from '../../../services/session/sessionStorage.js';
+import { getValidateAccessKey, getValidateResponse } from '../../../services/session/sessionStorage.js';
+import { normalizeSessionSource } from '../../../services/session/sessionSource.js';
 import { showEditorMessage, EditorMessageKey } from '../messages/editorMessages.js';
 import { loadCKEditor } from '../../../shared/utils/loadCKEditor.js';
+import { useClientConfig } from '../../../services/editorConfig/useClientConfig.js';
+import { useEditorContent } from '../../../services/editorConfig/useEditorContent.js';
 
 const NavigationPanel = lazy(() => import('../components/NavigationPanel'));
 const ThumbnailPanel = lazy(() => import('../components/ThumbnailPanel'));
@@ -30,19 +33,6 @@ const PdfPreview = lazy(() => import('../components/PdfPreview'));
 function PanelLoader() {
   return <div className="h-full w-full animate-pulse bg-gray-100" />;
 }
-
-const INITIAL_CONTENT = `
-  <article>
-    <h1>CMS Editor Workspace</h1>
-    <p>This starter page provides a modular editing workspace with navigation, preview, overlays, permissions, and a responsive two-tier toolbar.</p>
-    <h2>Introduction</h2>
-    <p>Use the left panel for structural navigation, edit content in the center canvas, and compare output in the preview panel.</p>
-    <h2>Editorial Notes</h2>
-    <p>Dialogs, sidebars, and popouts can be attached to workflows such as settings, queries, or media insertion.</p>
-    <h2>Production Preview</h2>
-    <p>The preview panel reflects content updates and keeps the editor layout aligned with production-oriented review tasks.</p>
-  </article>
-`;
 
 const SettingsModule = () => (
   <div className="space-y-4">
@@ -105,7 +95,7 @@ export default function EditorPage({ readOnly = false }) {
   } = useEditor();
   const { toggles } = useLayout();
   const { registerModule } = useModule();
-  const [editorData, setEditorData] = useState(INITIAL_CONTENT);
+  const [editorData, setEditorData] = useState('');
   const [ckeditorReady, setCkeditorReady] = useState(
     typeof window !== 'undefined' && Boolean(window.CKEDITOR)
   );
@@ -116,6 +106,21 @@ export default function EditorPage({ readOnly = false }) {
       : null;
   const validateKey =
     typeof sessionStorage !== 'undefined' ? getValidateAccessKey() : '';
+
+  const sessionSrc = useMemo(
+    () => normalizeSessionSource({}, getValidateResponse()),
+    []
+  );
+  const isJournal = String(sessionSrc.dtd || '').toUpperCase().includes('JATS');
+  const clientConfig = useClientConfig({
+    client: sessionSrc.client,
+    dtd: sessionSrc.dtd,
+    journalCode: sessionSrc.shorttitle,
+    refStyle: sessionSrc.raw?.refstyle || '',
+    isJournal
+  });
+  const editorContent = useEditorContent(sessionDocId);
+  const isThreeColumnConfig = clientConfig.toggles.layoutMode === 'three-column';
 
   useEffect(() => {
     registerEditorAlertBridge();
@@ -165,9 +170,11 @@ export default function EditorPage({ readOnly = false }) {
   }, [sessionDocId, validateKey]);
 
   useEffect(() => {
-    updateContent(INITIAL_CONTENT);
+    if (editorContent.content == null) return;
+    setEditorData(editorContent.content);
+    updateContent(editorContent.content);
     setIsDirty(false);
-  }, [setIsDirty, updateContent]);
+  }, [editorContent.content, setIsDirty, updateContent]);
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
@@ -251,7 +258,7 @@ export default function EditorPage({ readOnly = false }) {
       </div>
 
       <main className="flex min-h-0 flex-1 overflow-hidden pb-16">
-        {toggles.showToc && (
+        {toggles.showToc && !isThreeColumnConfig && (
           <div className="w-72 flex-shrink-0 border-r border-gray-200 bg-white">
             <Suspense fallback={<PanelLoader />}>
               <NavigationPanel />
@@ -262,7 +269,12 @@ export default function EditorPage({ readOnly = false }) {
         <section className="flex min-w-0 flex-1 overflow-hidden">
           <div className="flex min-w-0 flex-1 justify-center overflow-y-auto bg-[#ece7de] px-3 py-4 md:px-6 md:py-6">
             <div className="w-full max-w-5xl rounded-sm border border-gray-200 bg-white shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
-              {ckeditorReady ? (
+              {editorContent.error ? (
+                <div className="flex h-[760px] flex-col items-center justify-center gap-2 text-sm text-red-600">
+                  <p className="font-medium">Unable to load this document.</p>
+                  <p className="text-gray-500">{editorContent.error.message}</p>
+                </div>
+              ) : ckeditorReady && !editorContent.loading && editorData ? (
                 <CKEditor
                   initData={editorData}
                   onChange={handleEditorChange}
@@ -272,20 +284,22 @@ export default function EditorPage({ readOnly = false }) {
                 />
               ) : (
                 <div className="flex h-[760px] items-center justify-center text-sm text-gray-500">
-                  Loading editor…
+                  Loading document…
                 </div>
               )}
             </div>
           </div>
 
-          <div className="hidden w-[32rem] flex-shrink-0 border-l border-gray-200 bg-white xl:block">
-            <Suspense fallback={<PanelLoader />}>
-              <PdfPreview />
-            </Suspense>
-          </div>
+          {!isThreeColumnConfig && (
+            <div className="hidden w-[32rem] flex-shrink-0 border-l border-gray-200 bg-white xl:block">
+              <Suspense fallback={<PanelLoader />}>
+                <PdfPreview />
+              </Suspense>
+            </div>
+          )}
         </section>
 
-        {toggles.showThumbnails && (
+        {toggles.showThumbnails && !isThreeColumnConfig && (
           <div className="w-[128px] flex-shrink-0 border-l border-gray-200 bg-white">
             <Suspense fallback={<PanelLoader />}>
               <ThumbnailPanel />
