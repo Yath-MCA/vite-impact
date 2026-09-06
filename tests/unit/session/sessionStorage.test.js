@@ -10,7 +10,12 @@ import {
   commitSessionForEditor,
   saveLegacyLocalStorageData,
   clearPendingValidateResponse,
-  clearDocScopedLocalData
+  clearDocScopedLocalData,
+  getSessionStartTime,
+  setSessionStartTime,
+  getStoredEditorSession,
+  setValidateAccessKey,
+  setValidateResponse
 } from '../../../src/services/session/sessionStorage.js';
 import { clearUserInfo, getUserInfo } from '../../../src/services/session/userInfoBridge.js';
 
@@ -79,5 +84,43 @@ describe('sessionStorage commit', () => {
     expect(localStorage.getItem(`${LOCAL_STORAGE_KEYS.SHARED_PREFIX}DOC123`)).toBeNull();
     expect(localStorage.getItem(`${LOCAL_STORAGE_KEYS.USERNAME_PREFIX}DOC123`)).toBeNull();
     expect(localStorage.getItem(`${LOCAL_STORAGE_KEYS.SHARED_PREFIX}OTHER`)).toBe('{}');
+  });
+});
+
+describe('sessionStorage editor helpers', () => {
+  beforeEach(() => {
+    installBrowserStorageMocks();
+    clearPendingValidateResponse();
+  });
+
+  it('stores and reads session start time by document id', () => {
+    setSessionStartTime('DOC1', '12345');
+
+    expect(getSessionStartTime('DOC1')).toBe('12345');
+    expect(sessionStorage.getItem('xmleditor:sessionstart:DOC1')).toBe('12345');
+  });
+
+  it('reads a complete stored editor session', () => {
+    sessionStorage.setItem(SESSION_STORAGE_KEYS.DOC_ID, 'DOC1');
+    sessionStorage.setItem(`${SESSION_STORAGE_KEYS.SESSION_ID_PREFIX}DOC1`, 'SID1');
+    setSessionStartTime('DOC1', '111');
+    setValidateAccessKey('KEY1');
+    setValidateResponse({ data: { docid: 'DOC1', username: 'a@b.com' } }, { persist: true });
+
+    expect(getStoredEditorSession('DOC1')).toEqual({
+      docId: 'DOC1',
+      sessionId: 'SID1',
+      sessionStartTime: '111',
+      validateKey: 'KEY1',
+      validateResponse: { data: { docid: 'DOC1', username: 'a@b.com' } }
+    });
+  });
+
+  it('falls back to stored DOC_ID when docId argument is empty', () => {
+    sessionStorage.setItem(SESSION_STORAGE_KEYS.DOC_ID, 'DOC2');
+    sessionStorage.setItem(`${SESSION_STORAGE_KEYS.SESSION_ID_PREFIX}DOC2`, 'SID2');
+
+    expect(getStoredEditorSession().docId).toBe('DOC2');
+    expect(getStoredEditorSession().sessionId).toBe('SID2');
   });
 });

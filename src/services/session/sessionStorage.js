@@ -108,9 +108,45 @@ export function saveLegacyLocalStorageData(resData) {
   return { ok: true, docid: src.docId };
 }
 
+export function setSessionStartTime(docId, value) {
+  if (typeof sessionStorage === 'undefined' || !docId || value == null) return;
+  sessionStorage.setItem(`${SESSION_STORAGE_KEYS.SESSION_START_PREFIX}${docId}`, String(value));
+}
+
+export function getSessionStartTime(docId) {
+  if (typeof sessionStorage === 'undefined' || !docId) return '';
+  return sessionStorage.getItem(`${SESSION_STORAGE_KEYS.SESSION_START_PREFIX}${docId}`) || '';
+}
+
+export function getStoredEditorSession(docId) {
+  if (typeof sessionStorage === 'undefined') {
+    return {
+      docId: '',
+      sessionId: '',
+      sessionStartTime: '',
+      validateKey: '',
+      validateResponse: null
+    };
+  }
+
+  const resolvedDocId = docId || sessionStorage.getItem(SESSION_STORAGE_KEYS.DOC_ID) || '';
+  const sessionId = resolvedDocId
+    ? sessionStorage.getItem(`${SESSION_STORAGE_KEYS.SESSION_ID_PREFIX}${resolvedDocId}`) || ''
+    : '';
+
+  return {
+    docId: resolvedDocId,
+    sessionId,
+    sessionStartTime: getSessionStartTime(resolvedDocId),
+    validateKey: getValidateAccessKey(),
+    validateResponse: getValidateResponse()
+  };
+}
+
 export function commitSessionForEditor({
   docId,
   sessionId,
+  sessionStartTime,
   redirectUrl,
   validateResponse,
   accessKey
@@ -139,6 +175,10 @@ export function commitSessionForEditor({
       String(sessionId)
     );
     sessionStorage.setItem(SESSION_STORAGE_KEYS.DOC_ID, String(resolvedDocId));
+  }
+
+  if (resolvedDocId && sessionStartTime != null && sessionStartTime !== '') {
+    setSessionStartTime(resolvedDocId, sessionStartTime);
   }
 
   if (accessKey) {

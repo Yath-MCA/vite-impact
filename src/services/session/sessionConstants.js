@@ -38,6 +38,7 @@ export const SESSION_STORAGE_KEYS = {
   VALIDATE_KEY: 'xmleditor:validatekey',
   REDIRECT: 'redirect',
   SESSION_ID_PREFIX: 'xmleditor:sessionid:',
+  SESSION_START_PREFIX: 'xmleditor:sessionstart:',
   DOC_ID: 'docid',
   LANDING_TAB_ID: 'xmleditor:landing:tabid',
   MAINTENANCE_START: 'MAINTENANCE_START'
