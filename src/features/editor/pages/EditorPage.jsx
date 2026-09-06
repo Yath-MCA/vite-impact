@@ -25,6 +25,7 @@ import { showEditorMessage, EditorMessageKey } from '../messages/editorMessages.
 import { loadCKEditor } from '../../../shared/utils/loadCKEditor.js';
 import { useClientConfig } from '../../../services/editorConfig/useClientConfig.js';
 import { useEditorContent } from '../../../services/editorConfig/useEditorContent.js';
+import { buildEditorCssUrls, loadEditorCss } from '../../../services/editorConfig/editorCssLoader.js';
 import { Joyride } from 'react-joyride';
 import { useGuidedTour } from '../tour/useGuidedTour.js';
 
@@ -101,6 +102,7 @@ export default function EditorPage({ readOnly = false }) {
   const [ckeditorReady, setCkeditorReady] = useState(
     typeof window !== 'undefined' && Boolean(window.CKEDITOR)
   );
+  const [editorCssReady, setEditorCssReady] = useState(false);
   const syncTimerRef = useRef(null);
   const sessionDocId =
     (typeof sessionStorage !== 'undefined'
@@ -128,12 +130,34 @@ export default function EditorPage({ readOnly = false }) {
   const editorContent = useEditorContent(sessionDocId);
   const isThreeColumnConfig = clientConfig.toggles.layoutMode === 'three-column';
   const guidedTour = useGuidedTour(sessionDocId);
+  const editorCssUrls = useMemo(() => buildEditorCssUrls({
+    client: sessionSrc.client,
+    roleId: sessionSrc.roleId,
+    roleName: sessionSrc.roleName
+  }), [sessionSrc.client, sessionSrc.roleId, sessionSrc.roleName]);
 
   useEffect(() => {
     registerEditorAlertBridge();
     initDownloadService();
     initErrorOps();
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setEditorCssReady(false);
+
+    loadEditorCss({
+      client: sessionSrc.client,
+      roleId: sessionSrc.roleId,
+      roleName: sessionSrc.roleName
+    }).then(() => {
+      if (!cancelled) setEditorCssReady(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionSrc.client, sessionSrc.roleId, sessionSrc.roleName]);
 
   useEffect(() => {
     if (clientConfig.error) {
@@ -260,8 +284,9 @@ export default function EditorPage({ readOnly = false }) {
     height: 760,
     uiColor: '#f7f4ef',
     removePlugins: 'elementspath',
-    resize_enabled: false
-  }), []);
+    resize_enabled: false,
+    contentsCss: ['/ckeditor4/contents.css', ...editorCssUrls]
+  }), [editorCssUrls]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#f5f1ea] text-gray-800" style={{ fontFamily: "'Inter', 'ui-sans-serif', system-ui" }}>
@@ -293,7 +318,7 @@ export default function EditorPage({ readOnly = false }) {
                   <p className="font-medium">Unable to load this document.</p>
                   <p className="text-gray-500">{editorContent.error.message}</p>
                 </div>
-              ) : ckeditorReady && !editorContent.loading && editorContent.content != null ? (
+              ) : ckeditorReady && editorCssReady && !editorContent.loading && editorContent.content != null ? (
                 <CKEditor
                   initData={editorData}
                   onChange={handleEditorChange}

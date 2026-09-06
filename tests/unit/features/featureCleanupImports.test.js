@@ -50,6 +50,11 @@ describe('feature cleanup imports', () => {
     expectLoadableComponent(history.default);
   });
 
+  it('loads editor page with dynamic CSS loader imports', async () => {
+    const editor = await import('../../../src/features/editor/pages/EditorPage.jsx');
+    expect(editor.default).toBeTypeOf('function');
+  });
+
   it('loads all dashboard-owned page implementations from dashboard pages', async () => {
     const adminPage = await import('../../../src/features/dashboard/pages/AdminDashboard.jsx');
     const clientPage = await import('../../../src/features/dashboard/pages/ClientDashboard.jsx');
