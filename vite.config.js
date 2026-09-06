@@ -58,7 +58,7 @@ export default defineConfig(({ mode }) => ({
   // Define env prefix for Vite env variables
   envPrefix: 'VITE_',
   test: {
-    include: ['tests/unit/**/*.test.js'],
+    include: ['tests/unit/**/*.test.js', 'tests/unit/**/*.test.jsx'],
     environment: 'happy-dom'
   }
 }))
