@@ -1,4 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('../../../src/shared/utils/devLogger.js', () => ({
+  devLog: { log: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }
+}));
+
+import { devLog } from '../../../src/shared/utils/devLogger.js';
 import { GlobalBridge } from '../../../src/services/bridge/index.js';
 
 function createServices() {
@@ -69,6 +75,14 @@ describe('GlobalBridge facade globals', () => {
     delete window.EditorInitialize;
     delete window.EDITOR_INITIALIZE;
     delete window.InitialLoadDialog;
+  });
+
+  it('logs GlobalBridge stages through devLog', () => {
+    const services = createServices();
+    new GlobalBridge(services).init();
+    expect(devLog.log).toHaveBeenCalled();
+    const messages = devLog.log.mock.calls.map((call) => String(call[0]));
+    expect(messages.some((m) => m.includes('[GlobalBridge]'))).toBe(true);
   });
 
   it('exposes INIT_CONFIG as a facade without replacing initService methods', () => {

@@ -1,4 +1,6 @@
 import SessionGuard from '../core/SessionGuard';
+import { devLog } from '../../shared/utils/devLogger.js';
+import { readShareKeyFromLocalStorage } from '../session/shareKeyContext.js';
 
 function GlobalBridge(services) {
     this.services = services;
@@ -14,14 +16,46 @@ GlobalBridge.prototype.init = function() {
     this.setupGlobalHelpers();
 };
 
+GlobalBridge.prototype.getSessionGuardCtx = function() {
+    var docId = null;
+    try {
+        docId = this.services.initService && this.services.initService.getDocId
+            ? this.services.initService.getDocId()
+            : null;
+    } catch (e) {}
+    if (!docId && typeof sessionStorage !== 'undefined') {
+        docId = sessionStorage.getItem('docid') || sessionStorage.getItem('DOC_ID');
+    }
+    if (!docId) return null;
+    var shared = readShareKeyFromLocalStorage(docId);
+    if (shared) {
+        return {
+            docId: docId,
+            docid: docId,
+            client: shared.client,
+            username: shared.username || shared.emailto
+        };
+    }
+    return { docId: docId, docid: docId };
+};
+
+GlobalBridge.prototype.runStageGuard = function(stage) {
+    var ctx = this.getSessionGuardCtx();
+    var result = this.sessionGuard.checkStage(stage, ctx);
+    if (result.bypassed || !result.ok) {
+        devLog.warn('[GlobalBridge]', stage, result.remarks);
+    } else {
+        devLog.log('[GlobalBridge]', stage, 'guard ok');
+    }
+    return result;
+};
+
 GlobalBridge.prototype.setupInitConfig = function() {
     var self = this;
     var initService = this.services.initService;
 
-    if (import.meta.env.DEV) {
-        console.log('[GlobalBridge] init start');
-        self.sessionGuard.checkStage('init');
-    }
+    devLog.log('[GlobalBridge] init start');
+    self.runStageGuard('init');
 
     window.InitConfig = function() {
         return initService;
@@ -88,19 +122,15 @@ GlobalBridge.prototype.setupInitConfig = function() {
         }
     });
 
-    if (import.meta.env.DEV) {
-        console.log('[GlobalBridge] init complete');
-    }
+    devLog.log('[GlobalBridge] init complete');
 };
 
 GlobalBridge.prototype.setupLoadingConfig = function() {
     var self = this;
     var loadingService = this.services.loadingService;
 
-    if (import.meta.env.DEV) {
-        console.log('[GlobalBridge] loading start');
-        self.sessionGuard.checkStage('loading');
-    }
+    devLog.log('[GlobalBridge] loading start');
+    self.runStageGuard('loading');
 
     window.LoadingConfig = function() {
         return loadingService;
@@ -160,19 +190,15 @@ GlobalBridge.prototype.setupLoadingConfig = function() {
         loadingService.init(SHARED_KEY);
     };
 
-    if (import.meta.env.DEV) {
-        console.log('[GlobalBridge] loading complete');
-    }
+    devLog.log('[GlobalBridge] loading complete');
 };
 
 GlobalBridge.prototype.setupEditorInitialize = function() {
     var self = this;
     var editorService = this.services.editorInitService;
 
-    if (import.meta.env.DEV) {
-        console.log('[GlobalBridge] editorInit start');
-        self.sessionGuard.checkStage('editorInit');
-    }
+    devLog.log('[GlobalBridge] editorInit start');
+    self.runStageGuard('editorInit');
 
     window.EditorInitialize = function() {
         return editorService;
@@ -249,9 +275,7 @@ GlobalBridge.prototype.setupEditorInitialize = function() {
         }
     });
 
-    if (import.meta.env.DEV) {
-        console.log('[GlobalBridge] editorInit complete');
-    }
+    devLog.log('[GlobalBridge] editorInit complete');
 };
 
 GlobalBridge.prototype.setupInitialLoadDialog = function() {
@@ -276,7 +300,7 @@ GlobalBridge.prototype.setupInitialLoadDialog = function() {
         },
 
         init: function() {
-            console.log('InitialLoadDialog.init() - React component active');
+            devLog.log('InitialLoadDialog.init() - React component active');
         },
 
         updateProgress: function(value) {
