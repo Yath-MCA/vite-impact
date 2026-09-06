@@ -42,6 +42,44 @@ async function postGetDocs(query) {
   return apiService.makeRequest(API_ENDPOINTS.GET_DOCS, query);
 }
 
+export async function recoverEditorSessionByDocId(docId) {
+  if (!docId) {
+    return {
+      ok: false,
+      reason: 'no_doc_id',
+      message: 'Missing document id.'
+    };
+  }
+
+  try {
+    const response = await postGetDocs({ docid: docId });
+    const rows = Array.isArray(response?.data)
+      ? response.data
+      : response?.data
+        ? [response.data]
+        : [];
+
+    if (!rows.length) {
+      return {
+        ok: false,
+        reason: 'no_document',
+        message: 'Document session data was not found.'
+      };
+    }
+
+    return {
+      ok: true,
+      docData: rows[0]
+    };
+  } catch {
+    return {
+      ok: false,
+      reason: 'network_error',
+      message: 'Unable to recover document session.'
+    };
+  }
+}
+
 export async function verifySession(ctx) {
   if (!ctx?.docId || !ctx?.sessionId) {
     return { ok: false, reason: 'missing_expected_fields' };
