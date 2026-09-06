@@ -65,7 +65,7 @@ One shared **session context** feeds payloads, SessionGuard, GlobalBridge stage 
 
 ### 1. `resolveShareKeyContext(docId)`
 
-New helper under `src/services/session/` (name may be `shareKeyContext.js` or similar).
+New helper: `src/services/session/shareKeyContext.js`.
 
 **Behavior:**
 1. If no `docId` → `{ ok: false, source: 'none', message: 'Missing document id.' }`
