@@ -52,9 +52,42 @@ CKEDITOR.editorConfig = function(config) {
     config.disableNativeSpellChecker = true;
 
 
+    var getDocId = function() {
+        if (typeof window !== 'undefined') {
+            if (typeof window.DOC_ID !== 'undefined' && window.DOC_ID) return window.DOC_ID;
+            try {
+                var urlParam = new URLSearchParams(window.location.search).get('docid');
+                if (urlParam) return urlParam;
+            } catch (e) {}
+            if (typeof sessionStorage !== 'undefined') {
+                var sessDoc = sessionStorage.getItem('DOC_ID');
+                if (sessDoc) return sessDoc;
+            }
+            if (window.SHARED_KEY && window.SHARED_KEY.docid) {
+                return window.SHARED_KEY.docid;
+            }
+            if (window.USER_INFO && window.USER_INFO.docid) {
+                return window.USER_INFO.docid;
+            }
+        }
+        return '';
+    };
+
+    var currentDocId = getDocId();
+    if (typeof window !== 'undefined' && currentDocId && !window.DOC_ID) {
+        window.DOC_ID = currentDocId;
+    }
+
     let TrackChange = config.lite || {};
-    let User_Name = localStorage.getItem(`xmleditor:username:${DOC_ID}`);
-    let lite_user_id = localStorage.getItem(`xmleditor:usercolor:${DOC_ID}`);
+    let User_Name = currentDocId ? localStorage.getItem(`xmleditor:username:${currentDocId}`) : null;
+    if (!User_Name && typeof window !== 'undefined' && window.USER_INFO && window.USER_INFO.MAIL_ID) {
+        User_Name = window.USER_INFO.MAIL_ID;
+    }
+    if (!User_Name) {
+        User_Name = localStorage.getItem('xmleditor:login_username') || 'Author';
+    }
+
+    let lite_user_id = currentDocId ? localStorage.getItem(`xmleditor:usercolor:${currentDocId}`) : null;
     let G = new Date();
 
     config.lite = TrackChange;

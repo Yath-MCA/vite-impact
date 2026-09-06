@@ -112,7 +112,12 @@ export default function EditorPage({ readOnly = false }) {
   const syncTimerRef = useRef(null);
   const pageMapRef = useRef(pageMap);
   const activePageRef = useRef(activePage);
+  const urlDocId =
+    typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('docid')
+      : null;
   const sessionDocId =
+    urlDocId ||
     (typeof sessionStorage !== 'undefined'
       ? sessionStorage.getItem(SESSION_STORAGE_KEYS.DOC_ID)
       : null) ||
@@ -147,6 +152,12 @@ export default function EditorPage({ readOnly = false }) {
     roleId: sessionSrc.roleId,
     roleName: sessionSrc.roleName
   }), [sessionSrc.client, sessionSrc.roleId, sessionSrc.roleName]);
+
+  useEffect(() => {
+    if (sessionDocId && typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem(SESSION_STORAGE_KEYS.DOC_ID, sessionDocId);
+    }
+  }, [sessionDocId]);
 
   useEffect(() => {
     registerEditorAlertBridge();

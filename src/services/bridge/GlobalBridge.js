@@ -287,6 +287,23 @@ GlobalBridge.prototype.setupGlobalHelpers = function() {
            !(typeof variable === 'number' && isNaN(variable));
   };
 
+  window.getDocRecord = {
+    tbl: "Fileslist",
+    asyn: "1",
+    find: {
+      status: "active",
+      docid: "",
+      projecttitle: { "$exists": true }
+    },
+    length: 1,
+    sort: {},
+    filter: ["projecttitle", "id", "status", "dtd", "client", "type"]
+  };
+
+  if (!window.API_GET_DOCS) {
+    window.API_GET_DOCS = '/api/getdocs';
+  }
+
   window.InitLog = function(source, action, data) {
     if (window.debug && window.debug.log) {
       window.debug.log('[' + source + '] ' + action, data);
