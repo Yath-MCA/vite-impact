@@ -122,6 +122,8 @@ describe('sessionPayloads', () => {
       session_end_time: '1700000005000',
       remarks: SESSION_REMARKS.USER_MANUAL_LOGOUT
     });
+    expect(payload).not.toHaveProperty('client');
+    expect(payload).not.toHaveProperty('username');
   });
 
   it('rejects session_start_time mismatch during verify', () => {

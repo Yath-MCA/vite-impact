@@ -42,6 +42,12 @@ export function buildBaseLinkSharePayload(ctx = {}) {
   return payload;
 }
 
+function omitEmptyStrings(payload) {
+  return Object.fromEntries(
+    Object.entries(payload).filter(([, value]) => value !== '')
+  );
+}
+
 export function buildCheckPayload(ctx) {
   const payload = {
     ...buildBaseLinkSharePayload(ctx),
@@ -51,7 +57,7 @@ export function buildCheckPayload(ctx) {
     remarks: ctx.remarks || SESSION_REMARKS.USER_ACCEPT_OPEN_DOC
   };
   if (ctx.tabid) payload.tabid = String(ctx.tabid);
-  return payload;
+  return omitEmptyStrings(payload);
 }
 
 export function buildVerifyQuery(ctx) {
@@ -79,35 +85,32 @@ export function buildUpdateReqStatusTimePayload(ctx) {
     process: SESSION_PROCESS.UPDATE_REQSTATUS_TIME,
     requeststatus: REQUEST_STATUS.PENDING,
     request_send_time: String(ctx.requestSendTime || Date.now()),
-    requestid: String(ctx.requestId),
-    username: ctx.username,
-    role: ctx.role,
-    rolename: ctx.rolename
+    requestid: String(ctx.requestId)
   };
   if (ctx.oldrequestid) payload.oldrequestid = String(ctx.oldrequestid);
   if (ctx.oldrequest_send_time) payload.oldrequest_send_time = String(ctx.oldrequest_send_time);
-  return payload;
+  return omitEmptyStrings(payload);
 }
 
 export function buildStaleCleanupPayload(ctx) {
-  return {
+  return omitEmptyStrings({
     ...buildBaseLinkSharePayload(ctx),
     process: SESSION_PROCESS.UPDATE_DOCSTATUS_REQSTATUS_INSERT_TIME,
     session_id: String(ctx.sessionId),
     session_start_time: String(ctx.sessionStartTime || getSessionStartTime()),
     docstatus: DOC_STATUS.STALE,
     requeststatus: REQUEST_STATUS.STALE
-  };
+  });
 }
 
 export function buildPollPayload(ctx) {
-  return {
+  return omitEmptyStrings({
     ...buildBaseLinkSharePayload(ctx),
     process: SESSION_PROCESS.GET_REQUESTSTATUS_PROCESS,
     session_id: String(ctx.sessionId),
     requestid: String(ctx.requestId),
     session_start_time: String(ctx.sessionStartTime || getSessionStartTime())
-  };
+  });
 }
 
 /** Editor manual logout — closes active linksharing session. */
@@ -119,7 +122,7 @@ export function buildClosePayload(ctx = {}) {
     remarks: ctx.remarks || SESSION_REMARKS.USER_MANUAL_LOGOUT
   };
   if (ctx.sessionId) payload.session_id = String(ctx.sessionId);
-  return payload;
+  return omitEmptyStrings(payload);
 }
 
 export function isActiveSessionRecord(record, expected) {
