@@ -25,6 +25,8 @@ import { showEditorMessage, EditorMessageKey } from '../messages/editorMessages.
 import { loadCKEditor } from '../../../shared/utils/loadCKEditor.js';
 import { useClientConfig } from '../../../services/editorConfig/useClientConfig.js';
 import { useEditorContent } from '../../../services/editorConfig/useEditorContent.js';
+import { Joyride } from 'react-joyride';
+import { useGuidedTour } from '../tour/useGuidedTour.js';
 
 const NavigationPanel = lazy(() => import('../components/NavigationPanel'));
 const ThumbnailPanel = lazy(() => import('../components/ThumbnailPanel'));
@@ -122,6 +124,7 @@ export default function EditorPage({ readOnly = false }) {
   });
   const editorContent = useEditorContent(sessionDocId);
   const isThreeColumnConfig = clientConfig.toggles.layoutMode === 'three-column';
+  const guidedTour = useGuidedTour(sessionDocId);
 
   useEffect(() => {
     registerEditorAlertBridge();
@@ -182,6 +185,12 @@ export default function EditorPage({ readOnly = false }) {
     updateContent(editorContent.content);
     setIsDirty(false);
   }, [editorContent.content, setIsDirty, updateContent]);
+
+  useEffect(() => {
+    if (editorContent.content == null) return;
+    guidedTour.startTour();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editorContent.content]);
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
@@ -266,7 +275,7 @@ export default function EditorPage({ readOnly = false }) {
 
       <main className="flex min-h-0 flex-1 overflow-hidden pb-16">
         {toggles.showToc && !isThreeColumnConfig && (
-          <div className="w-72 flex-shrink-0 border-r border-gray-200 bg-white">
+          <div data-tour="toc" className="w-72 flex-shrink-0 border-r border-gray-200 bg-white">
             <Suspense fallback={<PanelLoader />}>
               <NavigationPanel />
             </Suspense>
@@ -274,7 +283,7 @@ export default function EditorPage({ readOnly = false }) {
         )}
 
         <section className="flex min-w-0 flex-1 overflow-hidden">
-          <div className="flex min-w-0 flex-1 justify-center overflow-y-auto bg-[#ece7de] px-3 py-4 md:px-6 md:py-6">
+          <div data-tour="editor-canvas" className="flex min-w-0 flex-1 justify-center overflow-y-auto bg-[#ece7de] px-3 py-4 md:px-6 md:py-6">
             <div className="w-full max-w-5xl rounded-sm border border-gray-200 bg-white shadow-[0_20px_55px_rgba(15,23,42,0.10)]">
               {editorContent.error ? (
                 <div className="flex h-[760px] flex-col items-center justify-center gap-2 text-sm text-red-600">
@@ -298,7 +307,7 @@ export default function EditorPage({ readOnly = false }) {
           </div>
 
           {!isThreeColumnConfig && (
-            <div className="hidden w-[32rem] flex-shrink-0 border-l border-gray-200 bg-white xl:block">
+            <div data-tour="pdf-preview" className="hidden w-[32rem] flex-shrink-0 border-l border-gray-200 bg-white xl:block">
               <Suspense fallback={<PanelLoader />}>
                 <PdfPreview />
               </Suspense>
@@ -307,7 +316,7 @@ export default function EditorPage({ readOnly = false }) {
         </section>
 
         {toggles.showThumbnails && !isThreeColumnConfig && (
-          <div className="w-[128px] flex-shrink-0 border-l border-gray-200 bg-white">
+          <div data-tour="thumbnails" className="w-[128px] flex-shrink-0 border-l border-gray-200 bg-white">
             <Suspense fallback={<PanelLoader />}>
               <ThumbnailPanel />
             </Suspense>
@@ -315,8 +324,19 @@ export default function EditorPage({ readOnly = false }) {
         )}
       </main>
 
-      <EditorFooter />
+      <div data-tour="footer">
+        <EditorFooter />
+      </div>
       <ModuleManager />
+      <Joyride
+        steps={guidedTour.steps}
+        run={guidedTour.run}
+        stepIndex={guidedTour.stepIndex}
+        callback={guidedTour.handleJoyrideCallback}
+        continuous
+        showProgress
+        showSkipButton
+      />
     </div>
   );
 }
