@@ -13,7 +13,7 @@ describe('saveDocument', () => {
     apiService.makeRequest.mockReset();
   });
 
-  it('returns ok:true when the request succeeds', async () => {
+  it('returns ok:true when the request succeeds (no r field)', async () => {
     apiService.makeRequest.mockResolvedValue({ status: 'success' });
 
     const result = await saveDocument({ docId: 'DOC1', content: '<p>hi</p>' });
@@ -21,9 +21,57 @@ describe('saveDocument', () => {
     expect(result).toEqual({ ok: true, message: 'Saved' });
     expect(apiService.makeRequest).toHaveBeenCalledWith(
       '/api/formfieldtofile',
-      { docid: 'DOC1', content: '<p>hi</p>' },
+      {
+        tbl: 'Fileslist',
+        subfolder: 'DOC1',
+        status: 'active',
+        sopt: 'openstorage',
+        recent: 1,
+        timestamp: expect.any(Number),
+        filename: 'DOC1_updated',
+        backup: '_updated',
+        recordtype: 'save',
+        keyname: 'a',
+        a: encodeURIComponent('<p>hi</p>')
+      },
       { method: 'POST' }
     );
+  });
+
+  it('sends recordtype: autosave when autoSave is true', async () => {
+    apiService.makeRequest.mockResolvedValue({ status: 'success' });
+
+    await saveDocument({ docId: 'DOC1', content: '<p>hi</p>', autoSave: true });
+
+    expect(apiService.makeRequest).toHaveBeenCalledWith(
+      '/api/formfieldtofile',
+      expect.objectContaining({ recordtype: 'autosave' }),
+      { method: 'POST' }
+    );
+  });
+
+  it('returns ok:false with file_not_saved when the response has r === 0', async () => {
+    apiService.makeRequest.mockResolvedValue({ r: 0 });
+
+    const result = await saveDocument({ docId: 'DOC1', content: '<p>hi</p>' });
+
+    expect(result).toEqual({
+      ok: false,
+      message: 'Save failed: file not saved',
+      reason: 'file_not_saved'
+    });
+  });
+
+  it('returns ok:false with already_finalized when the response has r === 2', async () => {
+    apiService.makeRequest.mockResolvedValue({ r: 2 });
+
+    const result = await saveDocument({ docId: 'DOC1', content: '<p>hi</p>' });
+
+    expect(result).toEqual({
+      ok: false,
+      message: 'Document already finalized',
+      reason: 'already_finalized'
+    });
   });
 
   it('returns ok:false with the error message when the request throws', async () => {

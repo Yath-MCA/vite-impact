@@ -15,46 +15,74 @@ import { showEditorMessage, EditorMessageKey } from '../../features/editor/messa
  */
 export function useSaveModule(docId) {
   const { content, isDirty, setIsDirty } = useEditor();
-  const lifecycle = useModuleLifecycle('saveModule', 'SaveModule');
+  const { init, recordStat, recordError } = useModuleLifecycle('saveModule', 'SaveModule');
   const [saveState, setSaveState] = useState('idle');
 
   const autoSaveTimerRef = useRef(null);
   const isDirtyRef = useRef(isDirty);
   const saveRef = useRef(null);
+  const isSavingRef = useRef(false);
 
-  isDirtyRef.current = isDirty;
+  useEffect(() => {
+    init();
+  }, []);
+
+  useEffect(() => {
+    isDirtyRef.current = isDirty;
+  }, [isDirty]);
 
   const save = useCallback(async ({ autoSave = false } = {}) => {
-    setSaveState('validating');
-
-    const claim = await claimValidateTab({ docId, key: getValidateAccessKey() });
-    if (!claim || !claim.ok) {
-      await showEditorMessage(EditorMessageKey.EXPIRED_SESSION_ALERT);
+    if (!docId) {
       setSaveState('error');
-      return { ok: false, reason: 'stale_session' };
+      return { ok: false, reason: 'missing_doc_id' };
     }
 
-    if (!content || !content.trim()) {
+    if (isSavingRef.current) {
+      return { ok: false, reason: 'save_in_progress' };
+    }
+    isSavingRef.current = true;
+
+    try {
+      setSaveState('validating');
+
+      const claim = await claimValidateTab({ docId, key: getValidateAccessKey() });
+      if (!claim || !claim.ok) {
+        if (autoSave) {
+          stopAutoSave();
+        } else {
+          await showEditorMessage(EditorMessageKey.EXPIRED_SESSION_ALERT);
+        }
+        setSaveState('error');
+        return { ok: false, reason: 'stale_session' };
+      }
+
+      if (!content || !content.trim()) {
+        setSaveState('error');
+        return { ok: false, reason: 'empty_content' };
+      }
+
+      setSaveState('saving');
+      const result = await saveDocument({ docId, content, autoSave });
+
+      if (result.ok) {
+        setSaveState('saved');
+        setIsDirty(false);
+        recordStat('buttonClicked', { buttonId: autoSave ? 'autosave' : 'save' });
+        return { ok: true };
+      }
+
       setSaveState('error');
-      return { ok: false, reason: 'empty_content' };
+      recordError('save', result.message);
+      return { ok: false, reason: 'save_failed', message: result.message };
+    } finally {
+      isSavingRef.current = false;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [docId, content, setIsDirty, recordStat, recordError]);
 
-    setSaveState('saving');
-    const result = await saveDocument({ docId, content });
-
-    if (result.ok) {
-      setSaveState('saved');
-      setIsDirty(false);
-      lifecycle.recordStat('buttonClicked', { buttonId: autoSave ? 'autosave' : 'save' });
-      return { ok: true };
-    }
-
-    setSaveState('error');
-    lifecycle.recordError('save', result.message);
-    return { ok: false, reason: 'save_failed', message: result.message };
-  }, [docId, content, setIsDirty, lifecycle]);
-
-  saveRef.current = save;
+  useEffect(() => {
+    saveRef.current = save;
+  }, [save]);
 
   const startAutoSave = useCallback((intervalMs = 30000) => {
     if (autoSaveTimerRef.current) return;

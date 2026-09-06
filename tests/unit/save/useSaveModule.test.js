@@ -196,4 +196,96 @@ describe('useSaveModule', () => {
 
     expect(saveDocument).not.toHaveBeenCalled();
   });
+
+  it('stops the autosave timer when an autosave tick hits a stale session, without showing the alert', async () => {
+    vi.useFakeTimers();
+    claimValidateTab.mockResolvedValue({ ok: false });
+
+    const harness = renderHookWithProviders(useSaveModule, 'DOC1');
+    act(() => {
+      harness.editor.updateContent('<p>hello</p>');
+      harness.editor.setIsDirty(true);
+    });
+
+    act(() => {
+      harness.result.startAutoSave(1000);
+    });
+
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(claimValidateTab).toHaveBeenCalledTimes(1);
+    expect(showEditorMessage).not.toHaveBeenCalled();
+    expect(harness.result.saveState).toBe('error');
+
+    // Timer should have been stopped by the stale-session autosave tick;
+    // advancing further should not trigger another claim attempt.
+    await act(async () => {
+      vi.advanceTimersByTime(5000);
+      await Promise.resolve();
+    });
+
+    expect(claimValidateTab).toHaveBeenCalledTimes(1);
+  });
+
+  it('still shows the expired-session alert for a manual save that hits a stale session', async () => {
+    claimValidateTab.mockResolvedValue({ ok: false });
+    const harness = renderHookWithProviders(useSaveModule, 'DOC1');
+
+    let saveResult;
+    await act(async () => {
+      saveResult = await harness.result.save({ autoSave: false });
+    });
+
+    expect(saveResult).toEqual({ ok: false, reason: 'stale_session' });
+    expect(showEditorMessage).toHaveBeenCalledWith('EXPIRED_SESSION_ALERT');
+  });
+
+  it('returns missing_doc_id and does not call claimValidateTab or saveDocument when docId is falsy', async () => {
+    const harness = renderHookWithProviders(useSaveModule, undefined);
+
+    let saveResult;
+    await act(async () => {
+      saveResult = await harness.result.save();
+    });
+
+    expect(saveResult).toEqual({ ok: false, reason: 'missing_doc_id' });
+    expect(claimValidateTab).not.toHaveBeenCalled();
+    expect(saveDocument).not.toHaveBeenCalled();
+    expect(harness.result.saveState).toBe('error');
+  });
+
+  it('rejects a concurrent save while one is already in progress, without double-posting', async () => {
+    claimValidateTab.mockResolvedValue({ ok: true });
+    let resolveSave;
+    saveDocument.mockImplementation(
+      () => new Promise((resolve) => {
+        resolveSave = resolve;
+      })
+    );
+
+    const harness = renderHookWithProviders(useSaveModule, 'DOC1');
+    act(() => {
+      harness.editor.updateContent('<p>hello</p>');
+    });
+
+    let firstResultPromise;
+    let secondResult;
+    await act(async () => {
+      firstResultPromise = harness.result.save();
+      await Promise.resolve();
+      secondResult = await harness.result.save();
+    });
+
+    expect(secondResult).toEqual({ ok: false, reason: 'save_in_progress' });
+    expect(saveDocument).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      resolveSave({ ok: true, message: 'Saved' });
+      await firstResultPromise;
+    });
+  });
 });
