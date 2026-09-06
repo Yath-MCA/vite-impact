@@ -36,7 +36,13 @@ export default defineConfig(({ mode }) => ({
     port: 3000,
     open: true,
     host: true,
-    allowedHosts: ['.ngrok-free.dev', '.trycloudflare.com', 'localhost']
+    allowedHosts: ['.ngrok-free.dev', '.trycloudflare.com', 'localhost'],
+    proxy: {
+      '/xmleditor': {
+        target: 'http://localhost',
+        changeOrigin: true
+      }
+    }
   },
   build: {
     outDir: 'dist',

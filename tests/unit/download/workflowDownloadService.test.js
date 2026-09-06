@@ -1,5 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+const mockAxiosHead = vi.hoisted(() => vi.fn());
+
+vi.mock('axios', () => ({
+  default: {
+    head: mockAxiosHead
+  }
+}));
+
 vi.mock('../../../src/services/api/apiService.js', () => ({
   apiService: {
     makeRequest: vi.fn().mockResolvedValue({ r: 1, zippath: 'DOC123/out.zip' }),
@@ -62,7 +70,7 @@ describe('workflow download service', () => {
     resetDownloadService();
     vi.clearAllMocks();
     installWindowState();
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }));
+    mockAxiosHead.mockResolvedValue({ status: 404 });
   });
 
   afterEach(() => {
@@ -141,5 +149,22 @@ describe('workflow download service', () => {
     expect(request).toBeTruthy();
     expect(request.url).toContain('file_sn=');
     expect(request.tempfile).toMatch(/^IMPACT_FAQ/);
+  });
+
+  it('checks role-based help candidates with axios HEAD requests', async () => {
+    mockAxiosHead
+      .mockResolvedValueOnce({ status: 404 })
+      .mockResolvedValueOnce({ status: 200 });
+
+    const service = new WorkflowDownloadService();
+    const request = await service.buildDownloadRequest('Help_Guide_pdf');
+
+    expect(mockAxiosHead).toHaveBeenCalledWith(
+      'https://cdn.example.com/_SUPPORT_FILES/LWW/IMPACT_Help_Guide_Copy_Editor.pdf',
+      expect.objectContaining({
+        validateStatus: expect.any(Function)
+      })
+    );
+    expect(request.tempfile).toBe('IMPACT_Help_Guide_CE01.pdf');
   });
 });

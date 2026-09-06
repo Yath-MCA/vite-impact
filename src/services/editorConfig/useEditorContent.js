@@ -1,5 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
-import { buildDocumentContentUrl } from './editorConfigConstants.js';
+import {
+    useEffect,
+    useRef,
+    useState
+} from 'react';
+import axios from 'axios';
+import {
+    buildDocumentContentUrl
+} from './editorConfigConstants.js';
 
 /**
  * Fetches a document's editable HTML content by docId, mirroring
@@ -8,40 +15,67 @@ import { buildDocumentContentUrl } from './editorConfigConstants.js';
  * an error state rather than silently falling back to placeholder text.
  */
 export function useEditorContent(docId) {
-  const [state, setState] = useState({ content: null, loading: true, error: null });
-  const requestIdRef = useRef(0);
+    const [state, setState] = useState({
+        content: null,
+        loading: true,
+        error: null
+    });
+    const requestIdRef = useRef(0);
 
-  useEffect(() => {
-    if (!docId) {
-      setState({ content: null, loading: false, error: { message: 'Missing docId' } });
-      return undefined;
-    }
-
-    const requestId = requestIdRef.current + 1;
-    requestIdRef.current = requestId;
-    let cancelled = false;
-    setState({ content: null, loading: true, error: null });
-
-    fetch(buildDocumentContentUrl(docId))
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Document fetch failed: ${response.status}`);
+    useEffect(() => {
+        if (!docId) {
+            setState({
+                content: null,
+                loading: false,
+                error: {
+                    message: 'Missing docId'
+                }
+            });
+            return undefined;
         }
-        return response.text();
-      })
-      .then((text) => {
-        if (cancelled || requestIdRef.current !== requestId) return;
-        setState({ content: text, loading: false, error: null });
-      })
-      .catch((err) => {
-        if (cancelled || requestIdRef.current !== requestId) return;
-        setState({ content: null, loading: false, error: { message: err.message } });
-      });
 
-    return () => {
-      cancelled = true;
-    };
-  }, [docId]);
+        const requestId = requestIdRef.current + 1;
+        requestIdRef.current = requestId;
+        let cancelled = false;
+        setState({
+            content: null,
+            loading: true,
+            error: null
+        });
 
-  return state;
+        axios.get(buildDocumentContentUrl(docId), {
+            responseType: 'text',
+            validateStatus: () => true
+        })
+            .then((response) => {
+                if (response.status < 200 || response.status >= 300) {
+                    throw new Error(`Document fetch failed: ${response.status}`);
+                }
+                return response.data || '';
+            })
+            .then((text) => {
+                if (cancelled || requestIdRef.current !== requestId) return;
+                setState({
+                    content: text,
+                    loading: false,
+                    error: null
+                });
+            })
+            .catch((err) => {
+                if (cancelled || requestIdRef.current !== requestId) return;
+                setState({
+                    content: null,
+                    loading: false,
+                    error: {
+                        message: err.message
+                    }
+                });
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [docId]);
+
+    return state;
 }

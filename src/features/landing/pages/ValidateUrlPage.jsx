@@ -88,6 +88,14 @@ function ValidateUrlView({ accessKey, clientParam, alertParam }) {
   runUserValidationRef.current = runUserValidation;
 
   const applyUserValidationResult = useCallback((result) => {
+    // runUserValidation may resolve/enrich docData (e.g. multi-user email
+    // selection) in a local copy — without this, that copy is discarded and
+    // a later manual "Accept" click uses stale docData (see
+    // useLandingUserValidation.js's runUserValidation for where it's built).
+    if (result.docData) {
+      setDocData(result.docData);
+    }
+
     if (result.autoLogin) {
       setUserGate({
         ready: false,

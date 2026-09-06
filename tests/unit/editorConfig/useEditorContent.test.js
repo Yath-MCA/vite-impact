@@ -4,6 +4,14 @@ import { createRoot } from 'react-dom/client';
 import { act } from 'react';
 import { useEditorContent } from '../../../src/services/editorConfig/useEditorContent.js';
 
+const mockAxiosGet = vi.hoisted(() => vi.fn());
+
+vi.mock('axios', () => ({
+  default: {
+    get: mockAxiosGet
+  }
+}));
+
 function renderHook(hook, props) {
   const container = document.createElement('div');
   const root = createRoot(container);
@@ -37,7 +45,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 describe('useEditorContent', () => {
   beforeEach(() => {
-    global.fetch = vi.fn();
+    mockAxiosGet.mockReset();
   });
 
   afterEach(() => {
@@ -45,7 +53,7 @@ describe('useEditorContent', () => {
   });
 
   it('starts in a loading state with no content', () => {
-    global.fetch.mockReturnValue(new Promise(() => {}));
+    mockAxiosGet.mockReturnValue(new Promise(() => {}));
     const harness = renderHook(useEditorContent, 'DOC123');
     expect(harness.result.loading).toBe(true);
     expect(harness.result.content).toBeNull();
@@ -53,10 +61,9 @@ describe('useEditorContent', () => {
   });
 
   it('sets content once the fetch resolves successfully', async () => {
-    global.fetch.mockResolvedValue({
-      ok: true,
+    mockAxiosGet.mockResolvedValue({
       status: 200,
-      text: () => Promise.resolve('<p>Hello document</p>')
+      data: '<p>Hello document</p>'
     });
 
     const harness = renderHook(useEditorContent, 'DOC123');
@@ -71,7 +78,7 @@ describe('useEditorContent', () => {
   });
 
   it('sets a blocking error and leaves content null on a non-ok response', async () => {
-    global.fetch.mockResolvedValue({ ok: false, status: 404, text: () => Promise.resolve('') });
+    mockAxiosGet.mockResolvedValue({ status: 404, data: '' });
 
     const harness = renderHook(useEditorContent, 'DOC123');
 
@@ -89,6 +96,6 @@ describe('useEditorContent', () => {
     expect(harness.result.loading).toBe(false);
     expect(harness.result.content).toBeNull();
     expect(harness.result.error).not.toBeNull();
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(mockAxiosGet).not.toHaveBeenCalled();
   });
 });

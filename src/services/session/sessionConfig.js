@@ -26,7 +26,12 @@ export const sessionConfig = {
   skipVerifyOnPollGrant: toBoolean(env('SESSION_SKIP_VERIFY_ON_POLL_GRANT', 'VITE_SESSION_SKIP_VERIFY_ON_POLL_GRANT', true), true),
   landingRetryMax: toNumber(env('SESSION_LANDING_RETRY_MAX', 'VITE_SESSION_LANDING_RETRY_MAX', 3), 3),
   editorPath: env('SESSION_EDITOR_PATH', 'VITE_SESSION_EDITOR_PATH', '/editor'),
-  validateUrlPath: env('SESSION_VALIDATE_URL_PATH', 'VITE_SESSION_VALIDATE_URL_PATH', '/validateurl')
+  validateUrlPath: env('SESSION_VALIDATE_URL_PATH', 'VITE_SESSION_VALIDATE_URL_PATH', '/validateurl'),
+
+  // impact-session-service (Phase 07 of session-service-master-plan.md) — additive to the
+  // linksharing gateway above, not a replacement (Phase 20: Migration & Cutover).
+  sessionServiceApiBase: env('SESSION_SERVICE_API_BASE', 'VITE_SESSION_SERVICE_API_BASE', 'http://localhost:8092'),
+  sessionServiceWsBase: env('SESSION_SERVICE_WS_BASE', 'VITE_SESSION_SERVICE_WS_BASE', 'ws://localhost:8092')
 };
 
 export default sessionConfig;

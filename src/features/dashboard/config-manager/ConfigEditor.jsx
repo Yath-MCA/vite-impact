@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import { FaIndent, FaOutdent, FaRocket } from 'react-icons/fa'
 import {
   FiSave,
@@ -95,12 +96,15 @@ const ConfigEditor = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(filePath);
-      if (!response.ok) {
+      const response = await axios.get(filePath, {
+        responseType: 'text',
+        validateStatus: () => true
+      });
+      if (response.status < 200 || response.status >= 300) {
         throw new Error('File not found');
       }
 
-      const xmlContent = await response.text();
+      const xmlContent = response.data || '';
       setContent(xmlContent);
       setOriginalContent(xmlContent);
       setCurrentFile(filePath);

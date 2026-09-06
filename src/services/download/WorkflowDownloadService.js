@@ -1,6 +1,7 @@
 /**
  * ES module port of legacy WorkflowDownloadModule (Download_Module.js).
  */
+import axios from 'axios';
 import { apiService, API_ENDPOINTS } from '../api/apiService.js';
 import { moment } from '../../shared/plugins/moment/index.js';
 import { triggerBrowserDownload } from '../../shared/utils/triggerBrowserDownload.js';
@@ -97,13 +98,12 @@ export class WorkflowDownloadService {
 
   async _urlExists(url) {
     try {
-      if (typeof fetch !== 'function') return false;
-      const response = await fetch(url, {
-        method: 'HEAD',
+      const response = await axios.head(url, {
         cache: 'no-store',
-        credentials: 'same-origin'
+        withCredentials: true,
+        validateStatus: () => true
       });
-      return Boolean(response && response.ok);
+      return Boolean(response && response.status >= 200 && response.status < 300);
     } catch (err) {
       logDownloadError('urlExists', err);
       return false;

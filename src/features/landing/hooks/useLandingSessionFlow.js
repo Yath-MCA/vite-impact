@@ -203,12 +203,16 @@ export default function useLandingSessionFlow(docData) {
     }
   }, [goToEditor, resetIdle]);
 
-  const startLogin = useCallback(async ({ remarks, username } = {}) => {
+  const startLogin = useCallback(async ({ remarks, username, docDataOverride } = {}) => {
     closeSessionDialogs();
     setUi({ ...INITIAL_UI, phase: 'checking', message: 'Starting session…' });
 
     try {
-      const result = await loginFromLanding(docData, { buildContext, remarks, username });
+      // docDataOverride lets a caller pass freshly-resolved data (e.g. the
+      // multi-user email selection in useLandingUserValidation) instead of
+      // relying on this hook's docData prop, which may not have re-rendered
+      // with the update yet by the time startLogin runs synchronously.
+      const result = await loginFromLanding(docDataOverride || docData, { buildContext, remarks, username });
       if (!mountedRef.current) return;
 
       if (result.status === 'granted') {

@@ -103,9 +103,12 @@ export default function EditorPage({ readOnly = false }) {
   );
   const syncTimerRef = useRef(null);
   const sessionDocId =
-    typeof sessionStorage !== 'undefined'
+    (typeof sessionStorage !== 'undefined'
       ? sessionStorage.getItem(SESSION_STORAGE_KEYS.DOC_ID)
-      : null;
+      : null) ||
+    (typeof window !== 'undefined' && window.location.hostname === 'localhost'
+      ? 'Ncc0d3efc-e28e-4ba5-9878-d6f0fc42b32b'
+      : null);
   const validateKey =
     typeof sessionStorage !== 'undefined' ? getValidateAccessKey() : '';
 

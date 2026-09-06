@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 /** Shared XML config loads — dedupes StrictMode remount storms for the same path. */
 const xmlInflight = new Map();
 
@@ -10,11 +12,15 @@ export function fetchConfigXml(path) {
   const existing = xmlInflight.get(path);
   if (existing) return existing;
 
-  const request = fetch(path)
-    .then(async (response) => {
-      const text = response.ok ? await response.text() : '';
+  const request = axios.get(path, {
+    responseType: 'text',
+    validateStatus: () => true
+  })
+    .then((response) => {
+      const ok = response.status >= 200 && response.status < 300;
+      const text = ok ? response.data || '' : '';
       return {
-        ok: response.ok,
+        ok,
         status: response.status,
         text
       };

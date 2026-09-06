@@ -5,6 +5,7 @@ import ProtectedRoute from '../../../core/router/ProtectedRoute';
 import AdminDashboard from '../pages/AdminDashboard';
 import DevDashboard from '../pages/DevDashboard';
 import DocDashboard from '../pages/DocDashboard';
+import MigrationStatusPage from '../migrationStatus/MigrationStatusPage';
 
 const DashboardRoutes = () => {
   const location = useLocation();
@@ -38,6 +39,7 @@ const DashboardRoutes = () => {
       >
         <Route index element={<Navigate to="dev" replace />} />
         <Route path="dev" element={<DevDashboard />} />
+        <Route path="migration-status" element={<MigrationStatusPage />} />
       </Route>
 
       <Route

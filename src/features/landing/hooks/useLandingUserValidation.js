@@ -72,9 +72,10 @@ export default function useLandingUserValidation({
       if (!shouldRunPlosAuth(workingDoc, validateResponse, workingDoc.client)) {
         await startLogin({
           remarks: SESSION_REMARKS.USER_ENTER_VALID_EMAIL,
-          username: email
+          username: email,
+          docDataOverride: workingDoc
         });
-        return { ok: true, autoLogin: true };
+        return { ok: true, autoLogin: true, docData: workingDoc };
       }
     }
 

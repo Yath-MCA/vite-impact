@@ -30,7 +30,10 @@ src/
       routes/
     auth/pages/Login.jsx
   components/           # shared View primitives only
-  services/             # shared Model (api, session, supabase)
+  services/             # shared Model — api, session, landing, download, error,
+                         # user-action, upload, core, bridge, ollama, supabase
+                         # (see docs/SKILLS_AND_WORKFLOWS.md for the full index)
+  error/                # overlay error tracker: ErrorTrackerProvider, ErrorBoundary, ErrorPanel
 ```
 
 ## Stable routes (email links)

@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 function LoadingService(initService) {
   this.initService = initService;
   this.isFullyLoaded = false;
@@ -124,8 +126,18 @@ LoadingService.prototype.fetch = function (url) {
   var self = this;
 
   return new Promise(function (resolve, reject) {
-    if (typeof fetch !== 'undefined') {
-      fetch(url).then(resolve).catch(function () {
+    if (axios && typeof axios.get === 'function') {
+      axios.get(url, {
+        responseType: 'text',
+        validateStatus: function () { return true; }
+      }).then(function (response) {
+        resolve({
+          ok: response.status >= 200 && response.status < 300,
+          status: response.status,
+          url: response.request?.responseURL || url,
+          text: function () { return Promise.resolve(response.data || ''); }
+        });
+      }).catch(function () {
         self.xhrFetch(url).then(resolve).catch(reject);
       });
     } else {

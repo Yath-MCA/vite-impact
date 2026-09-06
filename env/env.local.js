@@ -19,7 +19,7 @@ export default {
   DOMAIN: 'localhost',
   DOMAIN_ROOT: 'localhost:3000',
   BACKEND_DOMAIN: 'http://localhost:8080',
-  BUCKET_URL: 'http://localhost/xmleditor/',
+  BUCKET_URL: '/xmleditor/',
 
   // Feature Flags
   FEATURE_FLAGS: {

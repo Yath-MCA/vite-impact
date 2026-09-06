@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
 import { buildClientConfigBasePath } from './editorConfigConstants.js';
 import { parseClientConfigXml, CLIENT_CONFIG_DEFAULTS } from './parseClientConfigXml.js';
 
 async function fetchXmlDoc(url) {
-  const response = await fetch(url);
-  if (!response.ok) {
+  const response = await axios.get(url, {
+    responseType: 'text',
+    validateStatus: () => true
+  });
+  if (response.status < 200 || response.status >= 300) {
     throw new Error(`Request failed: ${response.status} ${url}`);
   }
-  const text = await response.text();
+  const text = response.data || '';
   return new DOMParser().parseFromString(text, 'application/xml');
 }
 

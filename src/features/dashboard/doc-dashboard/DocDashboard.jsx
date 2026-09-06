@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
+import axios from 'axios';
 import { Search, Database, AlertTriangle, FileX2, CheckCircle2 } from 'lucide-react';
 import Header from '../../../components/layout/Header';
 import Footer from '../../../components/layout/Footer';
@@ -130,10 +131,10 @@ const expandRecordForTable = (collection, record) => {
     }));
 };
 
-const parseJsonPayload = async (response) => {
-    const raw = (await response.text()).trim();
+const parseJsonPayload = (payload) => {
+    const raw = typeof payload === 'string' ? payload.trim() : '';
     if (!raw) {
-        return [];
+        return Array.isArray(payload) ? payload : payload ? [payload] : [];
     }
 
     try {
@@ -212,12 +213,15 @@ const resolveDocId = async (queryKey, queryValue) => {
     }
 
     try {
-        const response = await fetch('/snapshots/_lookup.json', { cache: 'no-store' });
-        if (!response.ok) {
+        const response = await axios.get('/snapshots/_lookup.json', {
+            cache: 'no-store',
+            validateStatus: () => true
+        });
+        if (response.status < 200 || response.status >= 300) {
             return null;
         }
 
-        const lookup = await response.json();
+        const lookup = response.data || {};
         const map = lookup?.[queryKey] || {};
         return map[String(queryValue).toLowerCase()] || null;
     } catch {
@@ -226,25 +230,23 @@ const resolveDocId = async (queryKey, queryValue) => {
 };
 
 const runDocSync = async (queryKey, queryValue) => {
-    const response = await fetch(SYNC_ENDPOINT, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+    const response = await axios.post(
+        SYNC_ENDPOINT,
+        {
             key: queryKey,
             value: queryValue
-        })
-    });
+        },
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            validateStatus: () => true
+        }
+    );
 
-    let payload = {};
-    try {
-        payload = await response.json();
-    } catch {
-        payload = {};
-    }
+    const payload = response.data && typeof response.data === 'object' ? response.data : {};
 
-    if (!response.ok) {
+    if (response.status < 200 || response.status >= 300) {
         throw new Error(payload.error || `Sync failed (${response.status})`);
     }
 
@@ -252,19 +254,20 @@ const runDocSync = async (queryKey, queryValue) => {
 };
 
 const fetchCollectionData = async ({ docId, collection }) => {
-    const response = await fetch(`/snapshots/${encodeURIComponent(docId)}/${collection}.json`, {
-        cache: 'no-store'
+    const response = await axios.get(`/snapshots/${encodeURIComponent(docId)}/${collection}.json`, {
+        cache: 'no-store',
+        validateStatus: () => true
     });
 
     if (response.status === 404) {
         return [];
     }
 
-    if (!response.ok) {
+    if (response.status < 200 || response.status >= 300) {
         throw new Error(`Failed to load ${collection} (${response.status})`);
     }
 
-    return parseJsonPayload(response);
+    return parseJsonPayload(response.data);
 };
 
 const initialSelection = DOC_COLLECTIONS.slice(0, 8).reduce((acc, name) => {
@@ -297,20 +300,21 @@ export default function DocDashboard() {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 2500);
 
-            const response = await fetch(HEALTH_ENDPOINT, {
+            const response = await axios.get(HEALTH_ENDPOINT, {
                 cache: 'no-store',
-                signal: controller.signal
+                signal: controller.signal,
+                validateStatus: () => true
             });
 
             clearTimeout(timeoutId);
 
-            if (!response.ok) {
+            if (response.status < 200 || response.status >= 300) {
                 setBackendConnected(false);
                 setBackendPort('---');
                 return;
             }
 
-            const payload = await response.json();
+            const payload = response.data || {};
             let port = payload?.port;
             if (payload?.backendUrl) {
                 try {

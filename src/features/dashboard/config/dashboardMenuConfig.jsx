@@ -17,7 +17,8 @@ import {
   FiDownload,
   FiUpload,
   FiCpu,
-  FiAlertTriangle
+  FiAlertTriangle,
+  FiGitPullRequest
 } from 'react-icons/fi';
 
 export const dashboardMenuConfig = {
@@ -123,6 +124,14 @@ export const dashboardMenuConfig = {
       permissions: ['read']
     },
     {
+      id: 'migration-status',
+      label: 'Migration Status',
+      path: '/dashboard/migration-status',
+      onClick: () => { window.location.href = '/dashboard/migration-status'; },
+      icon: FiGitPullRequest,
+      permissions: ['read']
+    },
+    {
       id: 'users',
       label: 'User Management',
       path: '/admin/users',
@@ -225,6 +234,14 @@ export const dashboardMenuConfig = {
       path: '/reports/dev',
       onClick: () => { window.location.href = '/reports/dev'; },
       icon: FiBarChart2,
+      permissions: ['read']
+    },
+    {
+      id: 'migration-status',
+      label: 'Migration Status',
+      path: '/dashboard/migration-status',
+      onClick: () => { window.location.href = '/dashboard/migration-status'; },
+      icon: FiGitPullRequest,
       permissions: ['read']
     },
     {

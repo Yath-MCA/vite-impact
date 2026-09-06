@@ -6,6 +6,14 @@ import { useClientConfig } from '../../../src/services/editorConfig/useClientCon
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
+const mockAxiosGet = vi.hoisted(() => vi.fn());
+
+vi.mock('axios', () => ({
+  default: {
+    get: mockAxiosGet
+  }
+}));
+
 function renderHook(hook, props) {
   const container = document.createElement('div');
   const root = createRoot(container);
@@ -42,15 +50,14 @@ function renderHook(hook, props) {
 
 function xmlResponse(xmlString, ok = true) {
   return Promise.resolve({
-    ok,
     status: ok ? 200 : 500,
-    text: () => Promise.resolve(xmlString)
+    data: xmlString
   });
 }
 
 describe('useClientConfig', () => {
   beforeEach(() => {
-    global.fetch = vi.fn();
+    mockAxiosGet.mockReset();
   });
 
   afterEach(() => {
@@ -58,7 +65,7 @@ describe('useClientConfig', () => {
   });
 
   it('starts in a loading state before resolving', () => {
-    global.fetch.mockReturnValue(new Promise(() => {}));
+    mockAxiosGet.mockReturnValue(new Promise(() => {}));
     const harness = renderHook(useClientConfig, {
       client: 'PLOS', dtd: 'JATS', journalCode: 'PONE', refStyle: '', isJournal: true
     });
@@ -66,7 +73,7 @@ describe('useClientConfig', () => {
   });
 
   it('parses config.xml into toggles once all requests resolve', async () => {
-    global.fetch.mockImplementation((url) => {
+    mockAxiosGet.mockImplementation((url) => {
       if (url.endsWith('config.xml')) {
         return xmlResponse('<root><item name="editor6Layout" editor6="three-column"></item></root>');
       }
@@ -87,7 +94,7 @@ describe('useClientConfig', () => {
   });
 
   it('falls back to default toggles and sets error when a request fails, without blocking', async () => {
-    global.fetch.mockImplementation((url) => {
+    mockAxiosGet.mockImplementation((url) => {
       if (url.endsWith('config.xml')) {
         return Promise.reject(new Error('network down'));
       }
@@ -108,7 +115,7 @@ describe('useClientConfig', () => {
   });
 
   it('requests the ceg refStyling file using refStyle when isJournal is false', async () => {
-    global.fetch.mockImplementation((url) => xmlResponse('<root></root>'));
+    mockAxiosGet.mockImplementation((url) => xmlResponse('<root></root>'));
 
     renderHook(useClientConfig, {
       client: 'OXMEDO', dtd: 'BITS', journalCode: 'OXMEDO', refStyle: 'apa', isJournal: false
@@ -118,7 +125,7 @@ describe('useClientConfig', () => {
       await Promise.resolve();
     });
 
-    const requestedUrls = global.fetch.mock.calls.map((call) => call[0]);
+    const requestedUrls = mockAxiosGet.mock.calls.map((call) => call[0]);
     expect(requestedUrls.some((url) => url.includes('ceg/refStyling_apa.xml'))).toBe(true);
   });
 
@@ -127,6 +134,6 @@ describe('useClientConfig', () => {
       client: '', dtd: '', journalCode: '', refStyle: '', isJournal: false
     });
     expect(harness.result.loading).toBe(false);
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(mockAxiosGet).not.toHaveBeenCalled();
   });
 });
