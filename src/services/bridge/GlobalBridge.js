@@ -1,6 +1,8 @@
+import SessionGuard from '../core/SessionGuard';
 function GlobalBridge(services) {
   this.services = services;
   this.legacyGlobals = {};
+  this.sessionGuard = new SessionGuard();
 }
 
 GlobalBridge.prototype.init = function() {
@@ -19,7 +21,7 @@ GlobalBridge.prototype.setupInitConfig = function() {
     return initService;
   };
 
-  window.INIT_CONFIG = initService;
+  window.INIT_CONFIG = {};
 
   window.INIT_CONFIG.parseURLParams = function() {
     return self.services.urlService.parseURLParams();
@@ -85,7 +87,7 @@ GlobalBridge.prototype.setupLoadingConfig = function() {
     return loadingService;
   };
 
-  window.LOADING_CONFIG = loadingService;
+  window.LOADING_CONFIG = {};
 
   Object.defineProperty(window.LOADING_CONFIG, 'CLIENT', {
     get: function() { return loadingService.client; },
@@ -136,7 +138,7 @@ GlobalBridge.prototype.setupEditorInitialize = function() {
     return editorService;
   };
 
-  window.EDITOR_INITIALIZE = editorService;
+  window.EDITOR_INITIALIZE = {};
 
   window.EDITOR_INITIALIZE.CLEAR_WATCHER = function() {
     editorService.clearWatchers();
@@ -187,7 +189,7 @@ GlobalBridge.prototype.setupEditorInitialize = function() {
   };
 
   window.EDITOR_INITIALIZE.preInitialize = function() {
-    editorService.preInitialize();
+    return editorService.preInitialize();
   };
 
   window.EDITOR_INITIALIZE.preInitilize = window.EDITOR_INITIALIZE.preInitialize;
@@ -311,8 +313,10 @@ GlobalBridge.prototype.setupGlobalHelpers = function() {
   };
 };
 
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== 'undefined' && module.exports && module.exports !== Object(module.exports)) {
   module.exports = GlobalBridge;
 } else if (typeof window !== 'undefined') {
   window.GlobalBridge = GlobalBridge;
 }
+
+export default GlobalBridge;

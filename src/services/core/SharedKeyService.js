@@ -102,3 +102,5 @@ if (typeof module !== 'undefined' && module.exports) {
 } else if (typeof window !== 'undefined') {
   window.SharedKeyService = SharedKeyService;
 }
+
+export default SharedKeyService;

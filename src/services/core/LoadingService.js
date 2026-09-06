@@ -260,8 +260,8 @@ ClientConfigLoader.prototype.shouldLoad = function (isTrackView) {
 ClientConfigLoader.prototype.getUrl = function (client, shortTitle, folderPath) {
   var title = this.resolveTitle();
   if (title) {
-    service.shortTitle = title;
-    return service.configPath + 'split/' + title + '.xml';
+    this.parent.shortTitle = title;
+    return this.configPath + 'split/' + title + '.xml';
   }
   return null;
 };
@@ -308,7 +308,7 @@ CegConfigLoader.prototype.shouldLoad = function (isTrackView) {
 
 CegConfigLoader.prototype.getUrl = function (client, shortTitle, folderPath) {
   if (shortTitle) {
-    return service.configPath + 'ceg/refStyling_' + encodeURIComponent(shortTitle + '.xml');
+    return this.parent.configs.client.configPath + 'ceg/refStyling_' + encodeURIComponent(shortTitle + '.xml');
   }
   return null;
 };
@@ -388,3 +388,5 @@ if (typeof module !== 'undefined' && module.exports) {
 } else if (typeof window !== 'undefined') {
   window.LoadingService = LoadingService;
 }
+
+export default LoadingService;

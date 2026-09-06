@@ -1,5 +1,6 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CKEditor } from 'ckeditor4-react';
+import $ from 'jquery';
 import { Image as ImageIcon } from 'lucide-react';
 import { useEditor } from '../../../context/EditorContext';
 import { useLayout } from '../../../context/LayoutContext';
@@ -28,8 +29,22 @@ import { useEditorContent } from '../../../services/editorConfig/useEditorConten
 import { buildDocumentContentUrl } from '../../../services/editorConfig/editorConfigConstants.js';
 import { buildEditorCssUrls, loadEditorCss } from '../../../services/editorConfig/editorCssLoader.js';
 import { createProofPreviewAdapter, loadPageMap, resolvePageForElement } from '../../../services/editorConfig/proofPreviewAssets.js';
+import {
+  URLService,
+  StorageService,
+  SharedKeyService,
+  InitService,
+  LoadingService,
+  EditorInitService
+} from '../../../services/core';
+import { GlobalBridge } from '../../../services/bridge';
 import { Joyride } from 'react-joyride';
 import { useGuidedTour } from '../tour/useGuidedTour.js';
+
+if (typeof window !== 'undefined') {
+  window.$ = $;
+  window.jQuery = $;
+}
 
 const NavigationPanel = lazy(() => import('../components/NavigationPanel'));
 const ThumbnailPanel = lazy(() => import('../components/ThumbnailPanel'));
@@ -112,6 +127,7 @@ export default function EditorPage({ readOnly = false }) {
   const syncTimerRef = useRef(null);
   const pageMapRef = useRef(pageMap);
   const activePageRef = useRef(activePage);
+  const coreFoundationRef = useRef(null);
   const urlDocId =
     typeof window !== 'undefined'
       ? new URLSearchParams(window.location.search).get('docid')
@@ -163,6 +179,38 @@ export default function EditorPage({ readOnly = false }) {
     registerEditorAlertBridge();
     initDownloadService();
     initErrorOps();
+  }, []);
+
+  useEffect(() => {
+    if (coreFoundationRef.current || typeof window === 'undefined') return undefined;
+
+    const urlService = new URLService();
+    const storageService = new StorageService();
+    const sharedKeyService = new SharedKeyService(storageService);
+    const initService = new InitService(urlService, storageService, sharedKeyService);
+    const loadingService = new LoadingService(initService);
+    const editorInitService = new EditorInitService(loadingService, sharedKeyService);
+    const bridge = new GlobalBridge({
+      urlService,
+      storageService,
+      sharedKeyService,
+      initService,
+      loadingService,
+      editorInitService
+    });
+
+    bridge.init();    
+
+    coreFoundationRef.current = {
+      sharedKeyService,
+      editorInitService
+    };
+
+    return () => {
+      editorInitService.clearWatchers();
+      sharedKeyService.stopWatching();
+      coreFoundationRef.current = null;
+    };
   }, []);
 
   useEffect(() => {

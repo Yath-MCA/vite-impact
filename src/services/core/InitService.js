@@ -14,7 +14,7 @@ function InitService(urlService, storageService, sharedKeyService) {
     this.isAdmin = false;
 }
 
-InitService.prototype.initDocumentID = function() {
+InitService.prototype.initDocumentID = function () {
     try {
         var docid = this.urlService.getURLParam('docid');
         this.emit('log', {
@@ -50,7 +50,7 @@ InitService.prototype.initDocumentID = function() {
     }
 };
 
-InitService.prototype.initUserInfo = function() {
+InitService.prototype.initUserInfo = function () {
     try {
         if (!this.docId) {
             console.warn('InitService: DOC_ID not set');
@@ -95,7 +95,7 @@ InitService.prototype.initUserInfo = function() {
     }
 };
 
-InitService.prototype.checkAccess = function() {
+InitService.prototype.checkAccess = function () {
     try {
         this.emit('log', {
             source: 'InitService',
@@ -127,7 +127,7 @@ InitService.prototype.checkAccess = function() {
     }
 };
 
-InitService.prototype.checkAdminStatus = function() {
+InitService.prototype.checkAdminStatus = function () {
     try {
         var adminIds = (typeof window !== 'undefined' && window.ADMIN_USER_IDs) ? window.ADMIN_USER_IDs : [];
 
@@ -145,7 +145,7 @@ InitService.prototype.checkAdminStatus = function() {
     }
 };
 
-InitService.prototype.handleAdminInit = function() {
+InitService.prototype.handleAdminInit = function () {
     var self = this;
     try {
         var docId = this.docId;
@@ -186,7 +186,7 @@ InitService.prototype.handleAdminInit = function() {
         if (apiService && typeof apiService.getDocs === 'function') {
             requestPromise = apiService.getDocs(payload);
         } else if (axios && typeof axios.post === 'function') {
-            requestPromise = axios.post(endpoint, payload).then(function(res) {
+            requestPromise = axios.post(endpoint, payload).then(function (res) {
                 return res.data;
             });
         } else {
@@ -194,10 +194,8 @@ InitService.prototype.handleAdminInit = function() {
         }
 
         requestPromise
-            .then(function(response) {
-                var rows = Array.isArray(response?.data) ?
-                    response.data :
-                    (Array.isArray(response) ? response : []);
+            .then(function (response) {
+                var rows = Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []);
                 var docData = rows[0] || (response && typeof response === 'object' && !Array.isArray(response) ? response : null);
 
                 var sharedKey;
@@ -272,7 +270,7 @@ InitService.prototype.handleAdminInit = function() {
                     sharedKey: sharedKey
                 });
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 console.warn('InitService.handleAdminInit request error:', err.message);
                 var fallbackKey = {
                     docid: docId,
@@ -305,7 +303,7 @@ InitService.prototype.handleAdminInit = function() {
 
         // Also maintain legacy bridge support if window.commonfn is present
         if (typeof window !== 'undefined' && window.commonfn && window.commonfn.callajax) {
-            setTimeout(function() {
+            setTimeout(function () {
                 window.commonfn.callajax(
                     window.getDocRecord,
                     'getProjectData',
@@ -321,29 +319,30 @@ InitService.prototype.handleAdminInit = function() {
     }
 };
 
-InitService.prototype.isUserAdmin = function() {
+InitService.prototype.isUserAdmin = function () {
     return this.isAdmin;
 };
 
-InitService.prototype.getDocId = function() {
+InitService.prototype.getDocId = function () {
     return this.docId;
 };
 
-InitService.prototype.getUserInfo = function() {
+InitService.prototype.getUserInfo = function () {
     return this.userInfo;
 };
 
-InitService.prototype.isLocalHost = function() {
+InitService.prototype.isLocalHost = function () {
     return this.urlService.isLocalHost();
 };
 
-InitService.prototype.emit = function(event, data) {
+InitService.prototype.emit = function (event, data) {
+    console.log(event);
     if (typeof window !== 'undefined' && window.eventBus) {
         window.eventBus.emit('init:' + event, data);
     }
 };
 
-InitService.prototype.run = function() {
+InitService.prototype.run = function () {
     try {
         this.emit('log', {
             source: 'InitService',
