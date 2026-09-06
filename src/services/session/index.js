@@ -16,6 +16,7 @@ export * from './sessionCheckClassify.js';
 export * from './tabPresence.js';
 export { isLocalHost } from './runtimeFlags.js';
 export * from './sessionSource.js';
+export * from './shareKeyContext.js';
 export * from './editorSessionBootstrap.js';
 export * from './useEditorSessionBootstrap.js';
 export {
