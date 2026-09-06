@@ -1,6 +1,8 @@
 import { apiService, API_ENDPOINTS } from '../api/apiService.js';
+import { devLog } from '../../shared/utils/devLogger.js';
 import { sessionConfig } from './sessionConfig.js';
-import { REQUEST_STATUS,SESSION_REMARKS } from './sessionConstants.js';
+import { LOCAL_STORAGE_KEYS, REQUEST_STATUS, SESSION_REMARKS } from './sessionConstants.js';
+import { isLocalHost } from './runtimeFlags.js';
 import {
   buildCheckPayload,
   buildVerifyQuery,
@@ -40,6 +42,46 @@ async function postLinkShare(payload, ctx) {
 
 async function postGetDocs(query) {
   return apiService.makeRequest(API_ENDPOINTS.GET_DOCS, query);
+}
+
+function readShareKeyFromLocalStorage(docId) {
+  if (!docId || typeof localStorage === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(`${LOCAL_STORAGE_KEYS.SHARED_PREFIX}${docId}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    const sharedDocId = String(parsed.docid || parsed.docId || '');
+    if (sharedDocId && sharedDocId !== String(docId)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function hasUsableShareKey(ctx) {
+  if (!ctx?.docId) return false;
+  if (ctx.client || ctx.username || ctx.rolename) return true;
+  return Boolean(readShareKeyFromLocalStorage(ctx.docId));
+}
+
+function withLocalhostVerifyBypass(failed, ctx) {
+  if (!failed || failed.ok) return failed;
+  if (!isLocalHost()) return failed;
+  if (!hasUsableShareKey(ctx)) return failed;
+
+  const remarks =
+    failed.reason === 'no_active_row'
+      ? 'localhost_bypass:no_linkshare_row'
+      : `localhost_bypass:verify_failed:${failed.reason || 'unknown'}`;
+
+  devLog.warn('[verifySession]', remarks, failed.reason);
+  return {
+    ...failed,
+    ok: true,
+    bypassed: true,
+    remarks
+  };
 }
 
 export async function recoverEditorSessionByDocId(docId) {
@@ -82,21 +124,31 @@ export async function recoverEditorSessionByDocId(docId) {
 
 export async function verifySession(ctx) {
   if (!ctx?.docId || !ctx?.sessionId) {
-    return { ok: false, reason: 'missing_expected_fields' };
+    return withLocalhostVerifyBypass({ ok: false, reason: 'missing_expected_fields' }, ctx);
   }
 
-  const response = await postGetDocs(buildVerifyQuery(ctx));
+  let response;
+  try {
+    response = await postGetDocs(buildVerifyQuery(ctx));
+  } catch {
+    return withLocalhostVerifyBypass({ ok: false, reason: 'network_error' }, ctx);
+  }
+
   const rows = Array.isArray(response?.data) ? response.data : [];
 
-  if (rows.length === 0) return { ok: false, reason: 'no_active_row', rows };
-  if (rows.length > 1) return { ok: false, reason: 'multiple_active', rows };
+  if (rows.length === 0) {
+    return withLocalhostVerifyBypass({ ok: false, reason: 'no_active_row', rows }, ctx);
+  }
+  if (rows.length > 1) {
+    return withLocalhostVerifyBypass({ ok: false, reason: 'multiple_active', rows }, ctx);
+  }
 
   const row = rows[0];
   if (!isActiveSessionRecord(row, ctx)) {
-    return { ok: false, reason: 'record_mismatch', row, rows };
+    return withLocalhostVerifyBypass({ ok: false, reason: 'record_mismatch', row, rows }, ctx);
   }
 
-  return { ok: true, row, rows };
+  return { ok: true, row, rows, bypassed: false };
 }
 
 export async function checkSession(ctx) {

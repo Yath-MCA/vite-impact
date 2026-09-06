@@ -12,6 +12,14 @@ vi.mock('../../../src/services/api/apiService.js', () => ({
   }
 }));
 
+vi.mock('../../../src/services/session/runtimeFlags.js', () => ({
+  isLocalHost: vi.fn(() => false)
+}));
+
+vi.mock('../../../src/shared/utils/devLogger.js', () => ({
+  devLog: { log: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }
+}));
+
 import { apiService } from '../../../src/services/api/apiService.js';
 import {
   loginFromLanding,
