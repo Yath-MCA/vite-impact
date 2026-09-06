@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { act } from 'react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import { STATUS, EVENTS } from 'react-joyride';
+import { STATUS, EVENTS, ACTIONS } from 'react-joyride';
 import modulesReducer from '../../../src/store/modulesSlice.js';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -140,6 +140,80 @@ describe('useGuidedTour', () => {
         action: 'skip',
         index: 1,
         type: EVENTS.TOUR_END
+      });
+    });
+
+    expect(harness.result.run).toBe(false);
+    expect(setHasSeenTour).toHaveBeenCalledWith('DOC1', true);
+  });
+
+  it('handleJoyrideCallback decrements stepIndex on a step:after event with ACTIONS.PREV', () => {
+    hasSeenTour.mockReturnValue(false);
+    const harness = renderHookWithStore(useGuidedTour, 'DOC1');
+
+    act(() => {
+      harness.result.startTour();
+    });
+
+    act(() => {
+      harness.result.handleJoyrideCallback({
+        status: STATUS.RUNNING,
+        action: 'next',
+        index: 0,
+        type: EVENTS.STEP_AFTER
+      });
+    });
+
+    expect(harness.result.stepIndex).toBe(1);
+
+    act(() => {
+      harness.result.handleJoyrideCallback({
+        status: STATUS.RUNNING,
+        action: ACTIONS.PREV,
+        index: 1,
+        type: EVENTS.STEP_AFTER
+      });
+    });
+
+    expect(harness.result.stepIndex).toBe(0);
+  });
+
+  it('handleJoyrideCallback advances stepIndex past a missing target on TARGET_NOT_FOUND without ending the tour', () => {
+    hasSeenTour.mockReturnValue(false);
+    const harness = renderHookWithStore(useGuidedTour, 'DOC1');
+
+    act(() => {
+      harness.result.startTour();
+    });
+
+    act(() => {
+      harness.result.handleJoyrideCallback({
+        status: STATUS.RUNNING,
+        action: 'next',
+        index: 2,
+        type: EVENTS.TARGET_NOT_FOUND
+      });
+    });
+
+    expect(harness.result.stepIndex).toBe(3);
+    expect(harness.result.run).toBe(true);
+    expect(setHasSeenTour).not.toHaveBeenCalled();
+  });
+
+  it('handleJoyrideCallback ends the tour on ACTIONS.CLOSE', () => {
+    hasSeenTour.mockReturnValue(false);
+    const harness = renderHookWithStore(useGuidedTour, 'DOC1');
+
+    act(() => {
+      harness.result.startTour();
+    });
+
+    act(() => {
+      harness.result.handleJoyrideCallback({
+        status: STATUS.RUNNING,
+        action: ACTIONS.CLOSE,
+        index: 1,
+        type: EVENTS.STEP_AFTER
       });
     });
 

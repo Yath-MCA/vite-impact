@@ -332,10 +332,9 @@ export default function EditorPage({ readOnly = false }) {
         steps={guidedTour.steps}
         run={guidedTour.run}
         stepIndex={guidedTour.stepIndex}
-        callback={guidedTour.handleJoyrideCallback}
+        onEvent={guidedTour.handleJoyrideCallback}
         continuous
-        showProgress
-        showSkipButton
+        options={{ showProgress: true, buttons: ['back', 'skip', 'close', 'primary'] }}
       />
     </div>
   );

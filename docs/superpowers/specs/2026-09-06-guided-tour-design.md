@@ -36,8 +36,8 @@ EditorPage.jsx
   │           └─ .close() + setHasSeenTour(docId)                       on tour end
   │
   └─ <Joyride steps={steps} run={run} stepIndex={stepIndex}
-              callback={handleJoyrideCallback}
-              continuous showProgress showSkipButton />
+              onEvent={handleJoyrideCallback}
+              continuous options={{ showProgress: true, buttons: [...] }} />
 ```
 
 ## Components
@@ -115,9 +115,13 @@ EditorPage mounts → content resolves (Editor Bootstrap Foundation's useEditorC
 ## Error Handling
 
 - A step whose `target` selector isn't currently in the DOM (e.g. `thumbnails`
-  panel hidden via `toggles.showThumbnails`) is react-joyride's own concern —
-  its documented behavior is to skip/warn on a missing target, not something
-  this spec re-implements or papers over.
+  panel hidden via `toggles.showThumbnails`) is only auto-skipped by
+  react-joyride itself in *uncontrolled* mode. Because this spec passes
+  `stepIndex` to `<Joyride>`, the tour runs in **controlled mode**, where
+  react-joyride's own auto-advance on a missing target is disabled and the
+  consumer is responsible for handling it. `handleJoyrideCallback` explicitly
+  listens for `EVENTS.TARGET_NOT_FOUND` (alongside `EVENTS.STEP_AFTER`) and
+  advances `stepIndex` past the missing target itself.
 - `localStorage` access failing (private browsing, quota) is caught inside
   `hasSeenTour`/`setHasSeenTour` and treated as "not seen" / "write silently
   no-op" — worst case the tour shows again next visit, never a hard failure.

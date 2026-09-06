@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
-import { STATUS, EVENTS } from 'react-joyride';
+import { useCallback, useEffect, useState } from 'react';
+import { STATUS, EVENTS, ACTIONS } from 'react-joyride';
 import { useModuleLifecycle } from '../../../store/useModuleLifecycle.js';
 import { tourSteps } from './tourSteps.js';
 import { hasSeenTour, setHasSeenTour } from './tourSeenStorage.js';
@@ -22,7 +22,11 @@ const TERMINAL_STATUSES = [STATUS.FINISHED, STATUS.SKIPPED];
 export function useGuidedTour(docId) {
   const [run, setRun] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
-  const { open, close, recordStat } = useModuleLifecycle('guidedTour', 'GuidedTour');
+  const { init, open, close, recordStat } = useModuleLifecycle('guidedTour', 'GuidedTour');
+
+  useEffect(() => {
+    init();
+  }, []);
 
   const startTour = useCallback(({ force = false } = {}) => {
     if (!force && hasSeenTour(docId)) return;
@@ -34,15 +38,17 @@ export function useGuidedTour(docId) {
   const handleJoyrideCallback = useCallback((data) => {
     const { status, action, index, type } = data;
 
-    if (type === EVENTS.STEP_AFTER) {
-      recordStat('buttonClicked', { buttonId: action });
-      setStepIndex(index + 1);
-    }
+    const isTerminal = TERMINAL_STATUSES.includes(status) || action === ACTIONS.CLOSE;
 
-    if (TERMINAL_STATUSES.includes(status)) {
+    if (isTerminal) {
       setRun(false);
       close();
       setHasSeenTour(docId, true);
+    } else if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
+      if (type === EVENTS.STEP_AFTER) {
+        recordStat('buttonClicked', { buttonId: action });
+      }
+      setStepIndex(index + (action === ACTIONS.PREV ? -1 : 1));
     }
   }, [docId, close, recordStat]);
 
