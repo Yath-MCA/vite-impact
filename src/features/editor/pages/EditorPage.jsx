@@ -1,6 +1,5 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CKEditor } from 'ckeditor4-react';
-import $ from 'jquery';
 import { Image as ImageIcon } from 'lucide-react';
 import { useEditor } from '../../../context/EditorContext';
 import { useLayout } from '../../../context/LayoutContext';
@@ -29,22 +28,8 @@ import { useEditorContent } from '../../../services/editorConfig/useEditorConten
 import { buildDocumentContentUrl } from '../../../services/editorConfig/editorConfigConstants.js';
 import { buildEditorCssUrls, loadEditorCss } from '../../../services/editorConfig/editorCssLoader.js';
 import { createProofPreviewAdapter, loadPageMap, resolvePageForElement } from '../../../services/editorConfig/proofPreviewAssets.js';
-import {
-  URLService,
-  StorageService,
-  SharedKeyService,
-  InitService,
-  LoadingService,
-  EditorInitService
-} from '../../../services/core';
-import { GlobalBridge } from '../../../services/bridge';
 import { Joyride } from 'react-joyride';
 import { useGuidedTour } from '../tour/useGuidedTour.js';
-
-if (typeof window !== 'undefined') {
-  window.$ = $;
-  window.jQuery = $;
-}
 
 const NavigationPanel = lazy(() => import('../components/NavigationPanel'));
 const ThumbnailPanel = lazy(() => import('../components/ThumbnailPanel'));
@@ -127,7 +112,6 @@ export default function EditorPage({ readOnly = false }) {
   const syncTimerRef = useRef(null);
   const pageMapRef = useRef(pageMap);
   const activePageRef = useRef(activePage);
-  const coreFoundationRef = useRef(null);
   const urlDocId =
     typeof window !== 'undefined'
       ? new URLSearchParams(window.location.search).get('docid')
@@ -179,38 +163,6 @@ export default function EditorPage({ readOnly = false }) {
     registerEditorAlertBridge();
     initDownloadService();
     initErrorOps();
-  }, []);
-
-  useEffect(() => {
-    if (coreFoundationRef.current || typeof window === 'undefined') return undefined;
-
-    const urlService = new URLService();
-    const storageService = new StorageService();
-    const sharedKeyService = new SharedKeyService(storageService);
-    const initService = new InitService(urlService, storageService, sharedKeyService);
-    const loadingService = new LoadingService(initService);
-    const editorInitService = new EditorInitService(loadingService, sharedKeyService);
-    const bridge = new GlobalBridge({
-      urlService,
-      storageService,
-      sharedKeyService,
-      initService,
-      loadingService,
-      editorInitService
-    });
-
-    bridge.init();    
-
-    coreFoundationRef.current = {
-      sharedKeyService,
-      editorInitService
-    };
-
-    return () => {
-      editorInitService.clearWatchers();
-      sharedKeyService.stopWatching();
-      coreFoundationRef.current = null;
-    };
   }, []);
 
   useEffect(() => {
@@ -416,19 +368,7 @@ export default function EditorPage({ readOnly = false }) {
   }, []);
 
   const editorConfig = useMemo(() => ({
-    toolbar: [
-      { name: 'document', items: ['Source', '-', 'Preview', 'Print'] },
-      { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', '-', 'Undo', 'Redo'] },
-      { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
-      { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'] },
-      { name: 'links', items: ['Link', 'Unlink'] },
-      { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
-      { name: 'styles', items: ['Styles', 'Format', 'FontSize'] }
-    ],
-    height: 760,
-    uiColor: '#f7f4ef',
-    removePlugins: 'elementspath',
-    resize_enabled: false,
+    customConfig: '/ckeditor4/config.js',
     contentsCss: ['/ckeditor4/contents.css', ...editorCssUrls]
   }), [editorCssUrls]);
 
@@ -436,8 +376,8 @@ export default function EditorPage({ readOnly = false }) {
     <div className="flex h-screen flex-col overflow-hidden bg-[#f5f1ea] text-gray-800 [color-scheme:light]" style={{ fontFamily: "'Inter', 'ui-sans-serif', system-ui" }}>
       <Navbar1 />
       <Navbar2
-        titleParent={sessionDocId ? `Doc ${sessionDocId}` : 'Sample Journal'}
-        titleChild={readOnly ? 'Read-only preview' : 'Sample Article'}
+        titleParent={sessionSrc.projecttitle || (sessionDocId ? `Doc ${sessionDocId}` : 'Sample Journal')}
+        titleChild={sessionSrc.shorttitle || (readOnly ? 'Read-only preview' : 'Sample Article')}
         hideMiddle
       />
 

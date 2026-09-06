@@ -25,6 +25,7 @@ function InitService(urlService, storageService, sharedKeyService) {
  * @returns {boolean} Success status
  */
 InitService.prototype.initDocumentID = function() {
+  console.log("--initDocumentID--");
   try {
     var docid = this.urlService.getURLParam('docid');
     this.emit('log', { source: 'InitService', action: 'initDocumentID', docid: docid });

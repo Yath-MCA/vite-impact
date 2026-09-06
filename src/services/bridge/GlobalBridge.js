@@ -18,6 +18,11 @@ GlobalBridge.prototype.setupInitConfig = function() {
     var self = this;
     var initService = this.services.initService;
 
+    if (import.meta.env.DEV) {
+        console.log('[GlobalBridge] init start');
+        self.sessionGuard.checkStage('init');
+    }
+
     window.InitConfig = function() {
         return initService;
     };
@@ -82,11 +87,20 @@ GlobalBridge.prototype.setupInitConfig = function() {
             return self.services.urlService.urlParams;
         }
     });
+
+    if (import.meta.env.DEV) {
+        console.log('[GlobalBridge] init complete');
+    }
 };
 
 GlobalBridge.prototype.setupLoadingConfig = function() {
     var self = this;
     var loadingService = this.services.loadingService;
+
+    if (import.meta.env.DEV) {
+        console.log('[GlobalBridge] loading start');
+        self.sessionGuard.checkStage('loading');
+    }
 
     window.LoadingConfig = function() {
         return loadingService;
@@ -145,11 +159,20 @@ GlobalBridge.prototype.setupLoadingConfig = function() {
     window.LOADING_CONFIG.Init = function(SHARED_KEY) {
         loadingService.init(SHARED_KEY);
     };
+
+    if (import.meta.env.DEV) {
+        console.log('[GlobalBridge] loading complete');
+    }
 };
 
 GlobalBridge.prototype.setupEditorInitialize = function() {
     var self = this;
     var editorService = this.services.editorInitService;
+
+    if (import.meta.env.DEV) {
+        console.log('[GlobalBridge] editorInit start');
+        self.sessionGuard.checkStage('editorInit');
+    }
 
     window.EditorInitialize = function() {
         return editorService;
@@ -225,6 +248,10 @@ GlobalBridge.prototype.setupEditorInitialize = function() {
             editorService.pendingSharedKey = val;
         }
     });
+
+    if (import.meta.env.DEV) {
+        console.log('[GlobalBridge] editorInit complete');
+    }
 };
 
 GlobalBridge.prototype.setupInitialLoadDialog = function() {
@@ -255,9 +282,7 @@ GlobalBridge.prototype.setupInitialLoadDialog = function() {
         updateProgress: function(value) {
             this.progressValue = value;
             if (window.eventBus) {
-                window.eventBus.emit('dialog:progress', {
-                    value: value
-                });
+                window.eventBus.emit('dialog:progress', { value: value });
             }
         },
 
@@ -319,9 +344,7 @@ GlobalBridge.prototype.setupGlobalHelpers = function() {
         find: {
             status: "active",
             docid: "",
-            projecttitle: {
-                "$exists": true
-            }
+            projecttitle: { "$exists": true }
         },
         length: 1,
         sort: {},

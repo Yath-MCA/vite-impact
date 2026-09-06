@@ -12,11 +12,7 @@ CKEDITOR.editorConfig = function(config) {
     config.toolbarGroups = [{
             name: 'document',
             groups: []
-        },
-        {
-            name: 'insert'
-        },
-        '/',
+        },        
         {
             name: 'clipboard',
             groups: ['Undo', 'Redo', '-', 'Cut', 'Copy ']
