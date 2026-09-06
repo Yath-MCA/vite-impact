@@ -116,7 +116,7 @@ InitService.prototype.handleAdminInit = function () {
     if (typeof window !== 'undefined' && window.commonfn && window.commonfn.callajax) {
       setTimeout(function () {
         window.commonfn.callajax(
-          window.getDataRecord,
+          window.getDocRecord,
           'getProjectData',
           (window.API_GET_DOCS) ? window.API_GET_DOCS : null
         );

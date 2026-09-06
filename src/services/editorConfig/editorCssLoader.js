@@ -22,7 +22,7 @@ export function buildEditorCssUrls({ client, roleId, roleName, assetsBase = '/as
   const urls = COMMON_EDITOR_CSS.map((fileName) => `${base}/css/common/${fileName}`);
   const clientName = String(client || '').trim();
   if (clientName) {
-    urls.push(`${base}/css/clients/${clientName.toUpperCase()}.scss`);
+    urls.push(`${base}/css/clients/${clientName.toUpperCase()}.css`);
   }
 
   const roleSlug = toRoleCssSlug(roleName || roleId);

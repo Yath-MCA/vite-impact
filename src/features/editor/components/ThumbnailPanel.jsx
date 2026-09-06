@@ -4,22 +4,24 @@ import { useLayout } from '../../../context/LayoutContext';
 import { Image as ImageIcon, X } from 'lucide-react';
 
 function ThumbnailPanel({ pages, onPageSelect }) {
-  const { thumbnails, scrollToSegment, activeSegment } = useEditor();
+  const { thumbnails, scrollToSegment, activeSegment, activePage, setActivePage, proofPreview } = useEditor();
   const { toggle } = useLayout();
+  const adapter = proofPreview.adapter;
 
   const pageItems = useMemo(() => pages || thumbnails, [pages, thumbnails]);
 
   return (
-    <aside className="h-full bg-white dark:bg-gray-900 flex flex-col">
+    <aside className="flex h-full flex-col bg-white text-gray-800 [color-scheme:light]">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50/80 px-3 py-2">
         <div className="flex items-center space-x-2">
           <ImageIcon className="w-3.5 h-3.5 text-gray-500" />
-          <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Segments</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Pages</span>
         </div>
         <button
           onClick={() => toggle('showThumbnails')}
-          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          className="rounded p-1 transition-colors hover:bg-gray-200"
+          aria-label="Close thumbnails"
         >
           <X className="w-3 h-3 text-gray-400" />
         </button>
@@ -28,12 +30,23 @@ function ThumbnailPanel({ pages, onPageSelect }) {
       {/* Thumbnails */}
       <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
         <div className="space-y-3">
-          {pageItems.map((thumbnail, index) => (
+          {pageItems.map((thumbnail, index) => {
+            const imageSrc = adapter?.getThumbnailSource(thumbnail);
+            const isActive = thumbnail.pageNumber
+              ? activePage === thumbnail.pageNumber
+              : activeSegment === thumbnail.segment;
+
+            return (
             <button
               key={thumbnail.id || index}
               onClick={() => {
                 if (onPageSelect) {
                   onPageSelect(thumbnail, index);
+                  return;
+                }
+
+                if (thumbnail.pageNumber) {
+                  setActivePage(thumbnail.pageNumber, { syncEditor: true });
                   return;
                 }
 
@@ -43,32 +56,42 @@ function ThumbnailPanel({ pages, onPageSelect }) {
               }}
               className="w-full text-left transition-transform active:scale-95"
             >
-              <div className={`relative bg-white dark:bg-gray-800 rounded-md border transition-all duration-200 overflow-hidden ${activeSegment === thumbnail.segment
+              <div className={`relative overflow-hidden rounded-md border bg-white transition-all duration-200 ${isActive
                 ? 'border-primary-500 shadow-md ring-1 ring-primary-500/20'
-                : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                : 'border-gray-200 hover:border-gray-300'
                 }`}>
                 {/* Compact Page Preview */}
-                <div className="aspect-[3/4] p-1.5 bg-gray-50 dark:bg-gray-800/50">
-                  <div className="h-full bg-white dark:bg-gray-800 rounded-sm shadow-sm p-1">
-                    <div className="space-y-0.5 opacity-40">
-                      <div className="h-1 bg-gray-200 dark:bg-gray-600 rounded w-3/4" />
-                      <div className="h-0.5 bg-gray-100 dark:bg-gray-700 rounded w-full" />
-                      <div className="h-0.5 bg-gray-100 dark:bg-gray-700 rounded w-5/6" />
-                    </div>
+                <div className="aspect-[3/4] bg-gray-50 p-1.5">
+                  <div className="h-full rounded-sm bg-white p-1 shadow-sm">
+                    {imageSrc ? (
+                      <img
+                        src={imageSrc}
+                        alt={`${thumbnail.label || `Page ${index + 1}`} thumbnail`}
+                        className="h-full w-full object-contain"
+                        loading="lazy"
+                        draggable="false"
+                      />
+                    ) : (
+                      <div className="space-y-0.5 opacity-40">
+                        <div className="h-1 w-3/4 rounded bg-gray-200" />
+                        <div className="h-0.5 w-full rounded bg-gray-100" />
+                        <div className="h-0.5 w-5/6 rounded bg-gray-100" />
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Small Page Number Badge */}
-                <div className="absolute top-1 right-1 px-1 py-0.5 bg-gray-900/10 dark:bg-white/10 text-[10px] font-medium rounded text-gray-600 dark:text-gray-400">
-                  {thumbnail.label}
+                <div className="absolute right-1 top-1 rounded bg-gray-900/10 px-1 py-0.5 text-[10px] font-medium text-gray-600">
+                  {thumbnail.label || `Page ${index + 1}`}
                 </div>
               </div>
 
-              <p className={`mt-1 text-[10px] truncate px-1 font-medium ${activeSegment === thumbnail.segment ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500'}`}>
-                {(thumbnail.segment || `page-${index + 1}`).replace(/-/g, ' ')}
+              <p className={`mt-1 truncate px-1 text-[10px] font-medium ${isActive ? 'text-primary-600' : 'text-gray-500'}`}>
+                {thumbnail.pageNumber ? `page ${thumbnail.pageNumber}` : (thumbnail.segment || `page-${index + 1}`).replace(/-/g, ' ')}
               </p>
             </button>
-          ))}
+            );
+          })}
         </div>
       </div>
     </aside>

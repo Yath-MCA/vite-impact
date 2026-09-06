@@ -15,7 +15,7 @@ describe('editorCssLoader buildEditorCssUrls', () => {
       '/assets/css/common/editor_ref_color.css',
       '/assets/css/common/editor_track_color.css',
       '/assets/css/common/editor_track_hide.css',
-      '/assets/css/clients/PLOS.scss',
+      '/assets/css/clients/PLOS.css',
       '/assets/css/roles/copy-editor.css'
     ]);
   });
@@ -37,7 +37,7 @@ describe('loadEditorCss', () => {
     const links = Array.from(document.querySelectorAll('link[data-impact-editor-css]'));
     links.forEach((link) => link.dispatchEvent(new Event('load')));
 
-    await expect(promise).resolves.toContain('/assets/css/clients/LWW.scss');
+    await expect(promise).resolves.toContain('/assets/css/clients/LWW.css');
     expect(document.querySelectorAll('link[data-impact-editor-css]').length).toBe(6);
 
     const second = loadEditorCss({ client: 'LWW', roleName: 'Author' });

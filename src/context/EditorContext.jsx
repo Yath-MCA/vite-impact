@@ -30,8 +30,18 @@ export function EditorProvider({ children }) {
   });
   const [thumbnails, setThumbnails] = useState([]);
   const [activeSegment, setActiveSegment] = useState(DOCUMENT_SEGMENTS.INTRODUCTION);
+  const [proofPreview, setProofPreviewState] = useState({
+    loading: false,
+    error: null,
+    assets: null,
+    pageMap: null,
+    pages: [],
+    adapter: null
+  });
+  const [activePage, setActivePageState] = useState(1);
   const editorRef = useRef(null);
   const contentRef = useRef(null);
+  const proofPagesRef = useRef([]);
 
   const stripXmlHeaders = (html) => {
     if (!html) return '';
@@ -129,16 +139,67 @@ export function EditorProvider({ children }) {
       }
     });
 
-    setThumbnails([
-      { id: 1, segment: DOCUMENT_SEGMENTS.INTRODUCTION, label: 'Page 1' },
-      { id: 2, segment: DOCUMENT_SEGMENTS.SECTION_1, label: 'Page 2' },
-      { id: 3, segment: DOCUMENT_SEGMENTS.SECTION_2, label: 'Page 3' },
-      { id: 4, segment: DOCUMENT_SEGMENTS.CONCLUSION, label: 'Page 4' }
-    ]);
+    if (!proofPagesRef.current.length) {
+      setThumbnails([
+        { id: 1, segment: DOCUMENT_SEGMENTS.INTRODUCTION, label: 'Page 1' },
+        { id: 2, segment: DOCUMENT_SEGMENTS.SECTION_1, label: 'Page 2' },
+        { id: 3, segment: DOCUMENT_SEGMENTS.SECTION_2, label: 'Page 3' },
+        { id: 4, segment: DOCUMENT_SEGMENTS.CONCLUSION, label: 'Page 4' }
+      ]);
+    }
   }, [extractHeadings, injectHeadingIds]);
+
+  const setProofPreview = useCallback((nextState) => {
+    setProofPreviewState((current) => {
+      const resolved = typeof nextState === 'function' ? nextState(current) : nextState;
+      const pages = resolved?.pages || resolved?.pageMap?.pages || [];
+      const hasExplicitPageUpdate = Object.prototype.hasOwnProperty.call(resolved || {}, 'pages')
+        || Object.prototype.hasOwnProperty.call(resolved || {}, 'pageMap');
+      proofPagesRef.current = pages;
+      if (pages.length) {
+        setThumbnails(pages);
+        setActivePageState((page) => {
+          const hasCurrentPage = pages.some((item) => item.pageNumber === page);
+          return hasCurrentPage ? page : pages[0].pageNumber;
+        });
+      } else if (hasExplicitPageUpdate) {
+        setThumbnails([]);
+        setActivePageState(1);
+      }
+
+      return {
+        ...current,
+        ...resolved,
+        pages
+      };
+    });
+  }, []);
+
+  const scrollEditorToPage = useCallback((pageNumber) => {
+    const targetId = proofPreview.pageMap?.pageToElement?.[pageNumber];
+    if (!targetId || !editorRef.current?.editor) return;
+
+    const element = editorRef.current.editor.document?.getById?.(targetId);
+    if (element) {
+      element.scrollIntoView(true);
+      setActiveHeading(targetId);
+    }
+  }, [editorRef, proofPreview.pageMap]);
+
+  const setActivePage = useCallback((pageNumber, { syncEditor = false } = {}) => {
+    const normalizedPage = Number.parseInt(pageNumber, 10);
+    if (!Number.isFinite(normalizedPage) || normalizedPage < 1) return;
+
+    setActivePageState(normalizedPage);
+    if (syncEditor) {
+      scrollEditorToPage(normalizedPage);
+    }
+  }, [scrollEditorToPage]);
 
   const scrollToHeading = useCallback((headingId) => {
     setActiveHeading(headingId);
+    const mappedPage = proofPreview.pageMap?.elementToPage?.[headingId];
+    if (mappedPage) setActivePageState(mappedPage);
 
     // Update active segment based on heading index
     const index = headings.findIndex(h => h.id === headingId);
@@ -168,7 +229,7 @@ export function EditorProvider({ children }) {
         }
       }
     }
-  }, [editorRef, contentRef]);
+  }, [editorRef, contentRef, headings, proofPreview.pageMap]);
 
   const scrollToSegment = useCallback((segmentKey) => {
     const segmentIndex = Object.values(DOCUMENT_SEGMENTS).indexOf(segmentKey);
@@ -225,11 +286,17 @@ export function EditorProvider({ children }) {
     isDirty,
     segments,
     thumbnails,
+    proofPreview,
+    proofPages: proofPreview.pages,
+    pageMap: proofPreview.pageMap,
+    activePage,
     editorRef,
     contentRef,
     setViewMode,
     setActiveHeading,
     setActiveSegment,
+    setActivePage,
+    setProofPreview,
     setIsDirty,
     updateContent,
     scrollToHeading,

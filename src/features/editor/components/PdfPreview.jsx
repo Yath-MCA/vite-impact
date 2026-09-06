@@ -1,63 +1,83 @@
-import { useEffect } from 'react';
-import { useEditor, VIEW_MODES } from '../../../context/EditorContext';
+import { ChevronLeft, ChevronRight, FileWarning } from 'lucide-react';
+import { useEditor } from '../../../context/EditorContext';
 
 export default function PdfPreview() {
-  const { content, contentRef, setActiveHeading } = useEditor();
+  const { contentRef, proofPreview, proofPages, activePage, setActivePage } = useEditor();
+  const adapter = proofPreview.adapter;
+  const activePageItem = proofPages.find((page) => page.pageNumber === activePage) || proofPages[0];
+  const activeIndex = proofPages.findIndex((page) => page.pageNumber === activePage);
+  const canGoPrevious = activeIndex > 0;
+  const canGoNext = activeIndex >= 0 && activeIndex < proofPages.length - 1;
 
-  useEffect(() => {
-    const container = contentRef.current;
-    if (!container) return;
+  const goToOffset = (offset) => {
+    if (activeIndex < 0) return;
+    const nextPage = proofPages[activeIndex + offset];
+    if (nextPage) setActivePage(nextPage.pageNumber, { syncEditor: true });
+  };
 
-    const handleScroll = () => {
-      const headingElements = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-      let currentHeadingId = null;
-
-      for (const el of headingElements) {
-        const rect = el.getBoundingClientRect();
-        // Check if heading is near top of container
-        const containerRect = container.getBoundingClientRect();
-        const topRelativeToContainer = rect.top - containerRect.top;
-
-        if (topRelativeToContainer >= 0 && topRelativeToContainer <= 100) {
-          currentHeadingId = el.id;
-          break;
-        }
-      }
-
-      if (currentHeadingId) {
-        setActiveHeading(currentHeadingId);
-      }
-    };
-
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, [contentRef, setActiveHeading]);
+  const pageSource = adapter?.getPageSource(activePageItem);
 
   return (
     <div
       ref={contentRef}
-      className="h-full overflow-y-auto bg-gray-100 dark:bg-gray-800 p-8 scroll-smooth"
+      className="flex h-full flex-col overflow-hidden bg-[#f4f2ed] text-gray-800 [color-scheme:light]"
     >
-      {/* A4 Page Container */}
-      <div className="max-w-[210mm] mx-auto bg-white dark:bg-gray-900 shadow-lg min-h-[297mm]">
-        {/* Page Content */}
-        <div className="p-[25mm]">
-          <div
-            className="prose dark:prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: content }}
-          />
-        </div>
+      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-2">
+        <button
+          type="button"
+          onClick={() => goToOffset(-1)}
+          disabled={!canGoPrevious}
+          className="rounded p-1.5 text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300"
+          aria-label="Previous proof page"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <span className="text-xs font-semibold uppercase text-gray-500">
+          {activePageItem ? activePageItem.label : 'Proof Preview'}
+        </span>
+        <button
+          type="button"
+          onClick={() => goToOffset(1)}
+          disabled={!canGoNext}
+          className="rounded p-1.5 text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300"
+          aria-label="Next proof page"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
       </div>
 
-      {/* Page Indicators */}
-      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
-        {[1, 2, 3, 4].map((page) => (
-          <div
-            key={page}
-            className="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-600"
-          />
-        ))}
+      <div className="min-h-0 flex-1 overflow-auto p-6">
+        {proofPreview.loading ? (
+          <div className="mx-auto aspect-[210/297] max-w-[420px] animate-pulse rounded-sm bg-white shadow" />
+        ) : pageSource ? (
+          <div className="mx-auto max-w-[420px] bg-white shadow-[0_18px_50px_rgba(15,23,42,0.16)]">
+            <img
+              src={pageSource}
+              alt={`${activePageItem.label} proof`}
+              className="block h-auto w-full bg-white"
+              draggable="false"
+            />
+          </div>
+        ) : (
+          <div className="mx-auto flex aspect-[210/297] max-w-[420px] flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-gray-300 bg-white px-6 text-center text-sm text-gray-500">
+            <FileWarning className="h-8 w-8 text-gray-400" />
+            <p className="font-medium text-gray-700">Proof preview is unavailable.</p>
+            <p>The editor content loaded, but no proof pages were found for this document.</p>
+          </div>
+        )}
+
+        {proofPreview.error && proofPages.length > 0 && (
+          <p className="mx-auto mt-3 max-w-[420px] text-xs text-amber-700">
+            Proof page map was not available; showing generated page paths.
+          </p>
+        )}
       </div>
+
+      {proofPages.length > 0 && (
+        <div className="border-t border-gray-200 bg-white px-4 py-2 text-center text-xs text-gray-500">
+          Page {activeIndex + 1 || 1} of {proofPages.length}
+        </div>
+      )}
     </div>
   );
 }

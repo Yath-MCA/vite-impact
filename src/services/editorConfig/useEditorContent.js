@@ -42,21 +42,21 @@ export function useEditorContent(docId) {
             loading: true,
             error: null
         });
-
-        axios.get(buildDocumentContentUrl(docId), {
-            responseType: 'text',
-            validateStatus: () => true
-        })
+        const docUrl = buildDocumentContentUrl(docId);
+        axios.get(docUrl, {
+                responseType: 'text',
+                validateStatus: () => true
+            })
             .then((response) => {
                 if (response.status < 200 || response.status >= 300) {
                     throw new Error(`Document fetch failed: ${response.status}`);
                 }
                 return response.data || '';
             })
-            .then((text) => {
+            .then((html) => {
                 if (cancelled || requestIdRef.current !== requestId) return;
                 setState({
-                    content: text,
+                    content: html,
                     loading: false,
                     error: null
                 });

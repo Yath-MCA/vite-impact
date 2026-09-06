@@ -25,7 +25,9 @@ import { showEditorMessage, EditorMessageKey } from '../messages/editorMessages.
 import { loadCKEditor } from '../../../shared/utils/loadCKEditor.js';
 import { useClientConfig } from '../../../services/editorConfig/useClientConfig.js';
 import { useEditorContent } from '../../../services/editorConfig/useEditorContent.js';
+import { buildDocumentContentUrl } from '../../../services/editorConfig/editorConfigConstants.js';
 import { buildEditorCssUrls, loadEditorCss } from '../../../services/editorConfig/editorCssLoader.js';
+import { createProofPreviewAdapter, loadPageMap, resolvePageForElement } from '../../../services/editorConfig/proofPreviewAssets.js';
 import { Joyride } from 'react-joyride';
 import { useGuidedTour } from '../tour/useGuidedTour.js';
 
@@ -94,7 +96,11 @@ export default function EditorPage({ readOnly = false }) {
     updateContent,
     editorRef,
     isDirty,
-    setIsDirty
+    setIsDirty,
+    setProofPreview,
+    setActivePage,
+    pageMap,
+    activePage
   } = useEditor();
   const { toggles } = useLayout();
   const { registerModule } = useModule();
@@ -104,6 +110,8 @@ export default function EditorPage({ readOnly = false }) {
   );
   const [editorCssReady, setEditorCssReady] = useState(false);
   const syncTimerRef = useRef(null);
+  const pageMapRef = useRef(pageMap);
+  const activePageRef = useRef(activePage);
   const sessionDocId =
     (typeof sessionStorage !== 'undefined'
       ? sessionStorage.getItem(SESSION_STORAGE_KEYS.DOC_ID)
@@ -128,6 +136,10 @@ export default function EditorPage({ readOnly = false }) {
     type: sessionSrc.type
   });
   const editorContent = useEditorContent(sessionDocId);
+  const editorContentUrl = useMemo(
+    () => (sessionDocId ? buildDocumentContentUrl(sessionDocId) : ''),
+    [sessionDocId]
+  );
   const isThreeColumnConfig = clientConfig.toggles.layoutMode === 'three-column';
   const guidedTour = useGuidedTour(sessionDocId);
   const editorCssUrls = useMemo(() => buildEditorCssUrls({
@@ -141,6 +153,14 @@ export default function EditorPage({ readOnly = false }) {
     initDownloadService();
     initErrorOps();
   }, []);
+
+  useEffect(() => {
+    pageMapRef.current = pageMap;
+  }, [pageMap]);
+
+  useEffect(() => {
+    activePageRef.current = activePage;
+  }, [activePage]);
 
   useEffect(() => {
     let cancelled = false;
@@ -214,6 +234,54 @@ export default function EditorPage({ readOnly = false }) {
   }, [editorContent.content, setIsDirty, updateContent]);
 
   useEffect(() => {
+    if (!sessionDocId || editorContent.content == null) {
+      setProofPreview({
+        loading: false,
+        error: null,
+        assets: null,
+        pageMap: null,
+        pages: [],
+        adapter: createProofPreviewAdapter()
+      });
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    setProofPreview({
+      loading: true,
+      error: null,
+      adapter: createProofPreviewAdapter()
+    });
+
+    loadPageMap({
+      docId: sessionDocId,
+      contentUrl: editorContentUrl,
+      signal: controller.signal
+    })
+      .then((result) => {
+        setProofPreview({
+          loading: false,
+          error: result.ok ? null : new Error(`Proof page map unavailable: ${result.status}`),
+          assets: result.assets,
+          pageMap: result.pageMap,
+          pages: result.pageMap.pages,
+          adapter: createProofPreviewAdapter()
+        });
+      })
+      .catch((error) => {
+        if (error.name === 'CanceledError' || error.name === 'AbortError') return;
+        setProofPreview({
+          loading: false,
+          error,
+          pages: [],
+          adapter: createProofPreviewAdapter()
+        });
+      });
+
+    return () => controller.abort();
+  }, [editorContent.content, editorContentUrl, sessionDocId, setProofPreview]);
+
+  useEffect(() => {
     if (editorContent.content == null) return;
     guidedTour.startTour();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -259,7 +327,24 @@ export default function EditorPage({ readOnly = false }) {
 
   const handleEditorReady = useCallback(({ editor }) => {
     editorRef.current = { editor };
-  }, [editorRef]);
+
+    editor.on('selectionChange', (event) => {
+      const startElement = event?.data?.selection?.getStartElement?.();
+      let currentElement = startElement;
+      let elementId = null;
+
+      while (currentElement && !elementId) {
+        elementId = currentElement.getId?.() || currentElement.$?.id || currentElement.getAttribute?.('id');
+        currentElement = currentElement.getParent?.();
+      }
+
+      if (!elementId) return;
+      const nextPage = resolvePageForElement(elementId, pageMapRef.current, activePageRef.current);
+      if (nextPage !== activePageRef.current) {
+        setActivePage(nextPage);
+      }
+    });
+  }, [editorRef, setActivePage]);
 
   const handleEditorDestroyed = useCallback(() => {
     editorRef.current = null;
@@ -289,7 +374,7 @@ export default function EditorPage({ readOnly = false }) {
   }), [editorCssUrls]);
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#f5f1ea] text-gray-800" style={{ fontFamily: "'Inter', 'ui-sans-serif', system-ui" }}>
+    <div className="flex h-screen flex-col overflow-hidden bg-[#f5f1ea] text-gray-800 [color-scheme:light]" style={{ fontFamily: "'Inter', 'ui-sans-serif', system-ui" }}>
       <Navbar1 />
       <Navbar2
         titleParent={sessionDocId ? `Doc ${sessionDocId}` : 'Sample Journal'}
