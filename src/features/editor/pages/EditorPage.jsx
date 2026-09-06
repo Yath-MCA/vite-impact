@@ -18,9 +18,8 @@ import {
   startTabPresenceListener,
   stopTabPresence
 } from '../../../services/session/tabPresence.js';
-import { SESSION_STORAGE_KEYS } from '../../../services/session/sessionConstants.js';
-import { getValidateAccessKey, getValidateResponse } from '../../../services/session/sessionStorage.js';
-import { normalizeSessionSource } from '../../../services/session/sessionSource.js';
+import { useEditorSessionBootstrap } from '../../../services/session/useEditorSessionBootstrap.js';
+import { SessionProvider } from '../../../context/SessionContext.jsx';
 import { showEditorMessage, EditorMessageKey } from '../messages/editorMessages.js';
 import { loadCKEditor } from '../../../shared/utils/loadCKEditor.js';
 import { useClientConfig } from '../../../services/editorConfig/useClientConfig.js';
@@ -115,22 +114,26 @@ export default function EditorPage({ readOnly = false }) {
   const urlDocId =
     typeof window !== 'undefined'
       ? new URLSearchParams(window.location.search).get('docid')
-      : null;
-  const sessionDocId =
-    urlDocId ||
-    (typeof sessionStorage !== 'undefined'
-      ? sessionStorage.getItem(SESSION_STORAGE_KEYS.DOC_ID)
-      : null) ||
-    (typeof window !== 'undefined' && window.location.hostname === 'localhost'
-      ? 'Ncc0d3efc-e28e-4ba5-9878-d6f0fc42b32b'
-      : null);
-  const validateKey =
-    typeof sessionStorage !== 'undefined' ? getValidateAccessKey() : '';
+      : '';
 
-  const sessionSrc = useMemo(
-    () => normalizeSessionSource({}, getValidateResponse()),
-    []
-  );
+  const bootstrap = useEditorSessionBootstrap({
+    docId: urlDocId || '',
+    locationSearch: typeof window !== 'undefined' ? window.location.search : ''
+  });
+
+  const sessionDocId = bootstrap.session?.docId || '';
+  const sessionSrc = bootstrap.session?.sessionSource || {
+    client: '',
+    dtd: '',
+    type: '',
+    shorttitle: '',
+    roleId: '',
+    roleName: '',
+    projecttitle: '',
+    raw: {}
+  };
+  const validateKey = bootstrap.session?.validateKey || '';
+
   const isJournal = String(sessionSrc.dtd || '').toUpperCase().includes('JATS');
   const clientConfig = useClientConfig({
     client: sessionSrc.client,
@@ -152,12 +155,6 @@ export default function EditorPage({ readOnly = false }) {
     roleId: sessionSrc.roleId,
     roleName: sessionSrc.roleName
   }), [sessionSrc.client, sessionSrc.roleId, sessionSrc.roleName]);
-
-  useEffect(() => {
-    if (sessionDocId && typeof sessionStorage !== 'undefined') {
-      sessionStorage.setItem(SESSION_STORAGE_KEYS.DOC_ID, sessionDocId);
-    }
-  }, [sessionDocId]);
 
   useEffect(() => {
     registerEditorAlertBridge();
@@ -372,7 +369,29 @@ export default function EditorPage({ readOnly = false }) {
     contentsCss: ['/ckeditor4/contents.css', ...editorCssUrls]
   }), [editorCssUrls]);
 
+  if (bootstrap.loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#f5f1ea] text-sm text-gray-600 [color-scheme:light]">
+        Initializing editor session...
+      </div>
+    );
+  }
+
+  if (bootstrap.error || !bootstrap.ready) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#f5f1ea] px-6 text-gray-800 [color-scheme:light]">
+        <div className="max-w-md rounded-sm border border-red-200 bg-white p-6 shadow-sm">
+          <p className="font-medium text-red-700">Unable to open editor session.</p>
+          <p className="mt-2 text-sm text-gray-600">
+            {bootstrap.error?.message || 'The editor session could not be initialized.'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
+    <SessionProvider session={bootstrap.session}>
     <div className="flex h-screen flex-col overflow-hidden bg-[#f5f1ea] text-gray-800 [color-scheme:light]" style={{ fontFamily: "'Inter', 'ui-sans-serif', system-ui" }}>
       <Navbar1 />
       <Navbar2
@@ -449,5 +468,6 @@ export default function EditorPage({ readOnly = false }) {
         options={{ showProgress: true, buttons: ['back', 'skip', 'close', 'primary'] }}
       />
     </div>
+    </SessionProvider>
   );
 }
