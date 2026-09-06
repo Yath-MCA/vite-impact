@@ -1,7 +1,7 @@
 # Localhost Session Bypass, ShareKey Gate & LinkShare Payload Context
 
 **Date:** 2026-09-07  
-**Status:** Draft for review  
+**Status:** Ready for review  
 **Repo:** `impact_react_vite`  
 **Related legacy docs:**
 - `impactweb/docs/linksharing-session/linksharing-frontend-backend-map.md`
@@ -105,7 +105,7 @@ Update `src/services/core/SessionGuard.js`.
 
 **Stages:** `init`, `loading`, `editorInit` (retain `adminInit` if referenced).
 
-**Inputs:** `stage`, `ctx` (required parameter; do not re-read ad-hoc keys inconsistently). Prefer `ctx` over raw storage; storage may be used only to rebuild `ctx` if caller omitted it via `resolveShareKeyContext`.
+**Inputs:** `stage`, `ctx`. Callers should pass `ctx` from `resolveShareKeyContext`. If `ctx` is omitted, `checkStage` calls `resolveShareKeyContext(docId)` once; it must not invent a parallel storage-key convention.
 
 **Checks (every stage):**
 - `docId` / `ctx.docId` present
@@ -217,7 +217,7 @@ Prefer Vitest unit tests under `tests/unit/session` and `tests/unit/bridge` / co
 
 | File | Change |
 |------|--------|
-| `src/services/session/shareKeyContext.js` (new) or equivalent | Resolver |
+| `src/services/session/shareKeyContext.js` (new) | Resolver |
 | `src/services/session/sessionPayloads.js` | Base + process builders |
 | `src/services/session/sessionGateway.js` | Verify bypass helpers if needed; keep transport enrich |
 | `src/services/session/editorSessionBootstrap.js` | ShareKey-first + localhost verify bypass |
