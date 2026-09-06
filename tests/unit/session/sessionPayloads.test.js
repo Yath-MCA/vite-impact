@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  buildBaseLinkSharePayload,
   buildCheckPayload,
   buildClosePayload,
   isActiveSessionRecord,
@@ -13,6 +14,78 @@ import {
 } from '../../../src/services/session/sessionConstants.js';
 
 describe('sessionPayloads', () => {
+  it('buildBaseLinkSharePayload includes ADD_DEFAULT_KEYS-aligned shareKey fields', () => {
+    const base = buildBaseLinkSharePayload({
+      docId: 'DOC123',
+      client: 'LWW',
+      username: 'author@journal.com',
+      role: 'role-1',
+      rolename: 'Author',
+      roleid: 'role-1',
+      identifier: '10.1161/x',
+      dtd: 'JATS',
+      linkinfo: 'pubkit',
+      type: 'article',
+      projecttitle: 'Sample',
+      vendor: 'lww',
+      shorttitle: 'AHAJ',
+      collaborative: '1'
+    });
+
+    expect(base).toEqual({
+      tbl: 'linksharing',
+      docid: 'DOC123',
+      client: 'LWW',
+      username: 'author@journal.com',
+      role: 'role-1',
+      rolename: 'Author',
+      roleid: 'role-1',
+      identifier: '10.1161/x',
+      dtd: 'JATS',
+      linkinfo: 'pubkit',
+      type: 'article',
+      projecttitle: 'Sample',
+      vendor: 'lww',
+      shorttitle: 'AHAJ',
+      collaborative: '1'
+    });
+  });
+
+  it('buildCheckPayload includes base shareKey fields plus check deltas', () => {
+    const payload = buildCheckPayload({
+      docId: 'DOC123',
+      sessionId: '48291037',
+      sessionStartTime: '1700000000000',
+      client: 'LWW',
+      username: 'author@example.com',
+      role: 'role-1',
+      rolename: 'Author',
+      roleid: 'role-1',
+      identifier: 'id-1',
+      dtd: 'JATS',
+      linkinfo: 'pubkit',
+      type: 'article',
+      projecttitle: 'Title',
+      vendor: 'lww',
+      shorttitle: 'J'
+    });
+
+    expect(payload).toMatchObject({
+      tbl: 'linksharing',
+      process: 'check',
+      docid: 'DOC123',
+      session_id: '48291037',
+      session_start_time: '1700000000000',
+      client: 'LWW',
+      roleid: 'role-1',
+      identifier: 'id-1',
+      dtd: 'JATS',
+      projecttitle: 'Title',
+      vendor: 'lww',
+      shorttitle: 'J'
+    });
+  });
+
   it('builds landing check payload with doc and session fields', () => {
     const payload = buildCheckPayload({
       docId: 'DOC123',

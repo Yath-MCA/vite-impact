@@ -17,33 +17,41 @@ export function getSessionStartTime() {
   return String(Date.now());
 }
 
-function basePayload(process, ctx = {}) {
-  return {
+export function buildBaseLinkSharePayload(ctx = {}) {
+  const payload = {
     tbl: 'linksharing',
-    docid: ctx.docId || '',
-    process
+    docid: ctx.docId || ctx.docid || '',
+    client: ctx.client || '',
+    username: ctx.username || '',
+    role: ctx.role || ctx.roleid || '',
+    rolename: ctx.rolename || '',
+    roleid: ctx.roleid || ctx.role || '',
+    identifier: ctx.identifier || '',
+    dtd: ctx.dtd || '',
+    linkinfo: ctx.linkinfo || '',
+    type: ctx.type || '',
+    projecttitle: ctx.projecttitle || '',
+    vendor: ctx.vendor || '',
+    shorttitle: ctx.shorttitle || ''
   };
+
+  if (ctx.collaborative !== undefined && ctx.collaborative !== null && ctx.collaborative !== '') {
+    payload.collaborative = ctx.collaborative;
+  }
+
+  return payload;
 }
 
 export function buildCheckPayload(ctx) {
-  return {
-    ...basePayload(SESSION_PROCESS.CHECK, ctx),
+  const payload = {
+    ...buildBaseLinkSharePayload(ctx),
+    process: SESSION_PROCESS.CHECK,
     session_id: String(ctx.sessionId),
     session_start_time: String(ctx.sessionStartTime || getSessionStartTime()),
-    remarks: ctx.remarks || SESSION_REMARKS.USER_ACCEPT_OPEN_DOC,
-    client: ctx.client,
-    username: ctx.username,
-    role: ctx.role,
-    rolename: ctx.rolename,
-    linkinfo: ctx.linkinfo,
-    type: ctx.type,
-    // roleid: ctx.roleid,
-    // identifier: ctx.identifier,
-    // dtd: ctx.dtd,
-    // projecttitle: ctx.projecttitle,
-    // vendor: ctx.vendor,
-    // shorttitle: ctx.shorttitle
+    remarks: ctx.remarks || SESSION_REMARKS.USER_ACCEPT_OPEN_DOC
   };
+  if (ctx.tabid) payload.tabid = String(ctx.tabid);
+  return payload;
 }
 
 export function buildVerifyQuery(ctx) {
@@ -67,7 +75,8 @@ export function buildVerifyQuery(ctx) {
 
 export function buildUpdateReqStatusTimePayload(ctx) {
   const payload = {
-    ...basePayload(SESSION_PROCESS.UPDATE_REQSTATUS_TIME, ctx),
+    ...buildBaseLinkSharePayload(ctx),
+    process: SESSION_PROCESS.UPDATE_REQSTATUS_TIME,
     requeststatus: REQUEST_STATUS.PENDING,
     request_send_time: String(ctx.requestSendTime || Date.now()),
     requestid: String(ctx.requestId),
@@ -82,7 +91,8 @@ export function buildUpdateReqStatusTimePayload(ctx) {
 
 export function buildStaleCleanupPayload(ctx) {
   return {
-    ...basePayload(SESSION_PROCESS.UPDATE_DOCSTATUS_REQSTATUS_INSERT_TIME, ctx),
+    ...buildBaseLinkSharePayload(ctx),
+    process: SESSION_PROCESS.UPDATE_DOCSTATUS_REQSTATUS_INSERT_TIME,
     session_id: String(ctx.sessionId),
     session_start_time: String(ctx.sessionStartTime || getSessionStartTime()),
     docstatus: DOC_STATUS.STALE,
@@ -92,7 +102,8 @@ export function buildStaleCleanupPayload(ctx) {
 
 export function buildPollPayload(ctx) {
   return {
-    ...basePayload(SESSION_PROCESS.GET_REQUESTSTATUS_PROCESS, ctx),
+    ...buildBaseLinkSharePayload(ctx),
+    process: SESSION_PROCESS.GET_REQUESTSTATUS_PROCESS,
     session_id: String(ctx.sessionId),
     requestid: String(ctx.requestId),
     session_start_time: String(ctx.sessionStartTime || getSessionStartTime())
@@ -102,13 +113,12 @@ export function buildPollPayload(ctx) {
 /** Editor manual logout — closes active linksharing session. */
 export function buildClosePayload(ctx = {}) {
   const payload = {
-    ...basePayload(SESSION_PROCESS.CLOSE, ctx),
+    ...buildBaseLinkSharePayload(ctx),
+    process: SESSION_PROCESS.CLOSE,
     session_end_time: String(ctx.sessionEndTime || Date.now()),
     remarks: ctx.remarks || SESSION_REMARKS.USER_MANUAL_LOGOUT
   };
-  if (ctx.sessionId) {
-    payload.session_id = String(ctx.sessionId);
-  }
+  if (ctx.sessionId) payload.session_id = String(ctx.sessionId);
   return payload;
 }
 
