@@ -7,6 +7,7 @@ import {
   recoverEditorSessionByDocId,
   verifySession
 } from './sessionGateway.js';
+import { resolveShareKeyContext } from './shareKeyContext.js';
 
 function readQueryDocId(locationSearch = '') {
   try {
@@ -95,14 +96,25 @@ export async function bootstrapEditorSession({
     };
   }
 
+  const shareKey = await resolveShareKeyContext(resolvedDocId);
+  if (!shareKey.ok) {
+    return {
+      ok: false,
+      reason: 'missing_share_key',
+      message: shareKey.message || 'ShareKey details are required.',
+      redirectTo: '/validateurl'
+    };
+  }
+
   const sessionSource = normalizeSessionSource(docData, validateResponse);
   const userInfo = buildUserInfo(sessionSource);
   const verify = await verifySession({
     ...toSessionContext(sessionSource),
+    ...shareKey.ctx,
     docId: resolvedDocId,
     sessionId,
     sessionStartTime,
-    username: userInfo.username
+    username: userInfo.username || shareKey.ctx.username
   });
 
   if (!verify.ok) {
@@ -122,6 +134,7 @@ export async function bootstrapEditorSession({
     validateKey: stored.validateKey || '',
     sessionSource,
     userInfo,
-    recovered
+    recovered,
+    bypassed: verify.bypassed === true
   };
 }

@@ -10,6 +10,10 @@ vi.mock('../../../src/services/session/sessionGateway.js', () => ({
   recoverEditorSessionByDocId: vi.fn()
 }));
 
+vi.mock('../../../src/services/session/shareKeyContext.js', () => ({
+  resolveShareKeyContext: vi.fn()
+}));
+
 import {
   bootstrapEditorSession,
   resolveEditorDocId
@@ -22,6 +26,7 @@ import {
   verifySession,
   recoverEditorSessionByDocId
 } from '../../../src/services/session/sessionGateway.js';
+import { resolveShareKeyContext } from '../../../src/services/session/shareKeyContext.js';
 
 describe('resolveEditorDocId', () => {
   it('uses explicit docId before URL query', () => {
@@ -33,9 +38,22 @@ describe('resolveEditorDocId', () => {
   });
 });
 
+const shareKeyCtx = {
+  docId: 'DOC1',
+  client: 'LWW',
+  username: 'a@b.com',
+  roleid: '1',
+  rolename: 'Author'
+};
+
 describe('bootstrapEditorSession', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    resolveShareKeyContext.mockResolvedValue({
+      ok: true,
+      source: 'localStorage',
+      ctx: shareKeyCtx
+    });
   });
 
   it('opens a stored valid session after verification', async () => {
@@ -72,13 +90,15 @@ describe('bootstrapEditorSession', () => {
       uniqueId: 'UID1'
     });
     expect(result.recovered).toBe(false);
+    expect(resolveShareKeyContext).toHaveBeenCalledWith('DOC1');
     expect(verifySession).toHaveBeenCalledWith(
       expect.objectContaining({
         docId: 'DOC1',
         sessionId: 'SID1',
         username: 'a@b.com',
         roleid: '1',
-        rolename: 'Author'
+        rolename: 'Author',
+        client: 'LWW'
       })
     );
   });
@@ -141,6 +161,29 @@ describe('bootstrapEditorSession', () => {
       message: 'Document session data was not found.',
       redirectTo: '/validateurl'
     });
+  });
+
+  it('blocks when shareKey context cannot be resolved', async () => {
+    getStoredEditorSession.mockReturnValueOnce({
+      docId: 'DOC1',
+      sessionId: 'SID1',
+      sessionStartTime: '100',
+      validateKey: 'KEY1',
+      validateResponse: { data: { docid: 'DOC1' } }
+    });
+    resolveShareKeyContext.mockResolvedValueOnce({
+      ok: false,
+      source: 'none',
+      message: 'Unable to resolve shareKey context.'
+    });
+
+    await expect(bootstrapEditorSession({ docId: 'DOC1' })).resolves.toEqual({
+      ok: false,
+      reason: 'missing_share_key',
+      message: 'Unable to resolve shareKey context.',
+      redirectTo: '/validateurl'
+    });
+    expect(verifySession).not.toHaveBeenCalled();
   });
 
   it('blocks when verification fails', async () => {
