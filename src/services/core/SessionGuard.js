@@ -1,36 +1,58 @@
-// SessionGuard validates that required sessionStorage items are present and consistent
-// with the current document initialization stage.
+import { isLocalHost } from '../session/runtimeFlags.js';
+import { SESSION_STORAGE_KEYS, SESSION_GUARD_REMARKS } from '../session/sessionConstants.js';
+import { readShareKeyFromLocalStorage } from '../session/shareKeyContext.js';
+import { devLog } from '../../shared/utils/devLogger.js';
+
 class SessionGuard {
   constructor() {}
 
-  /**
-   * Validate required keys for the given stage.
-   * @param {string} stage - One of 'init', 'adminInit', 'loading', 'editorInit'.
-   * @returns {boolean} true if validation passes, false otherwise.
-   */
-  checkStage(stage) {
-    const docId = sessionStorage.getItem('DOC_ID');
+  checkStage(stage, ctx) {
+    const validation = this._validate(stage, ctx);
+    if (validation.ok) {
+      devLog.log('[SessionGuard]', stage, 'pass');
+      return { ok: true, bypassed: false, stage, remarks: '' };
+    }
+
+    if (isLocalHost()) {
+      const remarks = `${SESSION_GUARD_REMARKS.LOCALHOST_BYPASS_PREFIX}${validation.remarks}`;
+      devLog.warn('[SessionGuard]', stage, remarks);
+      return { ok: true, bypassed: true, stage, remarks };
+    }
+
+    devLog.warn('[SessionGuard]', stage, validation.remarks);
+    return { ok: false, bypassed: false, stage, remarks: validation.remarks };
+  }
+
+  _validate(stage, ctx) {
+    let resolvedCtx = ctx && typeof ctx === 'object' ? ctx : null;
+    let docId = resolvedCtx?.docId || resolvedCtx?.docid || '';
+
+    if (!docId && typeof sessionStorage !== 'undefined') {
+      docId = sessionStorage.getItem(SESSION_STORAGE_KEYS.DOC_ID) || '';
+    }
+
     if (!docId) {
-      console.warn(`[SessionGuard] Missing DOC_ID for stage ${stage}`);
-      return false;
+      return { ok: false, remarks: SESSION_GUARD_REMARKS.MISSING_DOC_ID };
     }
-    const sharedKeyRaw = sessionStorage.getItem(`xmleditor:shared:${docId}`);
-    if (!sharedKeyRaw) {
-      console.warn(`[SessionGuard] Missing sharedKey for DOC_ID ${docId}`);
-      return false;
-    }
-    try {
-      const sharedKey = JSON.parse(sharedKeyRaw);
-      if (!sharedKey.docid || sharedKey.docid !== docId) {
-        console.warn('[SessionGuard] sharedKey.docid mismatch', { docId, sharedKey });
-        return false;
+
+    if (!resolvedCtx) {
+      const shared = readShareKeyFromLocalStorage(docId);
+      if (!shared) {
+        return { ok: false, remarks: SESSION_GUARD_REMARKS.MISSING_SHARE_KEY };
       }
-    } catch (e) {
-      console.warn('[SessionGuard] Invalid JSON in sharedKey', e);
-      return false;
+      resolvedCtx = { docId, ...shared };
     }
-    // Per‑stage additional checks can be added here.
-    return true;
+
+    const ctxDocId = String(resolvedCtx.docId || resolvedCtx.docid || '');
+    if (ctxDocId && ctxDocId !== String(docId)) {
+      return { ok: false, remarks: SESSION_GUARD_REMARKS.DOCID_MISMATCH };
+    }
+
+    if (!resolvedCtx.client && !resolvedCtx.username && !readShareKeyFromLocalStorage(docId)) {
+      return { ok: false, remarks: SESSION_GUARD_REMARKS.MISSING_SHARE_KEY };
+    }
+
+    return { ok: true, remarks: '' };
   }
 }
 

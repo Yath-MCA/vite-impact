@@ -17,6 +17,13 @@ export const SESSION_REMARKS = {
   LANDING_RETRY: 'landing_retry'
 };
 
+export const SESSION_GUARD_REMARKS = {
+  MISSING_DOC_ID: 'guard_fail:missing_doc_id',
+  MISSING_SHARE_KEY: 'guard_fail:missing_share_key',
+  DOCID_MISMATCH: 'guard_fail:share_key_docid_mismatch',
+  LOCALHOST_BYPASS_PREFIX: 'localhost_bypass:'
+};
+
 
 export const DOC_STATUS = {
   ACTIVE: '1',
