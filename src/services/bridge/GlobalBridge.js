@@ -106,7 +106,12 @@ GlobalBridge.prototype.setupInitConfig = function() {
         initService.handleAdminInit();
     };
 
+    // React /editor gate is bootstrapEditorSession — not InitService.run.
+    // This shim remains for legacy probes only; do not treat it as editor open authority.
     window.INIT_CONFIG.run = function() {
+        devLog.warn(
+            '[GlobalBridge] INIT_CONFIG.run invoked; React editor session gate is bootstrapEditorSession'
+        );
         return initService.run();
     };
 

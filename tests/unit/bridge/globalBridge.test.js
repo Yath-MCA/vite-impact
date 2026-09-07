@@ -93,6 +93,9 @@ describe('GlobalBridge facade globals', () => {
     expect(window.InitConfig()).toBe(services.initService);
     expect(window.INIT_CONFIG.run()).toBe(true);
     expect(services.initService.run).toHaveBeenCalledTimes(1);
+    expect(devLog.warn).toHaveBeenCalledWith(
+      '[GlobalBridge] INIT_CONFIG.run invoked; React editor session gate is bootstrapEditorSession'
+    );
     expect(window.INIT_CONFIG.initDocumentID()).toBe(true);
     expect(services.initService.initDocumentID).toHaveBeenCalledTimes(1);
     expect(window.INIT_CONFIG.urlParams).toEqual({ docid: 'DOC123' });
