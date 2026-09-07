@@ -1,6 +1,7 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CKEditor } from 'ckeditor4-react';
 import { Image as ImageIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useEditor } from '../../../context/EditorContext';
 import { useLayout } from '../../../context/LayoutContext';
 import { MODULE_TYPES, useModule } from '../../../context/ModuleContext';
@@ -91,6 +92,7 @@ const InspectorPopout = () => (
 );
 
 export default function EditorPage({ readOnly = false }) {
+  const navigate = useNavigate();
   const {
     updateContent,
     editorRef,
@@ -120,6 +122,12 @@ export default function EditorPage({ readOnly = false }) {
     docId: urlDocId || '',
     locationSearch: typeof window !== 'undefined' ? window.location.search : ''
   });
+
+  useEffect(() => {
+    if (!bootstrap.loading && bootstrap.error?.redirectTo) {
+      navigate(bootstrap.error.redirectTo, { replace: true });
+    }
+  }, [bootstrap.error, bootstrap.loading, navigate]);
 
   const sessionDocId = bootstrap.session?.docId || '';
   const sessionSrc = bootstrap.session?.sessionSource || {

@@ -107,6 +107,27 @@ describe('loadOrRecoverEditorSession', () => {
       redirectTo: '/validateurl'
     });
   });
+
+  it('returns missing_session_id without recovery when recovery is disabled', async () => {
+    getStoredEditorSession.mockReturnValueOnce({
+      docId: 'DOC1',
+      sessionId: '',
+      sessionStartTime: '',
+      validateKey: '',
+      validateResponse: null
+    });
+
+    await expect(loadOrRecoverEditorSession({
+      docId: 'DOC1',
+      allowRecovery: false
+    })).resolves.toEqual({
+      ok: false,
+      reason: 'missing_session_id',
+      message: 'Missing editor session id.',
+      redirectTo: '/validateurl'
+    });
+    expect(recoverEditorSessionByDocId).not.toHaveBeenCalled();
+  });
 });
 
 describe('resolveEditorUserInfo', () => {
@@ -144,6 +165,30 @@ describe('resolveEditorUserInfo', () => {
 
     expect(userInfo.username).toBe('local@test.com');
     expect(userInfo.uniqueId).toBe('u99');
+  });
+
+  it.each(['null', 'undefined'])(
+    'treats literal %s username as empty on localhost',
+    (username) => {
+      isLocalHost.mockReturnValue(true);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.LOGIN_USERNAME, 'local@test.com');
+
+      const userInfo = resolveEditorUserInfo({
+        sessionSource: { emailId: username, roleId: '', roleName: '', raw: {} },
+        shareKeyCtx: { username: '' }
+      });
+
+      expect(userInfo.username).toBe('local@test.com');
+    }
+  );
+
+  it('falls back to shareKey username when session username is a sentinel', () => {
+    const userInfo = resolveEditorUserInfo({
+      sessionSource: { emailId: 'null', roleId: '', roleName: '', raw: {} },
+      shareKeyCtx: { username: 'from-share@x.com' }
+    });
+
+    expect(userInfo.username).toBe('from-share@x.com');
   });
 
   it('does not fill login storage off localhost', () => {

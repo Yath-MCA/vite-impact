@@ -1,8 +1,4 @@
 import {
-  normalizeSessionSource,
-  toSessionContext
-} from './sessionSource.js';
-import {
   commitSessionForEditor,
   getStoredEditorSession
 } from './sessionStorage.js';
@@ -12,6 +8,7 @@ import {
 } from './sessionGateway.js';
 import { LOCAL_STORAGE_KEYS } from './sessionConstants.js';
 import { isLocalHost } from './runtimeFlags.js';
+import { devLog } from '../../shared/utils/devLogger.js';
 
 function readQueryDocId(locationSearch = '') {
   try {
@@ -48,6 +45,11 @@ function readLoginUserId() {
   } catch {
     return '';
   }
+}
+
+function normalizeIdentity(value) {
+  const normalized = String(value ?? '').trim();
+  return /^(null|undefined)$/i.test(normalized) ? '' : normalized;
 }
 
 export function resolveEditorDocId({ docId, locationSearch } = {}) {
@@ -114,14 +116,17 @@ export async function loadOrRecoverEditorSession({
 
 export function resolveEditorUserInfo({ sessionSource, shareKeyCtx } = {}) {
   let username =
-    sessionSource?.emailId || shareKeyCtx?.username || '';
+    normalizeIdentity(sessionSource?.emailId) ||
+    normalizeIdentity(shareKeyCtx?.username);
   let uniqueId =
     sessionSource?.raw?.uniqueid ||
     sessionSource?.raw?._id ||
     sessionSource?.raw?.userid ||
     '';
 
-  if ((!username || /^(null|undefined)$/i.test(username)) && isLocalHost()) {
+  // Local login values are gate-only fallbacks for access/verification. They do
+  // not populate window.USER_INFO or the identity used by error-mail reporting.
+  if (!username && isLocalHost()) {
     const loginUser = readLoginUsername();
     if (loginUser) username = loginUser;
   }
@@ -150,6 +155,7 @@ export function assertEditorAccess({ sessionId, userInfo } = {}) {
   }
 
   if (!userInfo?.username) {
+    devLog.warn('[assertEditorAccess] access denied: username was empty');
     return {
       ok: false,
       reason: 'access_denied',
@@ -176,6 +182,3 @@ export async function verifyEditorSession(ctx) {
     bypassed: verify.bypassed === true
   };
 }
-
-// Re-export for callers that need context builders beside steps
-export { normalizeSessionSource, toSessionContext };

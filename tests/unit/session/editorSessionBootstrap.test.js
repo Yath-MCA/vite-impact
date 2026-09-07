@@ -32,6 +32,7 @@ import {
 } from '../../../src/services/session/sessionGateway.js';
 import { resolveShareKeyContext } from '../../../src/services/session/shareKeyContext.js';
 import { isLocalHost } from '../../../src/services/session/runtimeFlags.js';
+import { LOCAL_STORAGE_KEYS } from '../../../src/services/session/sessionConstants.js';
 
 describe('resolveEditorDocId', () => {
   it('uses explicit docId before URL query', () => {
@@ -176,6 +177,57 @@ describe('bootstrapEditorSession', () => {
   });
 
   it('blocks when shareKey context cannot be resolved', async () => {
+    getStoredEditorSession.mockReturnValueOnce({
+      docId: 'DOC1',
+      sessionId: 'SID1',
+      sessionStartTime: '100',
+      validateKey: 'KEY1',
+      validateResponse: { data: { docid: 'DOC1' } }
+    });
+    resolveShareKeyContext.mockResolvedValueOnce({
+      ok: false,
+      source: 'none',
+      message: 'Unable to resolve shareKey context.'
+    });
+
+    await expect(bootstrapEditorSession({ docId: 'DOC1' })).resolves.toEqual({
+      ok: false,
+      reason: 'missing_share_key',
+      message: 'Unable to resolve shareKey context.',
+      redirectTo: '/validateurl'
+    });
+    expect(verifySession).not.toHaveBeenCalled();
+  });
+
+  it('uses localhost login username after shareKey resolves', async () => {
+    isLocalHost.mockReturnValue(true);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.LOGIN_USERNAME, 'local@test.com');
+    getStoredEditorSession.mockReturnValueOnce({
+      docId: 'DOC1',
+      sessionId: 'SID1',
+      sessionStartTime: '100',
+      validateKey: 'KEY1',
+      validateResponse: { data: { docid: 'DOC1' } }
+    });
+    resolveShareKeyContext.mockResolvedValueOnce({
+      ok: true,
+      source: 'localStorage',
+      ctx: { docId: 'DOC1', client: 'LWW', username: '' }
+    });
+    verifySession.mockResolvedValueOnce({ ok: true });
+
+    const result = await bootstrapEditorSession({ docId: 'DOC1' });
+
+    expect(result.ok).toBe(true);
+    expect(result.userInfo.username).toBe('local@test.com');
+    expect(verifySession).toHaveBeenCalledWith(
+      expect.objectContaining({ username: 'local@test.com' })
+    );
+  });
+
+  it('still requires shareKey context on localhost with login username', async () => {
+    isLocalHost.mockReturnValue(true);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.LOGIN_USERNAME, 'local@test.com');
     getStoredEditorSession.mockReturnValueOnce({
       docId: 'DOC1',
       sessionId: 'SID1',

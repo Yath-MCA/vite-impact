@@ -1,7 +1,8 @@
 import React from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
+import { MemoryRouter, useLocation, useNavigationType } from 'react-router-dom';
 
 vi.mock('ckeditor4-react', () => ({
   CKEditor: () => <div>ckeditor</div>
@@ -91,15 +92,29 @@ import { EditorProvider } from '../../../src/context/EditorContext.jsx';
 import { LayoutProvider } from '../../../src/context/LayoutContext.jsx';
 import { ModuleProvider } from '../../../src/context/ModuleContext.jsx';
 
+function CurrentPath() {
+  const location = useLocation();
+  const navigationType = useNavigationType();
+  return (
+    <>
+      <div data-testid="current-path">{location.pathname}</div>
+      <div data-testid="navigation-type">{navigationType}</div>
+    </>
+  );
+}
+
 function renderEditor() {
   return render(
-    <LayoutProvider>
-      <ModuleProvider>
-        <EditorProvider>
-          <EditorPage />
-        </EditorProvider>
-      </ModuleProvider>
-    </LayoutProvider>
+    <MemoryRouter initialEntries={['/editor?docid=DOC1']}>
+      <LayoutProvider>
+        <ModuleProvider>
+          <EditorProvider>
+            <EditorPage />
+            <CurrentPath />
+          </EditorProvider>
+        </ModuleProvider>
+      </LayoutProvider>
+    </MemoryRouter>
   );
 }
 
@@ -108,6 +123,8 @@ describe('EditorPage session bootstrap', () => {
     vi.clearAllMocks();
     window.history.pushState({}, '', '/editor?docid=DOC1');
   });
+
+  afterEach(cleanup);
 
   it('blocks editor content load while session bootstrap is loading', () => {
     useEditorSessionBootstrap.mockReturnValue({
@@ -135,6 +152,28 @@ describe('EditorPage session bootstrap', () => {
 
     expect(screen.getByText('Unable to open editor session.')).toBeInTheDocument();
     expect(screen.getByText('Your editor session is no longer active.')).toBeInTheDocument();
+  });
+
+  it('redirects when bootstrap failure provides redirectTo', async () => {
+    useEditorSessionBootstrap.mockReturnValue({
+      loading: false,
+      ready: false,
+      error: {
+        reason: 'access_denied',
+        message: 'No user identity found for editor session.',
+        redirectTo: '/validateurl'
+      },
+      session: null
+    });
+
+    const view = renderEditor();
+
+    await waitFor(() => {
+      expect(view.container.querySelector('[data-testid="current-path"]'))
+        .toHaveTextContent('/validateurl');
+      expect(view.container.querySelector('[data-testid="navigation-type"]'))
+        .toHaveTextContent('REPLACE');
+    });
   });
 
   it('loads editor content after bootstrap is ready', () => {
