@@ -1,7 +1,7 @@
 # Editor Session Init Ownership — Design Spec
 
 **Date:** 2026-09-07  
-**Status:** Approved  
+**Status:** Approved / Implemented  
 **Repo:** `impact_react_vite`  
 **Related prior work:**
 - Editor session bootstrap (`editorSessionBootstrap`, `useEditorSessionBootstrap`, `SessionContext`)
