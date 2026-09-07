@@ -68,7 +68,9 @@ export const LOCAL_STORAGE_KEYS = {
   TAB_LOCK_PREFIX: 'xmleditor:tablock:',
   /** Legacy LandingPage probe / reply keys (interop) */
   OPEN_PAGES: 'openpages',
-  PAGE_AVAILABLE: 'page_available'
+  PAGE_AVAILABLE: 'page_available',
+  LOGIN_USERNAME: 'xmleditor:login_username',
+  LOGIN_USERID: 'xmleditor:login_userid'
 };
 
 /** Same-browser tab presence timing / channel */
