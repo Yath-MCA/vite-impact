@@ -186,6 +186,29 @@ describe('bootstrapEditorSession', () => {
     expect(verifySession).not.toHaveBeenCalled();
   });
 
+  it('blocks when user identity is missing after shareKey resolve', async () => {
+    getStoredEditorSession.mockReturnValueOnce({
+      docId: 'DOC1',
+      sessionId: 'SID1',
+      sessionStartTime: '100',
+      validateKey: 'KEY1',
+      validateResponse: { data: { docid: 'DOC1' } }
+    });
+    resolveShareKeyContext.mockResolvedValueOnce({
+      ok: true,
+      source: 'localStorage',
+      ctx: { docId: 'DOC1', client: 'LWW', username: '' }
+    });
+
+    await expect(bootstrapEditorSession({ docId: 'DOC1' })).resolves.toEqual({
+      ok: false,
+      reason: 'access_denied',
+      message: 'No user identity found for editor session.',
+      redirectTo: '/validateurl'
+    });
+    expect(verifySession).not.toHaveBeenCalled();
+  });
+
   it('blocks when verification fails', async () => {
     getStoredEditorSession.mockReturnValueOnce({
       docId: 'DOC1',

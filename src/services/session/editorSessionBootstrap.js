@@ -1,42 +1,14 @@
 import { normalizeSessionSource, toSessionContext } from './sessionSource.js';
-import {
-  commitSessionForEditor,
-  getStoredEditorSession
-} from './sessionStorage.js';
-import {
-  recoverEditorSessionByDocId,
-  verifySession
-} from './sessionGateway.js';
 import { resolveShareKeyContext } from './shareKeyContext.js';
+import {
+  resolveEditorDocId,
+  loadOrRecoverEditorSession,
+  resolveEditorUserInfo,
+  assertEditorAccess,
+  verifyEditorSession
+} from './editorSessionSteps.js';
 
-function readQueryDocId(locationSearch = '') {
-  try {
-    return new URLSearchParams(locationSearch).get('docid') || '';
-  } catch {
-    return '';
-  }
-}
-
-function resolveSessionId(stored, docData) {
-  return stored.sessionId || docData?.session_id || docData?.sessionId || '';
-}
-
-function resolveSessionStartTime(stored, docData) {
-  return stored.sessionStartTime || docData?.session_start_time || docData?.sessionStartTime || '';
-}
-
-function buildUserInfo(sessionSource) {
-  return {
-    username: sessionSource.emailId || '',
-    roleId: sessionSource.roleId || '',
-    roleName: sessionSource.roleName || '',
-    uniqueId: sessionSource.raw?.uniqueid || sessionSource.raw?._id || sessionSource.raw?.userid || ''
-  };
-}
-
-export function resolveEditorDocId({ docId, locationSearch } = {}) {
-  return docId || readQueryDocId(locationSearch) || '';
-}
+export { resolveEditorDocId } from './editorSessionSteps.js';
 
 export async function bootstrapEditorSession({
   docId,
@@ -54,45 +26,16 @@ export async function bootstrapEditorSession({
     };
   }
 
-  const stored = getStoredEditorSession(resolvedDocId);
-  let validateResponse = stored.validateResponse;
-  let docData = validateResponse?.data ?? validateResponse ?? {};
-  let sessionId = resolveSessionId(stored, docData);
-  let sessionStartTime = resolveSessionStartTime(stored, docData);
-  let recovered = false;
-
-  if ((!validateResponse || !sessionId) && allowRecovery) {
-    const recovery = await recoverEditorSessionByDocId(resolvedDocId);
-    if (!recovery.ok) {
-      return {
-        ok: false,
-        reason: recovery.reason,
-        message: recovery.message,
-        redirectTo: '/validateurl'
-      };
-    }
-
-    recovered = true;
-    docData = { ...recovery.docData, docid: resolvedDocId };
-    validateResponse = { data: docData };
-    sessionId = resolveSessionId(stored, docData);
-    sessionStartTime = resolveSessionStartTime(stored, docData);
-
-    commitSessionForEditor({
-      docId: resolvedDocId,
-      sessionId,
-      sessionStartTime,
-      validateResponse,
-      accessKey: stored.validateKey || ''
-    });
-  }
-
-  if (!sessionId) {
+  const loaded = await loadOrRecoverEditorSession({
+    docId: resolvedDocId,
+    allowRecovery
+  });
+  if (!loaded.ok) {
     return {
       ok: false,
-      reason: 'missing_session_id',
-      message: 'Missing editor session id.',
-      redirectTo: '/validateurl'
+      reason: loaded.reason,
+      message: loaded.message,
+      redirectTo: loaded.redirectTo || '/validateurl'
     };
   }
 
@@ -106,35 +49,44 @@ export async function bootstrapEditorSession({
     };
   }
 
-  const sessionSource = normalizeSessionSource(docData, validateResponse);
-  const userInfo = buildUserInfo(sessionSource);
-  const verify = await verifySession({
+  const sessionSource = normalizeSessionSource(
+    loaded.docData,
+    loaded.validateResponse
+  );
+  const userInfo = resolveEditorUserInfo({
+    sessionSource,
+    shareKeyCtx: shareKey.ctx
+  });
+
+  const access = assertEditorAccess({
+    sessionId: loaded.sessionId,
+    userInfo
+  });
+  if (!access.ok) {
+    return access;
+  }
+
+  const verify = await verifyEditorSession({
     ...toSessionContext(sessionSource),
     ...shareKey.ctx,
     docId: resolvedDocId,
-    sessionId,
-    sessionStartTime,
+    sessionId: loaded.sessionId,
+    sessionStartTime: loaded.sessionStartTime,
     username: userInfo.username || shareKey.ctx.username
   });
-
   if (!verify.ok) {
-    return {
-      ok: false,
-      reason: 'verify_failed',
-      message: 'Your editor session is no longer active.',
-      redirectTo: '/validateurl'
-    };
+    return verify;
   }
 
   return {
     ok: true,
     docId: resolvedDocId,
-    sessionId,
-    sessionStartTime,
-    validateKey: stored.validateKey || '',
+    sessionId: loaded.sessionId,
+    sessionStartTime: loaded.sessionStartTime,
+    validateKey: loaded.validateKey || '',
     sessionSource,
     userInfo,
-    recovered,
+    recovered: loaded.recovered,
     bypassed: verify.bypassed === true
   };
 }
