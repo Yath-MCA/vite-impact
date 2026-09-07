@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('../../../src/services/session/sessionStorage.js', () => ({
   getStoredEditorSession: vi.fn(),
@@ -14,6 +14,10 @@ vi.mock('../../../src/services/session/shareKeyContext.js', () => ({
   resolveShareKeyContext: vi.fn()
 }));
 
+vi.mock('../../../src/services/session/runtimeFlags.js', () => ({
+  isLocalHost: vi.fn(() => false)
+}));
+
 import {
   bootstrapEditorSession,
   resolveEditorDocId
@@ -27,6 +31,7 @@ import {
   recoverEditorSessionByDocId
 } from '../../../src/services/session/sessionGateway.js';
 import { resolveShareKeyContext } from '../../../src/services/session/shareKeyContext.js';
+import { isLocalHost } from '../../../src/services/session/runtimeFlags.js';
 
 describe('resolveEditorDocId', () => {
   it('uses explicit docId before URL query', () => {
@@ -49,11 +54,18 @@ const shareKeyCtx = {
 describe('bootstrapEditorSession', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    isLocalHost.mockReturnValue(false);
+    localStorage.clear();
     resolveShareKeyContext.mockResolvedValue({
       ok: true,
       source: 'localStorage',
       ctx: shareKeyCtx
     });
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+    isLocalHost.mockReturnValue(false);
   });
 
   it('opens a stored valid session after verification', async () => {
