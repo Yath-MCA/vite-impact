@@ -76,6 +76,7 @@ function withLocalhostVerifyBypass(failed, ctx) {
       : `localhost_bypass:verify_failed:${failed.reason || 'unknown'}`;
 
   devLog.warn('[verifySession]', remarks, failed.reason);
+  devLog.log('[EditorPage] localhost bypass: session guard skipped, access allowed', remarks);
   return {
     ...failed,
     ok: true,
