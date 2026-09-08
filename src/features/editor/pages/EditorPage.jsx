@@ -374,7 +374,17 @@ export default function EditorPage({ readOnly = false }) {
       window.clearTimeout(syncTimerRef.current);
     }
   }, []);
+  const getNavTitles =(source) =>{
 
+    const leftRaw =source?.raw
+    const leftTitle = source.shorttitle ||source.doctitle || (leftRaw?leftRaw.titleinfo?.doctitle||leftRaw?.xmltohtmlres?.articletitle:(source?.titleinfo?.doctitle ||source?.xmltohtmlres?.articletitle));
+    const rightTitle = source.projecttitle ||source?.xmltohtmlres?.journaltitle;
+    return {
+      leftTitle,
+      rightTitle
+    }
+
+  }
   const editorConfig = useMemo(() => ({
     customConfig: '/ckeditor4/config.js',
     contentsCss: ['/ckeditor4/contents.css', ...editorCssUrls]
@@ -400,14 +410,14 @@ export default function EditorPage({ readOnly = false }) {
       </div>
     );
   }
-
+  const {leftTitle,rightTitle} = getNavTitles(sessionSrc);
   return (
     <SessionProvider session={entry.session}>
     <div className="flex h-screen flex-col overflow-hidden bg-[#f5f1ea] text-gray-800 [color-scheme:light]" style={{ fontFamily: "'Inter', 'ui-sans-serif', system-ui" }}>
       <Navbar1 />
       <Navbar2
-        titleParent={sessionSrc.projecttitle || (sessionDocId ? `Doc ${sessionDocId}` : 'Sample Journal')}
-        titleChild={sessionSrc.shorttitle || (readOnly ? 'Read-only preview' : 'Sample Article')}
+        titleParent={leftTitle || ""}
+        titleChild={rightTitle || ""}
         hideMiddle
       />
 

@@ -4,11 +4,12 @@ import { config } from '../../../config/permissions';
 import { useLayout } from '../../../context/LayoutContext';
 import SharedMiddleColumn from './SharedMiddleColumn';
 
-export default function Navbar2({ titleParent = "Example Title", titleChild = "Example Subtitle", hideMiddle = false }) {
+export default function Navbar2({ titleParent = "Example Title", titleChild = "Subtitle", hideMiddle = false }) {
   const { toggles, toggle } = useLayout();
 
-  const labelParent = config.type === "journal" ? "Journal Title" : "Book Title";
-  const labelChild = config.type === "journal" ? "Article Title" : "Chapter";
+  const labelParent = config.type === "journal" ? "Article Title" : "Chapter";
+  const  labelChild= config.type === "journal" ? "Journal Title" : "Book Title";
+  
 
   const hamburgerCls = (active) =>
     `p-1.5 rounded-md transition-colors ${active

@@ -17,13 +17,16 @@ import {
   getSessionStartTime
 } from './sessionPayloads.js';
 
-import { getEditorSessionContextFromStorage, persistMaintenanceStart, stripIdleSessionSignOffAlert } from '../core/editorSessionStorage.js';
+import { commitSessionForEditor, persistMaintenanceStart, stripIdleSessionSignOffAlert } from '../core/editorSessionStorage.js';
 
 import {
   isCheckErrorResponse,
   isConflictShapedCheckResponse,
   shouldRetryLandingVerify
 } from './sessionCheckClassify.js';
+
+import {recoverDbPayload} from "./payload.jsx"
+
 
 function enrichLinkSharePayload(payload, ctx) {
   const next = { ...payload };
@@ -96,7 +99,8 @@ export async function recoverEditorSessionByDocId(docId) {
   }
 
   try {
-    const response = await postGetDocs({ docid: docId });
+    const paylod = recoverDbPayload(docId);    
+    const response = await postGetDocs(paylod);
     const rows = Array.isArray(response?.data)
       ? response.data
       : response?.data
@@ -125,7 +129,7 @@ export async function recoverEditorSessionByDocId(docId) {
 }
 
 export async function verifySession(ctx) {
-  debugger;
+  
   if (!ctx?.docId || !ctx?.sessionId) {
     return withLocalhostVerifyBypass({ ok: false, reason: 'missing_expected_fields' }, ctx);
   }

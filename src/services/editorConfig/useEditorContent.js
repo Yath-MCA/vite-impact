@@ -7,6 +7,7 @@ import axios from 'axios';
 import {
     buildDocumentContentUrl
 } from './editorConfigConstants.js';
+import { devLog } from '../../shared/utils/devLogger.js';
 
 /**
  * Fetches a document's editable HTML content by docId, mirroring
@@ -43,6 +44,7 @@ export function useEditorContent(docId) {
             error: null
         });
         const docUrl = buildDocumentContentUrl(docId);
+        devLog.log(docUrl);
         axios.get(docUrl, {
                 responseType: 'text',
                 validateStatus: () => true
