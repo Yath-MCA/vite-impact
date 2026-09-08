@@ -5,3 +5,7 @@ export { default as InitService } from './InitService';
 export { default as LoadingService } from './LoadingService';
 export { default as EditorInitService } from './EditorInitService';
 export { default as SessionGuard } from './SessionGuard';
+export * from './editorSessionStorage.js';
+export * from './shareKeyEntry.js';
+export * from './userInfoEntry.js';
+export { checkBrowserCompatibility, isBrowserSupported, detectOS } from './browserCompatibility.js';
