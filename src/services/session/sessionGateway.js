@@ -16,7 +16,9 @@ import {
   generateRequestId,
   getSessionStartTime
 } from './sessionPayloads.js';
-import { commitSessionForEditor, persistMaintenanceStart, stripIdleSessionSignOffAlert } from '../core/editorSessionStorage.js';
+
+import { getEditorSessionContextFromStorage, persistMaintenanceStart, stripIdleSessionSignOffAlert } from '../core/editorSessionStorage.js';
+
 import {
   isCheckErrorResponse,
   isConflictShapedCheckResponse,
@@ -76,7 +78,6 @@ function withLocalhostVerifyBypass(failed, ctx) {
       : `localhost_bypass:verify_failed:${failed.reason || 'unknown'}`;
 
   devLog.warn('[verifySession]', remarks, failed.reason);
-  devLog.log('[EditorPage] localhost bypass: session guard skipped, access allowed', remarks);
   return {
     ...failed,
     ok: true,
@@ -124,6 +125,7 @@ export async function recoverEditorSessionByDocId(docId) {
 }
 
 export async function verifySession(ctx) {
+  debugger;
   if (!ctx?.docId || !ctx?.sessionId) {
     return withLocalhostVerifyBypass({ ok: false, reason: 'missing_expected_fields' }, ctx);
   }
@@ -303,10 +305,7 @@ export async function completeGrant(ctx, options = {}) {
   commitSessionForEditor({
     docId: ctx.docId,
     sessionId: ctx.sessionId,
-    redirectUrl:
-      typeof window !== 'undefined'
-        ? stripIdleSessionSignOffAlert(window.location.href)
-        : '',
+    redirectUrl: typeof window !== 'undefined' ? stripIdleSessionSignOffAlert(window.location.href) : '',
     validateResponse: options.validateResponse
   });
 
