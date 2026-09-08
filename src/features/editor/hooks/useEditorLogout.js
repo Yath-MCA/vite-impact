@@ -5,7 +5,7 @@ import { closeSessionFromEditor } from '../../../services/session/sessionGateway
 import {
   clearEditorSessionHandshake,
   getEditorSessionContextFromStorage
-} from '../../../services/session/sessionStorage.js';
+} from '../../../services/core/editorSessionStorage.js';
 import {
   releaseValidateTab,
   stopTabPresence

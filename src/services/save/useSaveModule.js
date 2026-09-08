@@ -3,7 +3,7 @@ import { useEditor } from '../../context/EditorContext.jsx';
 import { useModuleLifecycle } from '../../store/useModuleLifecycle.js';
 import { saveDocument } from './saveDocument.js';
 import { claimValidateTab } from '../session/tabPresence.js';
-import { getValidateAccessKey } from '../session/sessionStorage.js';
+import { getValidateAccessKey } from '../core/editorSessionStorage.js';
 import { showEditorMessage, EditorMessageKey } from '../../features/editor/messages/editorMessages.js';
 
 /**

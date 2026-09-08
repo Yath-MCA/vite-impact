@@ -25,7 +25,7 @@ import {
   initMaintenance,
   resetMaintenanceState
 } from '../../../src/services/landing/maintenanceGuard.js';
-import { persistMaintenanceStart } from '../../../src/services/session/sessionStorage.js';
+import { persistMaintenanceStart } from '../../../src/services/core/editorSessionStorage.js';
 import { SESSION_STORAGE_KEYS } from '../../../src/services/session/sessionConstants.js';
 import { installBrowserStorageMocks } from '../helpers/mockBrowserStorage.js';
 

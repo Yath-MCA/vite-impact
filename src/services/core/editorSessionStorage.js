@@ -1,12 +1,12 @@
-import { LOCAL_STORAGE_KEYS, SESSION_STORAGE_KEYS } from './sessionConstants.js';
+import { LOCAL_STORAGE_KEYS, SESSION_STORAGE_KEYS } from '../session/sessionConstants.js';
 import { getMaintenanceState } from '../landing/maintenanceGuard.js';
 import {
   applyLegacyLocalStorage,
   normalizeSessionSource,
   toLegacyLocalStorageWrites,
   toSessionContext
-} from './sessionSource.js';
-import { clearUserInfo, setUserInfo, toLegacyUserInfo } from './userInfoBridge.js';
+} from '../session/sessionSource.js';
+import { clearUserInfo, setUserInfo, toLegacyUserInfo } from './userInfoEntry.js';
 
 /** In-memory validate payload until grant+verify succeeds (legacy pendingCommitResData). */
 let pendingValidateResponse = null;

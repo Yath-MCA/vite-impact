@@ -9,7 +9,7 @@ import {
   clearDocScopedLocalData,
   setPendingValidateResponse,
   setValidateAccessKey
-} from '../../../services/session/sessionStorage';
+} from '../../../services/core/editorSessionStorage.js';
 import { isLocalHost } from '../../../services/session/runtimeFlags.js';
 import {
   fireMaintenanceAlert,

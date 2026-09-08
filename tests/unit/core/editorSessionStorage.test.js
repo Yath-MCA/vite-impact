@@ -16,12 +16,12 @@ import {
   getStoredEditorSession,
   setValidateAccessKey,
   setValidateResponse
-} from '../../../src/services/session/sessionStorage.js';
-import { clearUserInfo, getUserInfo } from '../../../src/services/session/userInfoBridge.js';
+} from '../../../src/services/core/editorSessionStorage.js';
+import { clearUserInfo, getUserInfo } from '../../../src/services/core/userInfoEntry.js';
 
 const AUTHOR_ROLE_ID = '5b53536b4c4a803e9a5abf70';
 
-describe('sessionStorage commit', () => {
+describe('editorSessionStorage commit', () => {
   beforeEach(() => {
     installBrowserStorageMocks();
     clearPendingValidateResponse();
@@ -87,7 +87,7 @@ describe('sessionStorage commit', () => {
   });
 });
 
-describe('sessionStorage editor helpers', () => {
+describe('editorSessionStorage editor helpers', () => {
   beforeEach(() => {
     installBrowserStorageMocks();
     clearPendingValidateResponse();

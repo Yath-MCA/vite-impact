@@ -10,7 +10,6 @@ export {
 } from './sessionConstants.js';
 export { sessionConfig } from './sessionConfig.js';
 export * from './sessionPayloads.js';
-export * from './sessionStorage.js';
 export * from './sessionGateway.js';
 export * from './sessionCheckClassify.js';
 export * from './tabPresence.js';
@@ -20,9 +19,3 @@ export * from './shareKeyContext.js';
 export * from './editorSessionBootstrap.js';
 export * from './editorSessionSteps.js';
 export * from './useEditorSessionBootstrap.js';
-export {
-  clearUserInfo,
-  getUserInfo,
-  setUserInfo,
-  toLegacyUserInfo
-} from './userInfoBridge.js';

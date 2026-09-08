@@ -16,7 +16,7 @@ import {
   generateRequestId,
   getSessionStartTime
 } from './sessionPayloads.js';
-import { commitSessionForEditor, persistMaintenanceStart, stripIdleSessionSignOffAlert } from './sessionStorage.js';
+import { commitSessionForEditor, persistMaintenanceStart, stripIdleSessionSignOffAlert } from '../core/editorSessionStorage.js';
 import {
   isCheckErrorResponse,
   isConflictShapedCheckResponse,

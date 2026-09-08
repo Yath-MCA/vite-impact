@@ -12,7 +12,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 vi.mock('../../../src/services/session/tabPresence.js', () => ({
   claimValidateTab: vi.fn()
 }));
-vi.mock('../../../src/services/session/sessionStorage.js', () => ({
+vi.mock('../../../src/services/core/editorSessionStorage.js', () => ({
   getValidateAccessKey: vi.fn(() => 'key123')
 }));
 vi.mock('../../../src/features/editor/messages/editorMessages.js', () => ({

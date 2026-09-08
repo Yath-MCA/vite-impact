@@ -6,7 +6,7 @@ import {
   continueBlockedSession,
   pollAndResolve
 } from '../../../services/session/sessionGateway.js';
-import { buildSessionContextFromDocData } from '../../../services/session/sessionStorage.js';
+import { buildSessionContextFromDocData } from '../../../services/core/editorSessionStorage.js';
 import {
   closeSessionDialogs,
   promptSendAccessRequest,

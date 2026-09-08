@@ -15,7 +15,7 @@ vi.mock('../../../src/services/session/sessionGateway.js', () => ({
   pollAndResolve: vi.fn()
 }));
 
-vi.mock('../../../src/services/session/sessionStorage.js', () => ({
+vi.mock('../../../src/services/core/editorSessionStorage.js', () => ({
   buildSessionContextFromDocData: (docData, overrides = {}) => ({
     docId: docData.docid,
     client: docData.client,

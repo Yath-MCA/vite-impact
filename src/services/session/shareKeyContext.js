@@ -1,7 +1,7 @@
 import { LOCAL_STORAGE_KEYS } from './sessionConstants.js';
 import { normalizeSessionSource, toSessionContext } from './sessionSource.js';
 import { recoverEditorSessionByDocId } from './sessionGateway.js';
-import { saveLegacyLocalStorageData } from './sessionStorage.js';
+import { saveLegacyLocalStorageData } from '../core/editorSessionStorage.js';
 
 export function readShareKeyFromLocalStorage(docId) {
   if (!docId || typeof localStorage === 'undefined') return null;
