@@ -12,9 +12,12 @@ Use when editing `src/services/core/`.
 - Break stable routes (`/validateurl`, `/editor`, `/login`, `/config-manager`).
 
 ## Workflows
-1. Align session commit keys with StorageService/SharedKeyService.
+1. Align session commit keys with `editorSessionStorage.js`/`shareKeyEntry.js`.
 2. Prefer ES modules imports over new window globals.
-3. Coordinate with features/editor bootstrap.
+3. Coordinate with features/editor bootstrap (`editorEntry.js`/`useEditorEntry.js`).
+
+## Archived
+- The jQuery-era `InitService`/`EditorInitService`/`SharedKeyService`/`StorageService`/`URLService`/`LoadingService`/`SessionGuard` classes and `services/bridge/GlobalBridge.js` were unused by the live app (never instantiated outside each other) and were moved to `temp/legacy/` on 2026-09-08.
 
 ## Related
 - Parent: [../README.md](../README.md) · [../skills.md](../skills.md)
