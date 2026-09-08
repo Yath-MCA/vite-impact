@@ -144,6 +144,65 @@ describe('resolveEditorEntryState', () => {
     expect(result.recovered).toBe(true);
   });
 
+  it('assigns a session id on localhost when the recovered doc has none', async () => {
+    isLocalHost.mockReturnValue(true);
+    getStoredEditorSession.mockReturnValueOnce({
+      docId: 'DOC1',
+      sessionId: '',
+      sessionStartTime: '',
+      validateKey: '',
+      validateResponse: null
+    });
+    recoverEditorSessionByDocId.mockResolvedValueOnce({
+      ok: true,
+      docData: {
+        docid: 'DOC1',
+        client: 'LWW',
+        username: 'a@b.com',
+        roleid: '1',
+        rolename: 'Author',
+        uniqueid: 'UID1'
+      }
+    });
+
+    const result = await resolveEditorEntryState({ docId: 'DOC1' });
+
+    expect(result.ok).toBe(true);
+    expect(result.sessionId).toEqual(expect.any(String));
+    expect(result.sessionId).not.toBe('');
+    expect(commitSessionForEditor).toHaveBeenLastCalledWith(
+      expect.objectContaining({ docId: 'DOC1', sessionId: result.sessionId })
+    );
+  });
+
+  it('still fails missing_session_id off localhost when the recovered doc has none', async () => {
+    getStoredEditorSession.mockReturnValueOnce({
+      docId: 'DOC1',
+      sessionId: '',
+      sessionStartTime: '',
+      validateKey: '',
+      validateResponse: null
+    });
+    recoverEditorSessionByDocId.mockResolvedValueOnce({
+      ok: true,
+      docData: {
+        docid: 'DOC1',
+        client: 'LWW',
+        username: 'a@b.com',
+        roleid: '1',
+        rolename: 'Author',
+        uniqueid: 'UID1'
+      }
+    });
+
+    await expect(resolveEditorEntryState({ docId: 'DOC1' })).resolves.toEqual({
+      ok: false,
+      reason: 'missing_session_id',
+      message: 'Missing editor session id.',
+      redirectTo: '/validateurl'
+    });
+  });
+
   it('fails no_doc_id when docId cannot be resolved', async () => {
     await expect(resolveEditorEntryState({})).resolves.toEqual({
       ok: false,

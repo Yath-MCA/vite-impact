@@ -1,5 +1,6 @@
 import { normalizeSessionSource, toSessionContext } from '../session/sessionSource.js';
 import { verifySession, recoverEditorSessionByDocId } from '../session/sessionGateway.js';
+import { generateSessionId } from '../session/sessionPayloads.js';
 import { resolveShareKeyContext } from './shareKeyEntry.js';
 import { getStoredEditorSession, commitSessionForEditor } from './editorSessionStorage.js';
 import { LOCAL_STORAGE_KEYS } from '../session/sessionConstants.js';
@@ -119,6 +120,7 @@ export async function resolveEditorEntryState({
   const resolvedDocId = resolveEditorDocId({ docId, locationSearch });
 
   if (!resolvedDocId) {
+    devLog.warn('[editorEntry] no_doc_id: no docid in props or URL query');
     return {
       ok: false,
       reason: 'no_doc_id',
@@ -126,6 +128,7 @@ export async function resolveEditorEntryState({
       redirectTo: '/validateurl'
     };
   }
+  devLog.log('[editorEntry] docId resolved', resolvedDocId);
 
   const stored = getStoredEditorSession(resolvedDocId);
   let validateResponse = stored.validateResponse;
@@ -134,9 +137,16 @@ export async function resolveEditorEntryState({
   let sessionStartTime = resolveSessionStartTime(stored, docData);
   let recovered = false;
 
+  devLog.log('[editorEntry] stored session read', {
+    hasValidateResponse: Boolean(validateResponse),
+    sessionId: sessionId || '(empty)'
+  });
+
   if ((!validateResponse || !sessionId) && allowRecovery) {
+    devLog.log('[editorEntry] no stored session -- recovering via GET_DOCS', resolvedDocId);
     const recovery = await recoverEditorSessionByDocId(resolvedDocId);
     if (!recovery.ok) {
+      devLog.warn('[editorEntry] recovery failed', recovery.reason, recovery.message);
       return {
         ok: false,
         reason: recovery.reason,
@@ -150,6 +160,7 @@ export async function resolveEditorEntryState({
     validateResponse = { data: docData };
     sessionId = resolveSessionId(stored, docData);
     sessionStartTime = resolveSessionStartTime(stored, docData);
+    devLog.log('[editorEntry] recovery ok', { sessionId: sessionId || '(empty)' });
 
     commitSessionForEditor({
       docId: resolvedDocId,
@@ -161,16 +172,34 @@ export async function resolveEditorEntryState({
   }
 
   if (!sessionId) {
-    return {
-      ok: false,
-      reason: 'missing_session_id',
-      message: 'Missing editor session id.',
-      redirectTo: '/validateurl'
-    };
+    if (isLocalHost()) {
+      sessionId = generateSessionId();
+      devLog.warn(
+        '[editorEntry] missing_session_id on localhost -- assigning a dev session id to proceed',
+        sessionId
+      );
+      commitSessionForEditor({
+        docId: resolvedDocId,
+        sessionId,
+        sessionStartTime,
+        validateResponse,
+        accessKey: stored.validateKey || ''
+      });
+    } else {
+      devLog.warn('[editorEntry] missing_session_id: no session_id in storage or recovered doc data');
+      return {
+        ok: false,
+        reason: 'missing_session_id',
+        message: 'Missing editor session id.',
+        redirectTo: '/validateurl'
+      };
+    }
   }
+  devLog.log('[editorEntry] session id ok', sessionId);
 
   const shareKey = await resolveShareKeyContext(resolvedDocId);
   if (!shareKey.ok) {
+    devLog.warn('[editorEntry] missing_share_key', shareKey.message);
     return {
       ok: false,
       reason: 'missing_share_key',
@@ -178,14 +207,23 @@ export async function resolveEditorEntryState({
       redirectTo: '/validateurl'
     };
   }
+  devLog.log('[editorEntry] shareKey resolved', shareKey.source);
 
   const sessionSource = normalizeSessionSource(docData, validateResponse);
   const userInfo = resolveEditorUserInfo({ sessionSource, shareKeyCtx: shareKey.ctx });
 
   const access = assertEditorAccess({ sessionId, userInfo });
   if (!access.ok) {
+    devLog.warn('[editorEntry] access_denied', access.reason, access.message);
     return access;
   }
+  devLog.log('[editorEntry] access ok', { username: userInfo.username });
+
+  devLog.log('[editorEntry] entry state resolved ok, handing off to verify', {
+    docId: resolvedDocId,
+    sessionId,
+    recovered
+  });
 
   return {
     ok: true,
@@ -215,6 +253,7 @@ export async function verifyEditorEntry(entry) {
     username: entry.userInfo.username || entry.shareKeyCtx.username
   });
   if (!verify.ok) {
+    devLog.warn('[editorEntry] verify_failed', verify.reason);
     return {
       ok: false,
       reason: 'verify_failed',
@@ -222,5 +261,6 @@ export async function verifyEditorEntry(entry) {
       redirectTo: '/validateurl'
     };
   }
+  devLog.log('[editorEntry] verify ok', { bypassed: verify.bypassed === true });
   return { ok: true, bypassed: verify.bypassed === true };
 }
