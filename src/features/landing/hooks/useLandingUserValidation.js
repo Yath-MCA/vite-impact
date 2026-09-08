@@ -9,7 +9,7 @@ import {
   saveLegacyLocalStorageData,
   setPendingValidateResponse
 } from '../../../services/session/sessionStorage.js';
-import { setUserInfo, toLegacyUserInfo } from '../../../services/session/userInfoBridge.js';
+import { setUserInfo, toLegacyUserInfo } from '../../../services/core/userInfoEntry.js';
 import { normalizeSessionSource } from '../../../services/session/sessionSource.js';
 import { promptValidateUserEmail } from '../sessionDialogs.js';
 import { shouldRunPlosAuth } from '../landingAccess.js';

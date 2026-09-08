@@ -5,13 +5,13 @@ import {
   getUserInfo,
   setUserInfo,
   toLegacyUserInfo
-} from '../../../src/services/session/userInfoBridge.js';
+} from '../../../src/services/core/userInfoEntry.js';
 import { normalizeSessionSource } from '../../../src/services/session/sessionSource.js';
 
 const AUTHOR_ROLE_ID = '5b53536b4c4a803e9a5abf70';
 const COLLATOR_ROLE_ID = '5bcf15b1cf510152afba028a';
 
-describe('userInfoBridge', () => {
+describe('userInfoEntry', () => {
   beforeEach(() => {
     installBrowserStorageMocks();
     clearUserInfo();
