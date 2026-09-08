@@ -25,6 +25,7 @@ export const sessionConfig = {
   enableCollabBypass: toBoolean(env('SESSION_ENABLE_COLLAB_BYPASS', 'VITE_SESSION_ENABLE_COLLAB_BYPASS', false), false),
   skipVerifyOnPollGrant: toBoolean(env('SESSION_SKIP_VERIFY_ON_POLL_GRANT', 'VITE_SESSION_SKIP_VERIFY_ON_POLL_GRANT', true), true),
   landingRetryMax: toNumber(env('SESSION_LANDING_RETRY_MAX', 'VITE_SESSION_LANDING_RETRY_MAX', 3), 3),
+  idleTimeoutMs: toNumber(env('SESSION_IDLE_TIMEOUT_MS', 'VITE_SESSION_IDLE_TIMEOUT_MS', 30 * 60 * 1000), 30 * 60 * 1000),
   editorPath: env('SESSION_EDITOR_PATH', 'VITE_SESSION_EDITOR_PATH', '/editor'),
   validateUrlPath: env('SESSION_VALIDATE_URL_PATH', 'VITE_SESSION_VALIDATE_URL_PATH', '/validateurl'),
 

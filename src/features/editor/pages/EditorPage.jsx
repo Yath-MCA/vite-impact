@@ -20,6 +20,7 @@ import {
   stopTabPresence
 } from '../../../services/session/tabPresence.js';
 import { useEditorEntry } from '../../../services/core/useEditorEntry.js';
+import useIdleTimeout from '../hooks/useIdleTimeout.js';
 import { SessionProvider } from '../../../context/SessionContext.jsx';
 import { showEditorMessage, EditorMessageKey } from '../messages/editorMessages.js';
 import { loadCKEditor } from '../../../shared/utils/loadCKEditor.js';
@@ -128,6 +129,8 @@ export default function EditorPage({ readOnly = false }) {
       navigate(entry.error.redirectTo, { replace: true });
     }
   }, [entry.error, entry.loading, navigate]);
+
+  useIdleTimeout({ enabled: entry.ready });
 
   const sessionDocId = entry.session?.docId || '';
   const sessionSrc = entry.session?.sessionSource || {
