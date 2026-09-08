@@ -8,8 +8,8 @@ vi.mock('ckeditor4-react', () => ({
   CKEditor: () => <div>ckeditor</div>
 }));
 
-vi.mock('../../../src/services/session/useEditorSessionBootstrap.js', () => ({
-  useEditorSessionBootstrap: vi.fn()
+vi.mock('../../../src/services/core/useEditorEntry.js', () => ({
+  useEditorEntry: vi.fn()
 }));
 
 vi.mock('../../../src/services/editorConfig/useClientConfig.js', () => ({
@@ -85,7 +85,7 @@ vi.mock('../../../src/features/editor/components/NavigationPanel', () => ({ defa
 vi.mock('../../../src/features/editor/components/ThumbnailPanel', () => ({ default: () => null }));
 vi.mock('../../../src/features/editor/components/PdfPreview', () => ({ default: () => null }));
 
-import { useEditorSessionBootstrap } from '../../../src/services/session/useEditorSessionBootstrap.js';
+import { useEditorEntry } from '../../../src/services/core/useEditorEntry.js';
 import { useEditorContent } from '../../../src/services/editorConfig/useEditorContent.js';
 import EditorPage from '../../../src/features/editor/pages/EditorPage.jsx';
 import { EditorProvider } from '../../../src/context/EditorContext.jsx';
@@ -127,7 +127,7 @@ describe('EditorPage session bootstrap', () => {
   afterEach(cleanup);
 
   it('blocks editor content load while session bootstrap is loading', () => {
-    useEditorSessionBootstrap.mockReturnValue({
+    useEditorEntry.mockReturnValue({
       loading: true,
       ready: false,
       error: null,
@@ -141,7 +141,7 @@ describe('EditorPage session bootstrap', () => {
   });
 
   it('shows session error when bootstrap fails', () => {
-    useEditorSessionBootstrap.mockReturnValue({
+    useEditorEntry.mockReturnValue({
       loading: false,
       ready: false,
       error: { reason: 'verify_failed', message: 'Your editor session is no longer active.' },
@@ -155,7 +155,7 @@ describe('EditorPage session bootstrap', () => {
   });
 
   it('redirects when bootstrap failure provides redirectTo', async () => {
-    useEditorSessionBootstrap.mockReturnValue({
+    useEditorEntry.mockReturnValue({
       loading: false,
       ready: false,
       error: {
@@ -177,7 +177,7 @@ describe('EditorPage session bootstrap', () => {
   });
 
   it('loads editor content after bootstrap is ready', () => {
-    useEditorSessionBootstrap.mockReturnValue({
+    useEditorEntry.mockReturnValue({
       loading: false,
       ready: true,
       error: null,

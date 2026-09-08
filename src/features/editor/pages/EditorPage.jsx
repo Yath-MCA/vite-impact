@@ -19,7 +19,7 @@ import {
   startTabPresenceListener,
   stopTabPresence
 } from '../../../services/session/tabPresence.js';
-import { useEditorSessionBootstrap } from '../../../services/session/useEditorSessionBootstrap.js';
+import { useEditorEntry } from '../../../services/core/useEditorEntry.js';
 import { SessionProvider } from '../../../context/SessionContext.jsx';
 import { showEditorMessage, EditorMessageKey } from '../messages/editorMessages.js';
 import { loadCKEditor } from '../../../shared/utils/loadCKEditor.js';
@@ -118,19 +118,19 @@ export default function EditorPage({ readOnly = false }) {
       ? new URLSearchParams(window.location.search).get('docid')
       : '';
 
-  const bootstrap = useEditorSessionBootstrap({
+  const entry = useEditorEntry({
     docId: urlDocId || '',
     locationSearch: typeof window !== 'undefined' ? window.location.search : ''
   });
 
   useEffect(() => {
-    if (!bootstrap.loading && bootstrap.error?.redirectTo) {
-      navigate(bootstrap.error.redirectTo, { replace: true });
+    if (!entry.loading && entry.error?.redirectTo) {
+      navigate(entry.error.redirectTo, { replace: true });
     }
-  }, [bootstrap.error, bootstrap.loading, navigate]);
+  }, [entry.error, entry.loading, navigate]);
 
-  const sessionDocId = bootstrap.session?.docId || '';
-  const sessionSrc = bootstrap.session?.sessionSource || {
+  const sessionDocId = entry.session?.docId || '';
+  const sessionSrc = entry.session?.sessionSource || {
     client: '',
     dtd: '',
     type: '',
@@ -140,7 +140,7 @@ export default function EditorPage({ readOnly = false }) {
     projecttitle: '',
     raw: {}
   };
-  const validateKey = bootstrap.session?.validateKey || '';
+  const validateKey = entry.session?.validateKey || '';
 
   const isJournal = String(sessionSrc.dtd || '').toUpperCase().includes('JATS');
   const clientConfig = useClientConfig({
@@ -377,7 +377,7 @@ export default function EditorPage({ readOnly = false }) {
     contentsCss: ['/ckeditor4/contents.css', ...editorCssUrls]
   }), [editorCssUrls]);
 
-  if (bootstrap.loading) {
+  if (entry.loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-[#f5f1ea] text-sm text-gray-600 [color-scheme:light]">
         Initializing editor session...
@@ -385,13 +385,13 @@ export default function EditorPage({ readOnly = false }) {
     );
   }
 
-  if (bootstrap.error || !bootstrap.ready) {
+  if (entry.error || !entry.ready) {
     return (
       <div className="flex h-screen items-center justify-center bg-[#f5f1ea] px-6 text-gray-800 [color-scheme:light]">
         <div className="max-w-md rounded-sm border border-red-200 bg-white p-6 shadow-sm">
           <p className="font-medium text-red-700">Unable to open editor session.</p>
           <p className="mt-2 text-sm text-gray-600">
-            {bootstrap.error?.message || 'The editor session could not be initialized.'}
+            {entry.error?.message || 'The editor session could not be initialized.'}
           </p>
         </div>
       </div>
@@ -399,7 +399,7 @@ export default function EditorPage({ readOnly = false }) {
   }
 
   return (
-    <SessionProvider session={bootstrap.session}>
+    <SessionProvider session={entry.session}>
     <div className="flex h-screen flex-col overflow-hidden bg-[#f5f1ea] text-gray-800 [color-scheme:light]" style={{ fontFamily: "'Inter', 'ui-sans-serif', system-ui" }}>
       <Navbar1 />
       <Navbar2
