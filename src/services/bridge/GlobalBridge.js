@@ -1,6 +1,6 @@
 import SessionGuard from '../core/SessionGuard';
 import { devLog } from '../../shared/utils/devLogger.js';
-import { readShareKeyFromLocalStorage } from '../session/shareKeyContext.js';
+import { readShareKeyFromLocalStorage } from '../core/shareKeyEntry.js';
 
 function GlobalBridge(services) {
     this.services = services;

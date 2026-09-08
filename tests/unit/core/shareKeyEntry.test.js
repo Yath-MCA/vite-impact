@@ -10,9 +10,9 @@ import { recoverEditorSessionByDocId } from '../../../src/services/session/sessi
 import {
   readShareKeyFromLocalStorage,
   resolveShareKeyContext
-} from '../../../src/services/session/shareKeyContext.js';
+} from '../../../src/services/core/shareKeyEntry.js';
 
-describe('shareKeyContext', () => {
+describe('shareKeyEntry', () => {
   beforeEach(() => {
     installBrowserStorageMocks();
     vi.clearAllMocks();

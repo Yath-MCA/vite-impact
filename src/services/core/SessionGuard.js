@@ -1,6 +1,6 @@
 import { isLocalHost } from '../session/runtimeFlags.js';
 import { SESSION_STORAGE_KEYS, SESSION_GUARD_REMARKS } from '../session/sessionConstants.js';
-import { readShareKeyFromLocalStorage } from '../session/shareKeyContext.js';
+import { readShareKeyFromLocalStorage } from './shareKeyEntry.js';
 import { devLog } from '../../shared/utils/devLogger.js';
 
 class SessionGuard {
