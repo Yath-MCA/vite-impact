@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-vi.mock('../../../src/services/session/sessionStorage.js', () => ({
+vi.mock('../../../src/services/core/editorSessionStorage.js', () => ({
   getStoredEditorSession: vi.fn(),
   commitSessionForEditor: vi.fn(() => ({ ok: true, docId: 'DOC1' }))
 }));
@@ -10,7 +10,7 @@ vi.mock('../../../src/services/session/sessionGateway.js', () => ({
   recoverEditorSessionByDocId: vi.fn()
 }));
 
-vi.mock('../../../src/services/session/shareKeyContext.js', () => ({
+vi.mock('../../../src/services/core/shareKeyEntry.js', () => ({
   resolveShareKeyContext: vi.fn()
 }));
 
@@ -19,18 +19,19 @@ vi.mock('../../../src/services/session/runtimeFlags.js', () => ({
 }));
 
 import {
-  bootstrapEditorSession,
-  resolveEditorDocId
-} from '../../../src/services/session/editorSessionBootstrap.js';
+  resolveEditorDocId,
+  resolveEditorEntryState,
+  verifyEditorEntry
+} from '../../../src/services/core/editorEntry.js';
 import {
   getStoredEditorSession,
   commitSessionForEditor
-} from '../../../src/services/session/sessionStorage.js';
+} from '../../../src/services/core/editorSessionStorage.js';
 import {
   verifySession,
   recoverEditorSessionByDocId
 } from '../../../src/services/session/sessionGateway.js';
-import { resolveShareKeyContext } from '../../../src/services/session/shareKeyContext.js';
+import { resolveShareKeyContext } from '../../../src/services/core/shareKeyEntry.js';
 import { isLocalHost } from '../../../src/services/session/runtimeFlags.js';
 import { LOCAL_STORAGE_KEYS } from '../../../src/services/session/sessionConstants.js';
 
@@ -52,7 +53,7 @@ const shareKeyCtx = {
   rolename: 'Author'
 };
 
-describe('bootstrapEditorSession', () => {
+describe('resolveEditorEntryState', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     isLocalHost.mockReturnValue(false);
@@ -69,7 +70,7 @@ describe('bootstrapEditorSession', () => {
     isLocalHost.mockReturnValue(false);
   });
 
-  it('opens a stored valid session after verification', async () => {
+  it('resolves entry state from stored session without recovery', async () => {
     getStoredEditorSession.mockReturnValueOnce({
       docId: 'DOC1',
       sessionId: 'SID1',
@@ -88,9 +89,8 @@ describe('bootstrapEditorSession', () => {
         }
       }
     });
-    verifySession.mockResolvedValueOnce({ ok: true, row: { docid: 'DOC1' } });
 
-    const result = await bootstrapEditorSession({ docId: 'DOC1' });
+    const result = await resolveEditorEntryState({ docId: 'DOC1' });
 
     expect(result.ok).toBe(true);
     expect(result.docId).toBe('DOC1');
@@ -104,19 +104,10 @@ describe('bootstrapEditorSession', () => {
     });
     expect(result.recovered).toBe(false);
     expect(resolveShareKeyContext).toHaveBeenCalledWith('DOC1');
-    expect(verifySession).toHaveBeenCalledWith(
-      expect.objectContaining({
-        docId: 'DOC1',
-        sessionId: 'SID1',
-        username: 'a@b.com',
-        roleid: '1',
-        rolename: 'Author',
-        client: 'LWW'
-      })
-    );
+    expect(recoverEditorSessionByDocId).not.toHaveBeenCalled();
   });
 
-  it('recovers missing storage from backend, persists it, then verifies', async () => {
+  it('recovers missing storage from backend and persists it', async () => {
     getStoredEditorSession.mockReturnValueOnce({
       docId: 'DOC1',
       sessionId: '',
@@ -137,9 +128,8 @@ describe('bootstrapEditorSession', () => {
         uniqueid: 'UID2'
       }
     });
-    verifySession.mockResolvedValueOnce({ ok: true });
 
-    const result = await bootstrapEditorSession({ docId: 'DOC1' });
+    const result = await resolveEditorEntryState({ docId: 'DOC1' });
 
     expect(commitSessionForEditor).toHaveBeenCalledWith({
       docId: 'DOC1',
@@ -152,6 +142,15 @@ describe('bootstrapEditorSession', () => {
     });
     expect(result.ok).toBe(true);
     expect(result.recovered).toBe(true);
+  });
+
+  it('fails no_doc_id when docId cannot be resolved', async () => {
+    await expect(resolveEditorEntryState({})).resolves.toEqual({
+      ok: false,
+      reason: 'no_doc_id',
+      message: 'Missing document id.',
+      redirectTo: '/validateurl'
+    });
   });
 
   it('blocks when recovery cannot find document data', async () => {
@@ -168,7 +167,7 @@ describe('bootstrapEditorSession', () => {
       message: 'Document session data was not found.'
     });
 
-    await expect(bootstrapEditorSession({ docId: 'DOC1' })).resolves.toEqual({
+    await expect(resolveEditorEntryState({ docId: 'DOC1' })).resolves.toEqual({
       ok: false,
       reason: 'no_document',
       message: 'Document session data was not found.',
@@ -190,13 +189,12 @@ describe('bootstrapEditorSession', () => {
       message: 'Unable to resolve shareKey context.'
     });
 
-    await expect(bootstrapEditorSession({ docId: 'DOC1' })).resolves.toEqual({
+    await expect(resolveEditorEntryState({ docId: 'DOC1' })).resolves.toEqual({
       ok: false,
       reason: 'missing_share_key',
       message: 'Unable to resolve shareKey context.',
       redirectTo: '/validateurl'
     });
-    expect(verifySession).not.toHaveBeenCalled();
   });
 
   it('uses localhost login username after shareKey resolves', async () => {
@@ -214,40 +212,11 @@ describe('bootstrapEditorSession', () => {
       source: 'localStorage',
       ctx: { docId: 'DOC1', client: 'LWW', username: '' }
     });
-    verifySession.mockResolvedValueOnce({ ok: true });
 
-    const result = await bootstrapEditorSession({ docId: 'DOC1' });
+    const result = await resolveEditorEntryState({ docId: 'DOC1' });
 
     expect(result.ok).toBe(true);
     expect(result.userInfo.username).toBe('local@test.com');
-    expect(verifySession).toHaveBeenCalledWith(
-      expect.objectContaining({ username: 'local@test.com' })
-    );
-  });
-
-  it('still requires shareKey context on localhost with login username', async () => {
-    isLocalHost.mockReturnValue(true);
-    localStorage.setItem(LOCAL_STORAGE_KEYS.LOGIN_USERNAME, 'local@test.com');
-    getStoredEditorSession.mockReturnValueOnce({
-      docId: 'DOC1',
-      sessionId: 'SID1',
-      sessionStartTime: '100',
-      validateKey: 'KEY1',
-      validateResponse: { data: { docid: 'DOC1' } }
-    });
-    resolveShareKeyContext.mockResolvedValueOnce({
-      ok: false,
-      source: 'none',
-      message: 'Unable to resolve shareKey context.'
-    });
-
-    await expect(bootstrapEditorSession({ docId: 'DOC1' })).resolves.toEqual({
-      ok: false,
-      reason: 'missing_share_key',
-      message: 'Unable to resolve shareKey context.',
-      redirectTo: '/validateurl'
-    });
-    expect(verifySession).not.toHaveBeenCalled();
   });
 
   it('blocks when user identity is missing after shareKey resolve', async () => {
@@ -264,30 +233,50 @@ describe('bootstrapEditorSession', () => {
       ctx: { docId: 'DOC1', client: 'LWW', username: '' }
     });
 
-    await expect(bootstrapEditorSession({ docId: 'DOC1' })).resolves.toEqual({
+    await expect(resolveEditorEntryState({ docId: 'DOC1' })).resolves.toEqual({
       ok: false,
       reason: 'access_denied',
       message: 'No user identity found for editor session.',
       redirectTo: '/validateurl'
     });
-    expect(verifySession).not.toHaveBeenCalled();
   });
+});
 
-  it('blocks when verification fails', async () => {
-    getStoredEditorSession.mockReturnValueOnce({
+describe('verifyEditorEntry', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('maps verify failure to redirect shape', async () => {
+    verifySession.mockResolvedValueOnce({ ok: false, reason: 'record_mismatch' });
+
+    const entry = {
       docId: 'DOC1',
       sessionId: 'SID1',
       sessionStartTime: '100',
-      validateKey: 'KEY1',
-      validateResponse: { data: { docid: 'DOC1', username: 'a@b.com' } }
-    });
-    verifySession.mockResolvedValueOnce({ ok: false, reason: 'record_mismatch' });
+      sessionSource: { emailId: 'a@b.com', roleId: '1', roleName: 'Author', raw: {} },
+      shareKeyCtx: { username: 'a@b.com' },
+      userInfo: { username: 'a@b.com' }
+    };
 
-    await expect(bootstrapEditorSession({ docId: 'DOC1' })).resolves.toEqual({
+    await expect(verifyEditorEntry(entry)).resolves.toEqual({
       ok: false,
       reason: 'verify_failed',
       message: 'Your editor session is no longer active.',
       redirectTo: '/validateurl'
     });
+  });
+
+  it('passes through ok and bypassed', async () => {
+    verifySession.mockResolvedValueOnce({ ok: true, bypassed: true });
+
+    const entry = {
+      docId: 'DOC1',
+      sessionId: 'SID1',
+      sessionStartTime: '100',
+      sessionSource: { emailId: 'a@b.com', roleId: '1', roleName: 'Author', raw: {} },
+      shareKeyCtx: { username: 'a@b.com' },
+      userInfo: { username: 'a@b.com' }
+    };
+
+    await expect(verifyEditorEntry(entry)).resolves.toEqual({ ok: true, bypassed: true });
   });
 });
