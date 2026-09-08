@@ -11,6 +11,7 @@ import {
   setValidateAccessKey
 } from '../../../services/core/editorSessionStorage.js';
 import { isLocalHost } from '../../../services/session/runtimeFlags.js';
+import { checkBrowserCompatibility } from '../../../services/core/browserCompatibility.js';
 import {
   fireMaintenanceAlert,
   initMaintenance
@@ -189,6 +190,11 @@ function ValidateUrlView({ accessKey, clientParam, alertParam }) {
 
     async function validateByKey(key) {
       try {
+        const browserInfo = checkBrowserCompatibility();
+        if (!browserInfo.isAllowed || !browserInfo.isCompatible) {
+          await showLandingMessage(LandingMessageKey.UNSUPPORTED_BROWSER);
+        }
+
         await initMaintenance({ init: true });
         fireMaintenanceAlert();
         initDownloadService();
